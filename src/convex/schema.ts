@@ -53,6 +53,14 @@ export const contentBlockValidator = v.union(
 );
 export type ContentBlock = Infer<typeof contentBlockValidator>;
 
+// One module of a course: a titled section of content that ends (by
+// convention) with a quiz whose pass unlocks the next module.
+export const courseModuleValidator = v.object({
+  title: v.string(),
+  content: v.array(contentBlockValidator),
+});
+export type CourseModule = Infer<typeof courseModuleValidator>;
+
 export const bookingStatusValidator = v.union(
   v.literal("pending"),
   v.literal("confirmed"),
@@ -94,7 +102,9 @@ const schema = defineSchema(
       durationMinutes: v.number(),
       order: v.number(), // global sort order across the catalog
       published: v.boolean(), // visible in the student catalog
-      content: v.array(contentBlockValidator), // ordered content blocks
+      content: v.array(contentBlockValidator), // flat blocks (legacy / fallback)
+      modules: v.optional(v.array(courseModuleValidator)), // ordered modules; each ends with a quiz
+      contentVersion: v.optional(v.number()), // seed content version for upgrades
       instructor: v.optional(v.string()), // instructor name shown on the course page
       instructorTitle: v.optional(v.string()), // instructor credentials / role
     })

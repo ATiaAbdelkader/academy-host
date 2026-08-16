@@ -30,6 +30,7 @@ export default function Certificate() {
       : "";
   const studentName =
     user?.name?.trim() || (user?.email ? user.email.split("@")[0] : "Student");
+  const moduleCount = course?.modules?.length ?? (course ? 1 : 0);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -85,6 +86,7 @@ export default function Certificate() {
 
             <style>{`
               @media print {
+                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                 body { background: #ffffff !important; }
                 body * { visibility: hidden; }
                 #certificate, #certificate * { visibility: visible; }
@@ -97,42 +99,53 @@ export default function Certificate() {
 
             <div
               id="certificate"
-              className="border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]"
+              className="border-2 border-double border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]"
             >
-              <div className="flex items-center justify-between border-b-2 border-double border-border bg-muted px-5 py-3">
-                <span className="text-xs font-semibold tracking-tight">
-                  AgriSkills
-                  <span className="ml-1 font-normal text-muted-foreground">
-                    Academy
+              <div className="m-3 border border-border/60">
+                <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-6 py-3">
+                  <span className="text-sm font-bold tracking-tight">
+                    AgriSkills
+                    <span className="ml-1 font-normal text-muted-foreground">
+                      Academy
+                    </span>
                   </span>
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  certificate · {certId}
-                </span>
-              </div>
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    doc. {certId}
+                  </span>
+                </div>
 
-              <div className="px-8 py-12 text-center sm:px-14">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-term-green">
-                  certificate of completion
-                </p>
-                <p className="mt-6 text-xs text-muted-foreground">
-                  this certifies that
-                </p>
-                <p className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                  {studentName}
-                </p>
-                <p className="mt-6 text-xs text-muted-foreground">
-                  has successfully completed the course
-                </p>
-                <p className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
-                  {course.title}
-                </p>
-                <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                  {course.category} · {course.durationMinutes} minutes of
-                  training
-                </p>
+                <div className="px-8 py-12 text-center sm:px-16">
+                  <div className="mx-auto flex size-16 items-center justify-center rounded-full border-2 border-term-green/50">
+                    <Award className="size-7 text-term-green" />
+                  </div>
+                  <p className="mt-6 text-[11px] uppercase tracking-[0.35em] text-term-green">
+                    certificate of completion
+                  </p>
 
-                <div className="mx-auto mt-10 grid max-w-md grid-cols-2 gap-6 text-left">
+                  <div className="mx-auto mt-8 max-w-md border-y border-dashed border-border/70 py-6">
+                    <p className="text-xs text-muted-foreground">
+                      this certifies that
+                    </p>
+                    <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+                      {studentName}
+                    </p>
+                    <p className="mt-2 font-mono text-[11px] text-term-green">
+                      [ok] verified — {moduleCount} modules completed
+                    </p>
+                  </div>
+
+                  <p className="mt-8 text-xs text-muted-foreground">
+                    has successfully completed the course
+                  </p>
+                  <p className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
+                    {course.title}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {course.category} track · {course.durationMinutes} minutes ·
+                    {moduleCount} modules
+                  </p>
+
+                <div className="mx-auto mt-10 grid max-w-lg grid-cols-3 gap-6 text-left">
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                       completed
@@ -151,23 +164,40 @@ export default function Certificate() {
                     </p>
                     <p className="mt-1 text-sm font-medium">
                       {course.instructor ?? "AgriSkills Academy"}
-                      {course.instructor && course.instructorTitle
-                        ? ` · ${course.instructorTitle}`
-                        : ""}
+                    </p>
+                    {course.instructorTitle && (
+                      <p className="text-[10px] text-muted-foreground">
+                        {course.instructorTitle}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      certificate no.
+                    </p>
+                    <p className="mt-1 font-mono text-sm font-medium">
+                      {certId}
                     </p>
                   </div>
                 </div>
 
-                <div className="mx-auto mt-10 flex max-w-md items-end justify-between border-t border-border pt-4 text-[10px] text-muted-foreground">
-                  <span className="max-w-[45%]">
-                    certificate no. {certId} — verify at the academy office
-                  </span>
-                  <span>
-                    issued by AgriSkills Academy · {new Date().getFullYear()}
-                  </span>
+                <div className="mx-auto mt-12 max-w-lg">
+                  <div className="border-t-2 border-border pt-2">
+                    <p className="font-mono text-sm">
+                      {course.instructor ?? "Academy Faculty"}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      instructor signature
+                    </p>
+                  </div>
                 </div>
+
+                <p className="mt-10 font-mono text-[10px] text-muted-foreground">
+                  issued by AgriSkills Academy · {new Date().getFullYear()}
+                </p>
               </div>
             </div>
+          </div>
 
             <p className="mt-4 text-center text-xs text-muted-foreground print:hidden">
               <span className="text-term-green">[ok]</span> this certificate is

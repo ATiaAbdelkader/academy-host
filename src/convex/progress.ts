@@ -43,11 +43,15 @@ export const setStatus = mutation({
     if (!userId) {
       throw new Error("Sign in to track progress.");
     }
-    // Completing a course requires passing every quiz block in it.
+    // Completing a course requires passing every module quiz in it.
     if (status === "completed") {
       const course = await ctx.db.get(courseId);
       if (course) {
-        const quizzes = course.content.filter(
+        const blocks =
+          course.modules && course.modules.length > 0
+            ? course.modules.flatMap((m) => m.content)
+            : course.content;
+        const quizzes = blocks.filter(
           (block): block is Extract<ContentBlock, { type: "quiz" }> =>
             block.type === "quiz",
         );

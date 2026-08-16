@@ -2,10 +2,20 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { ContentBlock } from "./schema";
+import type { Doc } from "./_generated/dataModel";
 
-/** The quiz blocks in a course, in order. */
-function quizBlocksOf(content: ContentBlock[]): Extract<ContentBlock, { type: "quiz" }>[] {
-  return content.filter(
+/** Every content block in a course, in reading order — modules flatten to one stream. */
+function blocksOf(course: Doc<"courses">): ContentBlock[] {
+  return course.modules && course.modules.length > 0
+    ? course.modules.flatMap((m) => m.content)
+    : course.content;
+}
+
+/** The quiz blocks in a course, in order (their index is the module ordinal). */
+function quizBlocksOf(
+  course: Doc<"courses">,
+): Extract<ContentBlock, { type: "quiz" }>[] {
+  return blocksOf(course).filter(
     (block): block is Extract<ContentBlock, { type: "quiz" }> =>
       block.type === "quiz",
   );
@@ -31,13 +41,32 @@ export const submitQuiz = mutation({
     if (!course) {
       throw new Error("Course not found.");
     }
-    const quizzes = quizBlocksOf(course.content);
+    const quizzes = quizBlocksOf(course);
     const quiz = quizzes[quizIndex];
     if (!quiz) {
       throw new Error("Quiz not found.");
     }
     if (quiz.questions.length === 0) {
       throw new Error("This quiz has no questions yet.");
+    }
+    // Modules unlock in order: every earlier quiz must already be passed.
+    if (quizIndex > 0) {
+      const attempts = await ctx.db
+        .query("quizAttempts")
+        .withIndex("by_user_course", (q) =>
+          q.eq("userId", userId).eq("courseId", courseId),
+        )
+        .collect();
+      const passed = new Set(
+        attempts.filter((a) => a.passed).map((a) => a.quizIndex),
+      );
+      for (let i = 0; i < quizIndex; i += 1) {
+        if (!passed.has(i)) {
+          throw new Error(
+            "Pass the previous module's quiz before moving on.",
+          );
+        }
+      }
     }
     if (answers.length !== quiz.questions.length) {
       throw new Error("Answer every question before submitting.");

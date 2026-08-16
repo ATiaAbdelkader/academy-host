@@ -400,8 +400,8 @@ function CoursesTab() {
                 {course.title}
               </Link>
               <span className="block text-[11px] text-muted-foreground">
-                {course.content.length}{" "}
-                {course.content.length === 1 ? "block" : "blocks"}
+                {(course.modules?.length ?? 1)}{" "}
+                {(course.modules?.length ?? 1) === 1 ? "module" : "modules"}
               </span>
             </span>
             <span className="hidden truncate text-xs text-muted-foreground sm:block">

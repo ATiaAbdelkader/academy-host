@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
-import type { ContentBlock } from "@/convex/schema";
+import type { ContentBlock, CourseModule } from "@/convex/schema";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -197,7 +197,10 @@ function QuizFields({
           </p>
         )}
         {block.questions.map((q, qi) => (
-          <div key={qi} className="space-y-2 border border-border bg-muted/40 p-2.5">
+          <div
+            key={qi}
+            className="space-y-2 border border-border bg-muted/40 p-2.5"
+          >
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] text-muted-foreground">
                 question {qi + 1}
@@ -268,8 +271,8 @@ function QuizFields({
         </Button>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        Graded server-side. Students must pass this quiz to complete the course
-        (completion is blocked until then).
+        Graded server-side. Students must pass this quiz to complete the module
+        — and unlock the next one.
       </p>
     </div>
   );
@@ -436,6 +439,59 @@ function blockSummary(block: ContentBlock): string {
   return text.trim().length > 0 ? `${text.trim().length} chars` : "empty";
 }
 
+/** Clean one module's content for saving: drops empty blocks, validates quizzes. */
+function cleanBlocks(blocks: ContentBlock[]): ContentBlock[] {
+  const cleaned: ContentBlock[] = [];
+  for (const block of blocks) {
+    if (block.type === "list") {
+      const items = block.items
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+      if (items.length > 0) {
+        cleaned.push({ type: "list", items });
+      }
+    } else if (block.type === "video") {
+      const url = block.url.trim();
+      if (url.length > 0) {
+        cleaned.push({
+          type: "video",
+          url,
+          caption: block.caption?.trim() || undefined,
+        });
+      }
+    } else if (block.type === "quiz") {
+      const questions = block.questions
+        .map((q) => ({
+          question: q.question.trim(),
+          options: q.options.map((o) => o.trim()).filter((o) => o.length > 0),
+          answerIndex: q.answerIndex,
+        }))
+        .filter((q) => q.question.length > 0 && q.options.length >= 2);
+      if (questions.length > 0) {
+        cleaned.push({
+          type: "quiz",
+          title: block.title.trim() || "Knowledge check",
+          instructions: block.instructions?.trim() || undefined,
+          passPercent: Math.min(
+            Math.max(Math.round(block.passPercent), 1),
+            100,
+          ),
+          questions: questions.map((q) => ({
+            ...q,
+            answerIndex: Math.min(q.answerIndex, q.options.length - 1),
+          })),
+        });
+      }
+    } else {
+      const text = block.text.trim();
+      if (text.length > 0) {
+        cleaned.push({ ...block, text } as ContentBlock);
+      }
+    }
+  }
+  return cleaned;
+}
+
 export function ContentEditor({
   course,
   open,
@@ -446,28 +502,40 @@ export function ContentEditor({
   onOpenChange: (open: boolean) => void;
 }) {
   const updateCourse = useMutation(api.courses.update);
-  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+  const [modules, setModules] = useState<CourseModule[]>([]);
   const [addType, setAddType] = useState<ContentBlock["type"]>("paragraph");
   const [saving, setSaving] = useState(false);
 
-  // Load a fresh copy of the course content whenever the dialog opens.
+  // Load a fresh copy of the course whenever the dialog opens.
   useEffect(() => {
     if (open && course) {
-      setBlocks(course.content.map((b) => ({ ...b })));
+      const fromModules =
+        course.modules && course.modules.length > 0
+          ? course.modules.map((m) => ({
+              ...m,
+              content: m.content.map((b) => ({ ...b })),
+            }))
+          : [
+              {
+                title: "Module 1",
+                content: course.content.map((b) => ({ ...b })),
+              },
+            ];
+      setModules(fromModules);
       setAddType("paragraph");
     }
   }, [open, course]);
 
-  const updateBlock = (index: number, block: ContentBlock) => {
-    setBlocks((prev) => prev.map((b, i) => (i === index ? block : b)));
+  const updateModule = (index: number, module: CourseModule) => {
+    setModules((prev) => prev.map((m, i) => (i === index ? module : m)));
   };
 
-  const removeBlock = (index: number) => {
-    setBlocks((prev) => prev.filter((_, i) => i !== index));
+  const removeModule = (index: number) => {
+    setModules((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const moveBlock = (index: number, direction: -1 | 1) => {
-    setBlocks((prev) => {
+  const moveModule = (index: number, direction: -1 | 1) => {
+    setModules((prev) => {
       const target = index + direction;
       if (target < 0 || target >= prev.length) return prev;
       const next = [...prev];
@@ -476,68 +544,86 @@ export function ContentEditor({
     });
   };
 
-  const addBlock = () => {
-    setBlocks((prev) => [...prev, blankBlock(addType)]);
+  const addModule = () => {
+    setModules((prev) => [
+      ...prev,
+      { title: "", content: [blankBlock("paragraph")] },
+    ]);
+  };
+
+  const updateBlock = (
+    moduleIndex: number,
+    blockIndex: number,
+    block: ContentBlock,
+  ) => {
+    setModules((prev) =>
+      prev.map((m, i) =>
+        i === moduleIndex
+          ? {
+              ...m,
+              content: m.content.map((b, j) => (j === blockIndex ? block : b)),
+            }
+          : m,
+      ),
+    );
+  };
+
+  const removeBlock = (moduleIndex: number, blockIndex: number) => {
+    setModules((prev) =>
+      prev.map((m, i) =>
+        i === moduleIndex
+          ? { ...m, content: m.content.filter((_, j) => j !== blockIndex) }
+          : m,
+      ),
+    );
+  };
+
+  const moveBlock = (
+    moduleIndex: number,
+    blockIndex: number,
+    direction: -1 | 1,
+  ) => {
+    setModules((prev) =>
+      prev.map((m, i) => {
+        if (i !== moduleIndex) return m;
+        const target = blockIndex + direction;
+        if (target < 0 || target >= m.content.length) return m;
+        const next = [...m.content];
+        [next[blockIndex], next[target]] = [next[target], next[blockIndex]];
+        return { ...m, content: next };
+      }),
+    );
+  };
+
+  const addBlock = (moduleIndex: number) => {
+    setModules((prev) =>
+      prev.map((m, i) =>
+        i === moduleIndex
+          ? { ...m, content: [...m.content, blankBlock(addType)] }
+          : m,
+      ),
+    );
   };
 
   const handleSave = async () => {
     if (!course) return;
-    const cleaned: ContentBlock[] = [];
-    for (const block of blocks) {
-      if (block.type === "list") {
-        const items = block.items
-          .map((item) => item.trim())
-          .filter((item) => item.length > 0);
-        if (items.length > 0) {
-          cleaned.push({ type: "list", items });
-        }
-      } else if (block.type === "video") {
-        const url = block.url.trim();
-        if (url.length > 0) {
-          cleaned.push({
-            type: "video",
-            url,
-            caption: block.caption?.trim() || undefined,
-          });
-        }
-      } else if (block.type === "quiz") {
-        const questions = block.questions
-          .map((q) => ({
-            question: q.question.trim(),
-            options: q.options.map((o) => o.trim()).filter((o) => o.length > 0),
-            answerIndex: q.answerIndex,
-          }))
-          .filter((q) => q.question.length > 0 && q.options.length >= 2);
-        if (questions.length > 0) {
-          cleaned.push({
-            type: "quiz",
-            title: block.title.trim() || "Knowledge check",
-            instructions: block.instructions?.trim() || undefined,
-            passPercent: Math.min(
-              Math.max(Math.round(block.passPercent), 1),
-              100,
-            ),
-            questions: questions.map((q) => ({
-              ...q,
-              answerIndex: Math.min(q.answerIndex, q.options.length - 1),
-            })),
-          });
-        }
-      } else {
-        const text = block.text.trim();
-        if (text.length > 0) {
-          cleaned.push({ ...block, text } as ContentBlock);
-        }
-      }
+    const cleanedModules: CourseModule[] = [];
+    for (const [i, module] of modules.entries()) {
+      const content = cleanBlocks(module.content);
+      if (content.length === 0) continue;
+      cleanedModules.push({
+        title: module.title.trim() || `Module ${i + 1}`,
+        content,
+      });
     }
-    if (cleaned.length === 0) {
-      toast.error("Add at least one block before saving.");
+    if (cleanedModules.length === 0) {
+      toast.error("Add at least one module with content before saving.");
       return;
     }
     setSaving(true);
     try {
-      await updateCourse({ id: course._id, content: cleaned });
-      toast.success(`Saved ${cleaned.length} content blocks.`);
+      await updateCourse({ id: course._id, modules: cleanedModules });
+      toast.success(`Saved ${cleanedModules.length} modules.`);
       onOpenChange(false);
     } catch (error) {
       toast.error(
@@ -550,39 +636,48 @@ export function ContentEditor({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit course content</DialogTitle>
           <DialogDescription>
-            {course?.title} — ordered blocks rendered top to bottom on the
-            course page. Empty blocks are removed on save.
+            {course?.title} — ordered modules rendered top to bottom. Each
+            module's quiz gates the next one, so end every module with a quiz.
+            Empty modules and blocks are removed on save.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
-          {blocks.length === 0 && (
+        <div className="space-y-4">
+          {modules.length === 0 && (
             <div className="border border-border bg-muted/50 px-4 py-8 text-center text-xs text-muted-foreground">
               <p>
-                <span className="text-term-amber">[warn]</span> no blocks yet —
+                <span className="text-term-amber">[warn]</span> no modules yet —
                 add one below.
               </p>
             </div>
           )}
 
-          {blocks.map((block, i) => (
-            <div key={i} className="border border-border bg-card">
-              <div className="flex items-center justify-between gap-2 border-b border-border bg-muted px-3 py-1.5">
-                <span className="text-[11px] text-muted-foreground">
-                  #{String(i + 1).padStart(2, "0")} · {blockSummary(block)}
+          {modules.map((module, mi) => (
+            <div key={mi} className="border border-border bg-card">
+              <div className="flex items-center gap-2 border-b border-border bg-muted px-3 py-2">
+                <span className="shrink-0 text-[11px] text-term-green">
+                  module {String(mi + 1).padStart(2, "0")}
                 </span>
-                <span className="flex items-center gap-1">
+                <Input
+                  value={module.title}
+                  onChange={(e) =>
+                    updateModule(mi, { ...module, title: e.target.value })
+                  }
+                  placeholder="Module title — e.g. Building the plan in three passes"
+                  className="h-7 text-xs"
+                />
+                <span className="flex shrink-0 items-center gap-1">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
                     className="size-6"
-                    disabled={i === 0}
-                    onClick={() => moveBlock(i, -1)}
+                    disabled={mi === 0}
+                    onClick={() => moveModule(mi, -1)}
                   >
                     <ArrowUp className="size-3" />
                   </Button>
@@ -591,8 +686,8 @@ export function ContentEditor({
                     variant="ghost"
                     size="icon-sm"
                     className="size-6"
-                    disabled={i === blocks.length - 1}
-                    onClick={() => moveBlock(i, 1)}
+                    disabled={mi === modules.length - 1}
+                    onClick={() => moveModule(mi, 1)}
                   >
                     <ArrowDown className="size-3" />
                   </Button>
@@ -601,7 +696,7 @@ export function ContentEditor({
                     variant="ghost"
                     size="icon-sm"
                     className="size-6 text-destructive hover:text-destructive"
-                    onClick={() => removeBlock(i)}
+                    onClick={() => removeModule(mi)}
                   >
                     <Trash2 className="size-3" />
                   </Button>
@@ -609,63 +704,133 @@ export function ContentEditor({
               </div>
 
               <div className="space-y-3 p-3">
-                <div className="space-y-1.5">
-                  <Label>block type</Label>
-                  <Select
-                    value={block.type}
-                    onValueChange={(type) =>
-                      updateBlock(
-                        i,
-                        convertBlock(block, type as ContentBlock["type"]),
-                      )
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BLOCK_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {module.content.length === 0 && (
+                  <p className="border border-dashed border-border px-3 py-4 text-center text-[11px] text-muted-foreground">
+                    no blocks in this module yet — add one below.
+                  </p>
+                )}
 
-                <BlockFields block={block} onChange={(b) => updateBlock(i, b)} />
+                {module.content.map((block, bi) => (
+                  <div key={bi} className="border border-border bg-card">
+                    <div className="flex items-center justify-between gap-2 border-b border-border bg-muted px-3 py-1.5">
+                      <span className="text-[11px] text-muted-foreground">
+                        #{String(bi + 1).padStart(2, "0")} · {blockSummary(block)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="size-6"
+                          disabled={bi === 0}
+                          onClick={() => moveBlock(mi, bi, -1)}
+                        >
+                          <ArrowUp className="size-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="size-6"
+                          disabled={bi === module.content.length - 1}
+                          onClick={() => moveBlock(mi, bi, 1)}
+                        >
+                          <ArrowDown className="size-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="size-6 text-destructive hover:text-destructive"
+                          onClick={() => removeBlock(mi, bi)}
+                        >
+                          <Trash2 className="size-3" />
+                        </Button>
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 p-3">
+                      <div className="space-y-1.5">
+                        <Label>block type</Label>
+                        <Select
+                          value={block.type}
+                          onValueChange={(type) =>
+                            updateBlock(
+                              mi,
+                              bi,
+                              convertBlock(block, type as ContentBlock["type"]),
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BLOCK_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <BlockFields
+                        block={block}
+                        onChange={(b) => updateBlock(mi, bi, b)}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                {/* add block to this module */}
+                <div className="flex items-end gap-2 border border-dashed border-border p-3">
+                  <div className="flex-1 space-y-1.5">
+                    <Label>add block</Label>
+                    <Select
+                      value={addType}
+                      onValueChange={(type) =>
+                        setAddType(type as ContentBlock["type"])
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BLOCK_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addBlock(mi)}
+                  >
+                    <Plus className="size-3.5" />
+                    add
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* add block */}
-        <div className="flex items-end gap-2 border border-dashed border-border p-3">
-          <div className="flex-1 space-y-1.5">
-            <Label>add block</Label>
-            <Select
-              value={addType}
-              onValueChange={(type) =>
-                setAddType(type as ContentBlock["type"])
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {BLOCK_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button type="button" variant="outline" size="sm" onClick={addBlock}>
-            <Plus className="size-3.5" />
-            add
-          </Button>
-        </div>
+        {/* add module */}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addModule}
+          className="w-full border-dashed"
+        >
+          <Plus className="size-3.5" />
+          add module
+        </Button>
 
         <DialogFooter>
           <Button

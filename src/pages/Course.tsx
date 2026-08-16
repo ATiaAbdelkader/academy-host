@@ -18,6 +18,7 @@ import {
   Flag,
   Loader2,
   MessageSquare,
+  Lock,
   Star,
   UserRound,
   Users,
@@ -453,16 +454,46 @@ export default function Course() {
   const reviewSummary = course
     ? reviewSummaries?.find((s) => s.courseId === course._id)
     : undefined;
-  const quizBlocks = course
-    ? course.content.filter(
-        (b): b is Extract<ContentBlock, { type: "quiz" }> => b.type === "quiz",
-      )
-    : [];
+  // Modules — legacy flat content renders as a single module.
+  const modules =
+    course && course.modules && course.modules.length > 0
+      ? course.modules
+      : course
+        ? [{ title: "Course content", content: course.content }]
+        : [];
+  // Flatten quiz blocks in reading order; each module's quiz ordinal is its
+  // index among all quiz blocks (the backend grades against this ordering).
+  const quizBlocks: {
+    ordinal: number;
+    moduleIndex: number;
+  }[] = [];
+  const firstQuizOrdinal: number[] = [];
+  let quizCounter = 0;
+  modules.forEach((m, mi) => {
+    firstQuizOrdinal.push(quizCounter);
+    m.content.forEach((block) => {
+      if (block.type === "quiz") {
+        quizBlocks.push({ ordinal: quizCounter, moduleIndex: mi });
+        quizCounter += 1;
+      }
+    });
+  });
   const passedQuizIndexes = new Set(
     (quizResults ?? []).filter((a) => a.passed).map((a) => a.quizIndex),
   );
-  const quizzesPassed = quizBlocks.filter((_q, i) =>
-    passedQuizIndexes.has(i),
+  const moduleUnlocked = (mi: number) => {
+    if (mi === 0) return true;
+    for (let o = 0; o < firstQuizOrdinal[mi]; o += 1) {
+      if (!passedQuizIndexes.has(o)) return false;
+    }
+    return true;
+  };
+  const moduleComplete = (mi: number) =>
+    quizBlocks
+      .filter((qb) => qb.moduleIndex === mi)
+      .every((qb) => passedQuizIndexes.has(qb.ordinal));
+  const quizzesPassed = quizBlocks.filter((qb) =>
+    passedQuizIndexes.has(qb.ordinal),
   ).length;
   const allQuizzesPassed =
     quizBlocks.length === 0 || quizzesPassed === quizBlocks.length;
@@ -726,22 +757,62 @@ export default function Course() {
                     </p>
                   )}
 
-                  <div className="mt-8 space-y-4">
-                    {course.content.map((block, i) => {
-                      // quizIndex is the block's ordinal among quiz blocks
-                      // (the backend grades against that ordering).
-                      const quizIndex = course.content
-                        .slice(0, i)
-                        .filter((b) => b.type === "quiz").length;
-                      return (
-                        <BlockView
-                          key={i}
-                          block={block}
-                          courseId={course._id}
-                          quizIndex={quizIndex}
-                        />
-                      );
-                    })}
+                  <div className="mt-8 space-y-6">
+                    {modules.map((m, mi) =>
+                      moduleUnlocked(mi) ? (
+                        <section key={mi} className="border border-border bg-muted/20">
+                          <header className="flex items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2.5">
+                            <span className="flex items-baseline gap-2 text-xs font-semibold">
+                              <span className="shrink-0 text-term-green">
+                                module {String(mi + 1).padStart(2, "0")}
+                              </span>
+                              <span className="text-foreground/85">
+                                {m.title}
+                              </span>
+                            </span>
+                            {moduleComplete(mi) && (
+                              <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-term-green">
+                                <CheckCircle2 className="size-3.5" />
+                                complete
+                              </span>
+                            )}
+                          </header>
+                          <div className="space-y-4 px-4 py-5 sm:px-6">
+                            {m.content.map((block, bi) => {
+                              let quizIndex = -1;
+                              if (block.type === "quiz") {
+                                const before = m.content
+                                  .slice(0, bi)
+                                  .filter((b) => b.type === "quiz").length;
+                                quizIndex = firstQuizOrdinal[mi] + before;
+                              }
+                              return (
+                                <BlockView
+                                  key={bi}
+                                  block={block}
+                                  courseId={course._id}
+                                  quizIndex={quizIndex}
+                                />
+                              );
+                            })}
+                          </div>
+                        </section>
+                      ) : (
+                        <section
+                          key={mi}
+                          className="flex items-center justify-between gap-3 border border-dashed border-border bg-muted/30 px-4 py-4"
+                        >
+                          <p className="flex items-center gap-2 text-xs font-semibold text-foreground/70">
+                            <Lock className="size-3.5 shrink-0 text-term-amber" />
+                            module {String(mi + 1).padStart(2, "0")} —{" "}
+                            {m.title}
+                          </p>
+                          <p className="shrink-0 text-[11px] text-muted-foreground">
+                            pass the previous module's quiz to unlock
+                          </p>
+                        </section>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query, QueryCtx } from "./_generated/server";
+import { v } from "convex/values";
 
 /**
  * Get the current signed in user. Returns null if the user is not signed in.
@@ -46,6 +47,48 @@ export const role = query({
  * account to reach the admin area claims it; afterwards, admins are managed
  * by an existing admin.
  */
+/** All student accounts with active booking counts — admin console. */
+export const adminListUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    return Promise.all(
+      users.map(async (user) => {
+        const active = await ctx.db
+          .query("bookings")
+          .withIndex("by_user", (q) => q.eq("userId", user._id))
+          .filter((q) => q.neq(q.field("status"), "cancelled"))
+          .collect();
+        return { ...user, activeBookings: active.length };
+      }),
+    );
+  },
+});
+
+/** Set another account's role. Only an existing admin can call this. */
+export const setRole = mutation({
+  args: {
+    userId: v.id("users"),
+    role: v.union(v.literal("admin"), v.literal("user"), v.literal("member"), v.null()),
+  },
+  handler: async (ctx, { userId, role }) => {
+    const callerId = await getAuthUserId(ctx);
+    if (callerId === null) {
+      throw new Error("Not signed in.");
+    }
+    const caller = await ctx.db.get(callerId);
+    if (caller?.role !== "admin") {
+      throw new Error("Administrator access required.");
+    }
+    const target = await ctx.db.get(userId);
+    if (!target) {
+      throw new Error("User not found.");
+    }
+    await ctx.db.patch(userId, { role: role ?? undefined });
+    return userId;
+  },
+});
+
 export const claimFirstAdmin = mutation({
   args: {},
   handler: async (ctx) => {

@@ -42,11 +42,24 @@ export default function Booking() {
   const createCheckout = useAction(api.bookings.createCheckoutSession);
   const verifyCheckout = useAction(api.bookings.verifyCheckout);
   const cancelBooking = useMutation(api.bookings.cancelBooking);
+  const rescheduleBooking = useMutation(api.bookings.rescheduleBooking);
+  const alternativeSessions = useQuery(
+    api.bookings.listSessionsForCourse,
+    booking ? { courseId: booking.courseId } : "skip",
+  );
 
   const [checkingOut, setCheckingOut] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [verifying, setVerifying] = useState(sessionId !== null);
   const [error, setError] = useState<string | null>(null);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [reschedulingId, setReschedulingId] = useState<Id<"sessions"> | null>(
+    null,
+  );
+  const [rescheduleError, setRescheduleError] = useState<string | null>(null);
+  const [rescheduledTo, setRescheduledTo] = useState<Id<"sessions"> | null>(
+    null,
+  );
   const verified = useRef(false);
 
   // Verify a completed Stripe session exactly once after redirect.
@@ -57,6 +70,7 @@ export default function Booking() {
     void verifyCheckout({
       bookingId: bookingId as Id<"bookings">,
       sessionId,
+      origin: window.location.origin,
     })
       .then((result) => {
         if (!result.ok) {
@@ -100,6 +114,27 @@ export default function Booking() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not cancel.");
       setCancelling(false);
+    }
+  };
+
+  const handleReschedule = async (sessionId: Id<"sessions">) => {
+    if (!booking) return;
+    setReschedulingId(sessionId);
+    setRescheduleError(null);
+    setRescheduledTo(null);
+    try {
+      await rescheduleBooking({
+        bookingId: booking._id,
+        newSessionId: sessionId,
+      });
+      setRescheduledTo(sessionId);
+      setShowReschedule(false);
+    } catch (err) {
+      setRescheduleError(
+        err instanceof Error ? err.message : "Could not reschedule.",
+      );
+    } finally {
+      setReschedulingId(null);
     }
   };
 
@@ -203,6 +238,18 @@ export default function Booking() {
                 </div>
               )}
 
+              {rescheduledTo && booking.sessionStartsAt > 0 && (
+                <div className="mt-4 flex items-center gap-2 border border-term-green/40 bg-term-green/[0.07] px-4 py-3 text-sm">
+                  <CheckCircle2 className="size-4 shrink-0 text-term-green" />
+                  <span>
+                    session moved to{" "}
+                    <span className="font-medium">
+                      {formatSession(booking.sessionStartsAt)}
+                    </span>
+                  </span>
+                </div>
+              )}
+
               {/* summary */}
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex items-start justify-between gap-4">
@@ -296,7 +343,84 @@ export default function Booking() {
                     This booking has been cancelled.
                   </div>
                 )}
+
+                {booking.status !== "cancelled" && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowReschedule((v) => !v);
+                      setRescheduleError(null);
+                    }}
+                    className="w-full text-xs"
+                  >
+                    {showReschedule
+                      ? "close reschedule"
+                      : "reschedule session"}
+                  </Button>
+                )}
               </div>
+
+              {showReschedule && booking.status !== "cancelled" && (
+                <div className="mt-4 border border-border bg-muted/30 px-4 py-3">
+                  <p className="text-xs font-semibold text-foreground/80">
+                    pick a new time
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Your seat moves to the session you choose. Full sessions are
+                    disabled.
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {alternativeSessions === undefined && (
+                      <div className="h-8 animate-pulse bg-muted" />
+                    )}
+                    {alternativeSessions !== undefined &&
+                      alternativeSessions
+                        .filter((s) => s._id !== booking.sessionId)
+                        .map((s) => {
+                          const full = s.bookedCount >= s.capacity;
+                          const busy = reschedulingId === s._id;
+                          return (
+                            <div
+                              key={s._id}
+                              className="flex items-center justify-between gap-3 border border-border bg-card px-3 py-2"
+                            >
+                              <div>
+                                <p className="text-xs font-medium">
+                                  {formatSession(s.startsAt)}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                  {s.bookedCount}/{s.capacity} booked ·{" "}
+                                  {s.durationMinutes} min
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={full || busy}
+                                onClick={() => void handleReschedule(s._id)}
+                                className="shrink-0 text-[11px]"
+                              >
+                                {busy ? "moving…" : full ? "full" : "move here"}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                    {alternativeSessions !== undefined &&
+                      alternativeSessions.filter(
+                        (s) => s._id !== booking.sessionId,
+                      ).length === 0 && (
+                        <p className="text-[11px] text-muted-foreground">
+                          No other upcoming sessions for this course right now.
+                        </p>
+                      )}
+                  </div>
+                  {rescheduleError && (
+                    <p className="mt-2 text-[11px] text-term-amber">
+                      {rescheduleError}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="mt-6 flex flex-wrap gap-4 border-t border-border pt-4 text-xs">
                 <Button asChild variant="outline" size="sm" className="text-xs">

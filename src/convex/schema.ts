@@ -77,6 +77,8 @@ const schema = defineSchema(
       order: v.number(), // global sort order across the catalog
       published: v.boolean(), // visible in the student catalog
       content: v.array(contentBlockValidator), // ordered content blocks
+      instructor: v.optional(v.string()), // instructor name shown on the course page
+      instructorTitle: v.optional(v.string()), // instructor credentials / role
     })
       .index("by_slug", ["slug"])
       .index("by_order", ["order"]),
@@ -98,6 +100,7 @@ const schema = defineSchema(
       status: bookingStatusValidator, // pending | confirmed | cancelled
       paymentStatus: paymentStatusValidator, // unpaid | paid | waived
       createdAt: v.number(),
+      confirmationEmailSentAt: v.optional(v.number()), // when the confirm email went out
     })
       .index("by_user", ["userId"])
       .index("by_session", ["sessionId"]),
@@ -111,6 +114,23 @@ const schema = defineSchema(
       visible: v.boolean(),
       createdAt: v.number(),
     }).index("by_course", ["courseId"]),
+
+    // A student's self-tracked status for a course: started | completed.
+    progress: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      status: v.union(v.literal("started"), v.literal("completed")),
+      updatedAt: v.number(),
+    }).index("by_user_course", ["userId", "courseId"]),
+
+    // Students waiting for a freed seat on a full session.
+    waitlist: defineTable({
+      sessionId: v.id("sessions"),
+      userId: v.id("users"),
+      createdAt: v.number(),
+    })
+      .index("by_session", ["sessionId"])
+      .index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

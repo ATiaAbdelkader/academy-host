@@ -43,6 +43,8 @@ type SeedCourse = {
   priceCents: number;
   durationMinutes: number;
   order: number;
+  instructor: string;
+  instructorTitle: string;
   content: ContentBlock[];
 };
 
@@ -55,6 +57,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 0,
     durationMinutes: 8,
     order: 1,
+    instructor: "Mara Ellison",
+    instructorTitle: "Academy Lead",
     content: [
       {
         type: "paragraph",
@@ -90,6 +94,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 2900,
     durationMinutes: 12,
     order: 2,
+    instructor: "Jules Carver",
+    instructorTitle: "Technical Documentation Lead",
     content: [
       {
         type: "paragraph",
@@ -127,6 +133,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 4900,
     durationMinutes: 18,
     order: 3,
+    instructor: "Dr. Amara Osei",
+    instructorTitle: "Senior Agronomist",
     content: [
       {
         type: "paragraph",
@@ -166,6 +174,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 4900,
     durationMinutes: 20,
     order: 4,
+    instructor: "Tomás Rivera",
+    instructorTitle: "Water Systems Specialist",
     content: [
       {
         type: "paragraph",
@@ -204,6 +214,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 7900,
     durationMinutes: 25,
     order: 5,
+    instructor: "Ben Okonkwo",
+    instructorTitle: "Field Operations Manager",
     content: [
       {
         type: "paragraph",
@@ -242,6 +254,8 @@ const seedCatalog: SeedCourse[] = [
     priceCents: 9900,
     durationMinutes: 22,
     order: 6,
+    instructor: "Priya Nair",
+    instructorTitle: "Post-Harvest Specialist",
     content: [
       {
         type: "paragraph",
@@ -338,6 +352,8 @@ export const create = mutation({
     description: v.string(),
     priceCents: v.number(),
     durationMinutes: v.number(),
+    instructor: v.optional(v.string()),
+    instructorTitle: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const count = await ctx.db.query("courses").collect();
@@ -367,6 +383,8 @@ export const update = mutation({
     durationMinutes: v.optional(v.number()),
     published: v.optional(v.boolean()),
     content: v.optional(v.array(contentBlockValidator)),
+    instructor: v.optional(v.string()),
+    instructorTitle: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...patch }) => {
     const course = await ctx.db.get(id);
@@ -382,6 +400,9 @@ export const update = mutation({
       fields.durationMinutes = patch.durationMinutes;
     if (patch.published !== undefined) fields.published = patch.published;
     if (patch.content !== undefined) fields.content = patch.content;
+    if (patch.instructor !== undefined) fields.instructor = patch.instructor;
+    if (patch.instructorTitle !== undefined)
+      fields.instructorTitle = patch.instructorTitle;
     if (patch.title !== undefined) fields.slug = slugify(patch.title);
     await ctx.db.patch(id, fields);
     return id;

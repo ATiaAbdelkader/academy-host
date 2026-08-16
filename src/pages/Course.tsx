@@ -6,19 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatSession } from "@/lib/format";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   ArrowLeft,
   CalendarDays,
   Check,
+  CheckCircle2,
   Clock3,
+  Flag,
   Loader2,
   MessageSquare,
+  UserRound,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
+import { toast } from "sonner";
 
 function WindowDots() {
   return (
@@ -124,10 +128,23 @@ export default function Course() {
 
   const bookSession = useMutation(api.bookings.bookSession);
   const postComment = useMutation(api.comments.post);
+  const setProgress = useMutation(api.progress.setStatus);
+  const joinWaitlist = useMutation(api.waitlist.join);
+  const leaveWaitlist = useMutation(api.waitlist.leave);
+  const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
+
+  const progress = useQuery(
+    api.progress.myProgress,
+    isAuthenticated ? {} : "skip",
+  );
 
   const [selectedSession, setSelectedSession] = useState<
     Id<"sessions"> | null
   >(null);
+  const waitlistState = useQuery(
+    api.waitlist.forSession,
+    selectedSession ? { sessionId: selectedSession } : "skip",
+  );
   const [booking, setBooking] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -135,18 +152,80 @@ export default function Course() {
   const [commentError, setCommentError] = useState<string | null>(null);
 
   const isAdmin = user?.role === "admin";
+  const progressEntry = course
+    ? progress?.find((p) => p.courseId === course._id)
+    : undefined;
+  const selectedSessionData =
+    sessions?.find((s) => s._id === selectedSession) ?? null;
+  const selectedIsFull = selectedSessionData
+    ? selectedSessionData.bookedCount >= selectedSessionData.capacity
+    : false;
+  const onWaitlist = waitlistState?.position != null;
 
   const handleBook = async (sessionId: Id<"sessions">) => {
     setBooking(true);
     setBookingError(null);
     try {
       const bookingId = await bookSession({ sessionId });
+      // Free courses confirm instantly; send the confirmation email in the
+      // background (idempotent, so this is safe to fire from the client).
+      if (course?.priceCents === 0) {
+        void sendConfirmation({
+          bookingId,
+          origin: window.location.origin,
+        }).catch(() => {});
+      }
       navigate(`/booking/${bookingId}`);
     } catch (error) {
       setBookingError(
         error instanceof Error ? error.message : "Could not book this session.",
       );
       setBooking(false);
+    }
+  };
+
+  const handleSetProgress = async (
+    status: "started" | "completed" | null,
+  ) => {
+    if (!course) return;
+    try {
+      await setProgress({ courseId: course._id, status });
+      toast.success(
+        status === "completed"
+          ? "Course marked complete."
+          : status === "started"
+            ? "Course marked in progress."
+            : "Progress cleared.",
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not update progress.",
+      );
+    }
+  };
+
+  const handleJoinWaitlist = async () => {
+    if (!selectedSession) return;
+    setBookingError(null);
+    try {
+      await joinWaitlist({ sessionId: selectedSession });
+      toast.success("You're on the waitlist — we'll hold the next freed seat.");
+    } catch (error) {
+      setBookingError(
+        error instanceof Error ? error.message : "Could not join the waitlist.",
+      );
+    }
+  };
+
+  const handleLeaveWaitlist = async () => {
+    if (!selectedSession) return;
+    try {
+      await leaveWaitlist({ sessionId: selectedSession });
+      toast.success("Removed from the waitlist.");
+    } catch (error) {
+      setBookingError(
+        error instanceof Error ? error.message : "Could not leave the waitlist.",
+      );
     }
   };
 
@@ -266,6 +345,19 @@ export default function Course() {
                     {course.description}
                   </p>
 
+                  {course.instructor && (
+                    <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <UserRound className="size-3.5 text-term-green" />
+                      instructor:
+                      <span className="font-medium text-foreground/80">
+                        {course.instructor}
+                      </span>
+                      {course.instructorTitle ? (
+                        <span>· {course.instructorTitle}</span>
+                      ) : null}
+                    </p>
+                  )}
+
                   <div className="mt-8 space-y-4">
                     {course.content.map((block, i) => (
                       <BlockView key={i} block={block} />
@@ -322,9 +414,8 @@ export default function Course() {
                             <button
                               key={session._id}
                               type="button"
-                              disabled={full}
                               onClick={() => setSelectedSession(session._id)}
-                              className={`w-full border px-3 py-2.5 text-left text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                              className={`w-full border px-3 py-2.5 text-left text-xs transition-colors ${
                                 selected
                                   ? "border-term-green bg-term-green/10"
                                   : "border-border hover:border-term-green/50 hover:bg-accent/40"
@@ -338,10 +429,16 @@ export default function Course() {
                                   <Check className="size-3.5 text-term-green" />
                                 )}
                               </span>
-                              <span className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <span
+                                className={`mt-1 flex items-center gap-1.5 text-[11px] ${
+                                  full
+                                    ? "text-term-amber"
+                                    : "text-muted-foreground"
+                                }`}
+                              >
                                 <Users className="size-3" />
                                 {full
-                                  ? "session full"
+                                  ? "full — waitlist open"
                                   : seatsLeft === 1
                                     ? "1 seat left"
                                     : `${seatsLeft} seats left`}
@@ -363,6 +460,38 @@ export default function Course() {
                         <Button disabled className="w-full text-sm">
                           not yet available
                         </Button>
+                      ) : selectedIsFull ? (
+                        !isAuthenticated ? (
+                          <Button asChild className="w-full text-sm">
+                            <Link
+                              to={`/auth?returnTo=/courses/${course.slug}`}
+                            >
+                              sign in to join waitlist
+                              <ArrowLeft className="rotate-180" />
+                            </Link>
+                          </Button>
+                        ) : onWaitlist ? (
+                          <div className="space-y-2">
+                            <p className="border border-term-green/40 bg-term-green/[0.07] px-3 py-2 text-xs text-term-green">
+                              on waitlist — position {waitlistState?.position}
+                            </p>
+                            <Button
+                              variant="outline"
+                              onClick={handleLeaveWaitlist}
+                              className="w-full text-xs"
+                            >
+                              leave waitlist
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={handleJoinWaitlist}
+                            disabled={!selectedSession}
+                            className="w-full text-sm"
+                          >
+                            join waitlist — get the next freed seat
+                          </Button>
+                        )
                       ) : !isAuthenticated ? (
                         <Button asChild className="w-full text-sm">
                           <Link
@@ -395,13 +524,70 @@ export default function Course() {
                         </Button>
                       )}
                       <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                        {course.priceCents === 0
-                          ? "free course — confirmed instantly"
-                          : "payment via secure checkout after booking"}
+                        {selectedIsFull
+                          ? "session full — seats are offered to the waitlist first"
+                          : course.priceCents === 0
+                            ? "free course — confirmed instantly"
+                            : "payment via secure checkout after booking"}
                       </p>
                     </div>
                   </div>
                 </div>
+
+                {isAuthenticated && (
+                  <div className="mt-4 border border-border bg-card">
+                    <div className="border-b border-border bg-muted px-4 py-2.5">
+                      <span className="text-xs font-semibold">my progress</span>
+                    </div>
+                    <div className="space-y-2 px-4 py-3">
+                      <p className="text-xs text-muted-foreground">
+                        {progressEntry
+                          ? progressEntry.status === "completed"
+                            ? "completed"
+                            : "in progress"
+                          : "not started"}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={
+                            progressEntry?.status === "started"
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => handleSetProgress("started")}
+                        >
+                          <Flag className="size-3.5" />
+                          started
+                        </Button>
+                        <Button
+                          variant={
+                            progressEntry?.status === "completed"
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => handleSetProgress("completed")}
+                        >
+                          <CheckCircle2 className="size-3.5" />
+                          completed
+                        </Button>
+                      </div>
+                      {progressEntry && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs text-muted-foreground"
+                          onClick={() => handleSetProgress(null)}
+                        >
+                          clear progress
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </aside>
             </div>
 

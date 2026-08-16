@@ -25,12 +25,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { useCatalog } from "@/hooks/use-catalog";
 import {
+  formatDate,
   formatMoney,
   formatSession,
   fromLocalInputValue,
   toLocalInputValue,
 } from "@/lib/format";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { Loader2, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
@@ -125,6 +126,7 @@ export default function Admin() {
             <TabsTrigger value="sessions">sessions</TabsTrigger>
             <TabsTrigger value="bookings">bookings</TabsTrigger>
             <TabsTrigger value="comments">comments</TabsTrigger>
+            <TabsTrigger value="users">users</TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="mt-6">
@@ -138,6 +140,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="comments" className="mt-6">
             <CommentsTab />
+          </TabsContent>
+          <TabsContent value="users" className="mt-6">
+            <UsersTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -160,6 +165,8 @@ function CoursesTab() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [duration, setDuration] = useState("30");
+  const [instructor, setInstructor] = useState("");
+  const [instructorTitle, setInstructorTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const [contentCourse, setContentCourse] = useState<CourseDoc | null>(null);
@@ -169,6 +176,8 @@ function CoursesTab() {
   const [editDescription, setEditDescription] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editDuration, setEditDuration] = useState("");
+  const [editInstructor, setEditInstructor] = useState("");
+  const [editInstructorTitle, setEditInstructorTitle] = useState("");
   const [saving, setSaving] = useState(false);
 
   const openEdit = (course: CourseDoc) => {
@@ -178,6 +187,8 @@ function CoursesTab() {
     setEditDescription(course.description);
     setEditPrice((course.priceCents / 100).toFixed(2));
     setEditDuration(String(course.durationMinutes));
+    setEditInstructor(course.instructor ?? "");
+    setEditInstructorTitle(course.instructorTitle ?? "");
   };
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -191,11 +202,15 @@ function CoursesTab() {
         description: description.trim(),
         priceCents: Math.round(parseFloat(price || "0") * 100),
         durationMinutes: Math.max(1, parseInt(duration || "30", 10)),
+        instructor: instructor.trim() || undefined,
+        instructorTitle: instructorTitle.trim() || undefined,
       });
       setTitle("");
       setDescription("");
       setPrice("");
       setDuration("30");
+      setInstructor("");
+      setInstructorTitle("");
       toast.success("Course created as a draft.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not create course.");
@@ -219,6 +234,8 @@ function CoursesTab() {
         durationMinutes: parseInt(editDuration, 10) > 0
           ? parseInt(editDuration, 10)
           : undefined,
+        instructor: editInstructor.trim() || undefined,
+        instructorTitle: editInstructorTitle.trim() || undefined,
       });
       setEditing(null);
       toast.success("Course updated.");
@@ -311,6 +328,24 @@ function CoursesTab() {
               placeholder="What will students learn in this course?"
               rows={2}
               required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="new-instructor">instructor</Label>
+            <Input
+              id="new-instructor"
+              value={instructor}
+              onChange={(e) => setInstructor(e.target.value)}
+              placeholder="e.g. Mara Ellison"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="new-instructor-title">instructor role</Label>
+            <Input
+              id="new-instructor-title"
+              value={instructorTitle}
+              onChange={(e) => setInstructorTitle(e.target.value)}
+              placeholder="e.g. Academy Lead"
             />
           </div>
           <div className="sm:col-span-2">
@@ -469,6 +504,24 @@ function CoursesTab() {
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={3}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-instructor">instructor</Label>
+                <Input
+                  id="edit-instructor"
+                  value={editInstructor}
+                  onChange={(e) => setEditInstructor(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-instructor-title">instructor role</Label>
+                <Input
+                  id="edit-instructor-title"
+                  value={editInstructorTitle}
+                  onChange={(e) => setEditInstructorTitle(e.target.value)}
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -672,6 +725,7 @@ function SessionsTab() {
 function BookingsTab() {
   const bookings = useQuery(api.bookings.adminListBookings);
   const setBookingStatus = useMutation(api.bookings.setBookingStatus);
+  const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
 
   const handleStatus = async (
     bookingId: Id<"bookings">,
@@ -679,7 +733,20 @@ function BookingsTab() {
   ) => {
     try {
       await setBookingStatus({ bookingId, status });
-      toast.success(status === "confirmed" ? "Booking confirmed." : "Booking cancelled.");
+      if (status === "confirmed") {
+        // Idempotent: skips bookings that were already emailed.
+        const email = await sendConfirmation({
+          bookingId,
+          origin: window.location.origin,
+        });
+        toast.success(
+          email.ok
+            ? "Booking confirmed — confirmation email sent."
+            : "Booking confirmed.",
+        );
+      } else {
+        toast.success("Booking cancelled.");
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not update booking.");
     }
@@ -878,6 +945,109 @@ function CommentsTab() {
           </span>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Users
+// ---------------------------------------------------------------------------
+
+function UsersTab() {
+  const { user: me } = useAuth();
+  const users = useQuery(api.users.adminListUsers);
+  const setRole = useMutation(api.users.setRole);
+  const [busyId, setBusyId] = useState<Id<"users"> | null>(null);
+
+  const handleRole = async (
+    userId: Id<"users">,
+    role: "admin" | "member" | "user",
+  ) => {
+    setBusyId(userId);
+    try {
+      await setRole({ userId, role });
+      toast.success("Account role updated.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not update role.",
+      );
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <div className="border border-border bg-card">
+      <div className="grid grid-cols-[minmax(0,1fr)_9rem_8rem_5rem] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span>account</span>
+        <span>joined</span>
+        <span>role</span>
+        <span className="text-right">bookings</span>
+      </div>
+      {users === undefined && (
+        <div className="space-y-2 p-4">
+          <div className="h-4 animate-pulse bg-muted" />
+          <div className="h-4 animate-pulse bg-muted" />
+        </div>
+      )}
+      {users !== undefined && users.length === 0 && (
+        <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+          <p>
+            <span className="text-term-green">[ok]</span> no accounts yet.
+          </p>
+        </div>
+      )}
+      {users?.map((user) => {
+        const isMe = me?._id === user._id;
+        const currentRole = user.role ?? "user";
+        return (
+          <div
+            key={user._id}
+            className="grid grid-cols-[minmax(0,1fr)_9rem_8rem_5rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
+          >
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">
+                {user.name ?? "unnamed account"}
+                {isMe && (
+                  <span className="ml-2 text-[10px] font-medium text-term-green">
+                    (you)
+                  </span>
+                )}
+              </span>
+              <span className="block truncate text-[11px] text-muted-foreground">
+                {user.email ?? "no email on account"}
+              </span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {formatDate(user._creationTime)}
+            </span>
+            <span>
+              <Select
+                value={currentRole}
+                disabled={isMe || busyId === user._id}
+                onValueChange={(value) =>
+                  void handleRole(
+                    user._id,
+                    value as "admin" | "member" | "user",
+                  )
+                }
+              >
+                <SelectTrigger className="h-8 w-full text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">admin</SelectItem>
+                  <SelectItem value="member">member</SelectItem>
+                  <SelectItem value="user">user</SelectItem>
+                </SelectContent>
+              </Select>
+            </span>
+            <span className="text-right text-xs text-muted-foreground">
+              {user.activeBookings}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

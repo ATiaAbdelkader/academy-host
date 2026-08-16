@@ -69,6 +69,15 @@ export default function Landing() {
             >
               ./access
             </a>
+            <a
+              href="#field-notes"
+              className="transition-colors hover:text-foreground"
+            >
+              ./field-notes
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              ./faq
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="text-xs">
@@ -202,6 +211,42 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── Stats ───────────────────────────────────────────────── */}
+      <section className="border-b border-border">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-2 divide-x divide-border border-x border-border lg:grid-cols-4">
+          <div className="px-4 py-6 sm:px-6">
+            <p className="text-2xl font-bold text-term-green">
+              {published.length}
+            </p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+              courses live
+            </p>
+          </div>
+          <div className="px-4 py-6 sm:px-6">
+            <p className="text-2xl font-bold text-term-green">
+              {categories.length}
+            </p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+              training tracks
+            </p>
+          </div>
+          <div className="px-4 py-6 sm:px-6">
+            <p className="text-2xl font-bold text-term-green">
+              {totalMinutes} min
+            </p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+              total course load
+            </p>
+          </div>
+          <div className="px-4 py-6 sm:px-6">
+            <p className="text-2xl font-bold text-term-green">1 day</p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+              support response
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── Catalog ─────────────────────────────────────────────── */}
       <section id="catalog" className="border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
@@ -324,6 +369,116 @@ export default function Landing() {
                   {row.body}
                 </span>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Testimonials ────────────────────────────────────────── */}
+      <section id="field-notes" className="border-b border-border">
+        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+          <p className="text-xs text-term-green">// field-notes</p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+            What customers say after a season of training.
+          </h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {[
+              {
+                quote:
+                  "We put two operators through the equipment care course before harvest. The daily walkaround checklist alone paid for the training inside the first month.",
+                name: "Dana Whitfield",
+                role: "Operations Lead, Whitfield Family Farms",
+              },
+              {
+                quote:
+                  "The irrigation course replaced guesswork with a record we can actually defend. Our water log is now part of the weekly meeting, not a binder on a shelf.",
+                name: "Marcus Bell",
+                role: "Farm Manager, Bell & Sons",
+              },
+              {
+                quote:
+                  "Booking a session was the easiest part — the schedule is clear, the confirmation is instant, and moving a seat when our plans changed took one minute.",
+                name: "Elena Navarro",
+                role: "Training Coordinator, Navarro Orchards",
+              },
+            ].map((item, i) => (
+              <figure
+                key={item.name}
+                className="flex flex-col border border-border bg-card"
+              >
+                <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2">
+                  <span className="text-[11px] text-muted-foreground">
+                    note_{String(i + 1).padStart(2, "0")}.txt
+                  </span>
+                  <WindowDots />
+                </div>
+                <blockquote className="flex-1 px-4 py-5 text-[13px] leading-6">
+                  “{item.quote}”
+                </blockquote>
+                <figcaption className="border-t border-border px-4 py-3">
+                  <p className="text-xs font-semibold">{item.name}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {item.role}
+                  </p>
+                  <p className="mt-1 text-[10px] text-term-green">
+                    [verified] enrolled customer
+                  </p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ─────────────────────────────────────────────────── */}
+      <section id="faq" className="border-b border-border">
+        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+          <p className="text-xs text-term-green">// faq</p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+            Questions customers ask before enrolling.
+          </h2>
+          <div className="mt-10 space-y-3">
+            {[
+              {
+                q: "Do I need to pay before I can look at a course?",
+                a: "No. The full catalog — including every course's material and its comments — is open to anyone with an account. Payment only happens when you book a live session for a paid course.",
+              },
+              {
+                q: "What happens if a session is full?",
+                a: "You can join that session's waitlist. When a seat opens up, it is offered to the waitlist in order, and you receive a booking you can settle at checkout.",
+              },
+              {
+                q: "Can I move my booking to another time?",
+                a: "Yes. Open the booking from your sessions page and choose reschedule. Any other upcoming session of the same course with a free seat is available.",
+              },
+              {
+                q: "Is my payment secure?",
+                a: "Checkout runs on Stripe's hosted payment pages, so card details never touch the academy's servers. You will receive a confirmation email the moment a payment clears.",
+              },
+              {
+                q: "Who do I ask if I get stuck on a course?",
+                a: "Every course has a comments thread answered by our team within one business day. For anything urgent, your account manager has the direct line.",
+              },
+            ].map((item, i) => (
+              <details
+                key={item.q}
+                className="group border border-border bg-card open:border-term-green/50"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-center gap-3">
+                    <span className="text-[11px] text-term-green">
+                      [{String(i + 1).padStart(2, "0")}]
+                    </span>
+                    {item.q}
+                  </span>
+                  <span className="text-xs text-muted-foreground transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="border-t border-border px-4 py-3.5 pl-[3.25rem] text-sm leading-6 text-muted-foreground">
+                  {item.a}
+                </p>
+              </details>
             ))}
           </div>
         </div>

@@ -129,7 +129,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <Link to="/" className="flex items-center gap-2.5">
             <span className="inline-block size-3.5 bg-term-green" />
             <span className="text-sm font-semibold tracking-tight">
-              may_academy
+              AgriSkills
+              <span className="ml-1 font-normal text-muted-foreground">
+                Academy
+              </span>
             </span>
             <span className="hidden text-xs text-muted-foreground sm:inline">
               ~/access
@@ -147,7 +150,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           {/* window title bar */}
           <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
             <span className="text-xs text-muted-foreground">
-              may_academy — access
+              agriskills — access
             </span>
             <WindowDots />
           </div>
@@ -156,14 +159,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <>
               <CardHeader className="text-left">
                 <p className="text-xs text-term-green">
-                  // students — email or guest
+                  // customers — email or guest
                 </p>
                 <CardTitle className="mt-1 text-xl font-bold tracking-tight">
                   $ sign_in
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Enter your email to log in or sign up. We&apos;ll send a
-                  one-time code.
+                  Sign in to browse the catalog, book sessions, and manage your
+                  training. We&apos;ll send a one-time code to your email.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleEmailSubmit}>

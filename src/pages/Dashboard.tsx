@@ -1,176 +1,223 @@
-import { Badge } from "@/components/ui/badge";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useLessons } from "@/hooks/use-lessons";
-import { Clock3, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-
-const MIN_LOADING_LINES = 3;
+import { formatMoney, formatSession } from "@/lib/format";
+import { useMutation, useQuery } from "convex/react";
+import { CalendarDays, Loader2, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router";
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
-  const lessons = useLessons();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const bookings = useQuery(api.bookings.myBookings);
+  const cancelBooking = useMutation(api.bookings.cancelBooking);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const isAdmin = user?.role === "admin";
+
+  const handleCancel = async (bookingId: Id<"bookings">) => {
+    setCancellingId(bookingId);
+    setCancelError(null);
+    try {
+      await cancelBooking({ bookingId });
+    } catch (err) {
+      setCancelError(
+        err instanceof Error ? err.message : "Could not cancel the booking.",
+      );
+    } finally {
+      setCancellingId(null);
+    }
   };
-
-  const modules = lessons
-    ? Array.from(new Map(lessons.map((l) => [l.module, l])).values())
-    : [];
-
-  const totalMinutes =
-    lessons?.reduce((sum, l) => sum + l.durationMinutes, 0) ?? 0;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* ── Top bar ─────────────────────────────────────────────── */}
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <Link to="/" className="flex items-center gap-2.5">
-              <span className="inline-block size-3.5 bg-term-green" />
-              <span className="text-sm font-semibold tracking-tight">
-                may_academy
-              </span>
-            </Link>
-            <span className="text-xs text-muted-foreground">~/student</span>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-2 text-xs"
-            onClick={handleSignOut}
-          >
-            <LogOut className="size-3.5" />
-            sign_out
-          </Button>
-        </div>
-      </header>
+      <AppHeader path="~/my-sessions" />
 
       <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-        {/* ── Prompt ────────────────────────────────────────────── */}
         <p className="text-xs text-term-green">
-          [ok] signed in as student
-          {user?.email ? ` — ${user.email}` : user?.name ? ` — ${user.name}` : ""}
+          [ok] signed in{user?.email ? ` — ${user.email}` : ""}
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight">
-          Curriculum
-        </h1>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight">My Sessions</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          All lessons hosted by May Academy. Follow them in order.
+          Every booking you hold with AgriSkills Academy, in one place. Open the
+          catalog to book more.
         </p>
 
-        {/* ── ls lessons/ ───────────────────────────────────────── */}
-        <div className="mt-10 flex items-center gap-2 text-sm">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button asChild size="sm" className="text-xs">
+            <Link to="/courses">browse catalog</Link>
+          </Button>
+          {isAdmin && (
+            <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs">
+              <Link to="/admin">
+                <ShieldCheck className="size-3.5" />
+                admin console
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {/* ── ls bookings/ ──────────────────────────────────────── */}
+        <div className="mt-8 flex items-center gap-2 text-sm">
           <span className="text-term-green">$</span>
-          <span>ls lessons/</span>
+          <span>ls bookings/</span>
           <span className="inline-block h-4 w-2 bg-foreground cursor-blink" />
         </div>
 
         <div className="mt-4 border border-border bg-card">
-          <div className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground sm:grid-cols-[2.5rem_1fr_8rem_6rem]">
-            <span>idx</span>
-            <span>title</span>
-            <span className="hidden text-right sm:block">time</span>
+          <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground sm:grid-cols-[1.4fr_1fr_6rem_6rem_auto]">
+            <span>course</span>
+            <span className="hidden sm:block">session</span>
+            <span className="text-right">amount</span>
             <span className="text-right">status</span>
+            <span className="w-16 text-right">action</span>
           </div>
 
-          {lessons === undefined && (
+          {bookings === undefined && (
             <div className="space-y-0">
-              {Array.from({ length: MIN_LOADING_LINES }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-b-0"
+                  className="grid grid-cols-[1fr_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-b-0"
                 >
                   <div className="h-3 animate-pulse bg-muted" />
-                  <div className="h-3 animate-pulse bg-muted" />
-                  <div className="h-3 w-14 animate-pulse bg-muted" />
+                  <div className="h-3 w-20 animate-pulse bg-muted" />
                 </div>
               ))}
             </div>
           )}
 
-          {lessons && lessons.length === 0 && (
+          {bookings !== undefined && bookings !== null && bookings.length === 0 && (
             <div className="px-4 py-10 text-center text-sm text-muted-foreground">
               <p>
-                <span className="text-term-amber">[warn]</span> no lessons
-                found — seeding curriculum…
+                <span className="text-term-green">[ok]</span> no bookings yet —
+                open the catalog and reserve your first session.
               </p>
+              <Button asChild variant="outline" size="sm" className="mt-4 text-xs">
+                <Link to="/courses">browse catalog</Link>
+              </Button>
             </div>
           )}
 
-          {lessons && lessons.length > 0 && (
-            <>
-              {modules.map((mod) => {
-                const moduleLessons = lessons.filter(
-                  (l) => l.module === mod.module,
-                );
-                return (
-                  <div key={mod.module}>
-                    <div className="flex items-center justify-between border-b border-border bg-accent/40 px-4 py-2">
-                      <span className="text-xs font-semibold text-accent-foreground">
-                        module/{mod.module}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {moduleLessons.length}{" "}
-                        {moduleLessons.length === 1 ? "lesson" : "lessons"}
-                      </span>
-                    </div>
-                    {moduleLessons.map((lesson, idx) => (
-                      <Link
-                        key={lesson._id}
-                        to={`/lessons/${lesson.slug}`}
-                        className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 border-b border-border px-4 py-3 transition-colors last:border-b-0 hover:bg-accent/50"
+          {bookings !== undefined &&
+            bookings !== null &&
+            bookings.length > 0 &&
+            bookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-accent/30 sm:grid-cols-[1.4fr_1fr_6rem_6rem_auto]"
+              >
+                <span className="min-w-0">
+                  <Link
+                    to={`/courses/${booking.courseSlug}`}
+                    className="block truncate text-sm font-medium underline-offset-4 hover:underline"
+                  >
+                    {booking.courseTitle}
+                  </Link>
+                  <span className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground sm:hidden">
+                    <CalendarDays className="size-3" />
+                    {booking.sessionStartsAt
+                      ? formatSession(booking.sessionStartsAt)
+                      : "session removed"}
+                  </span>
+                </span>
+                <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+                  <CalendarDays className="size-3.5 shrink-0" />
+                  {booking.sessionStartsAt
+                    ? formatSession(booking.sessionStartsAt)
+                    : "session removed"}
+                </span>
+                <span className="text-right text-xs text-muted-foreground">
+                  {formatMoney(booking.amountCents)}
+                </span>
+                <span className="flex justify-end">
+                  <StatusBadge
+                    status={booking.status}
+                    paymentStatus={booking.paymentStatus}
+                  />
+                </span>
+                <span className="flex w-16 justify-end">
+                  {booking.status !== "cancelled" &&
+                    booking.paymentStatus === "unpaid" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-[11px]"
+                        disabled={cancellingId === booking._id}
+                        onClick={() => handleCancel(booking._id)}
                       >
-                        <span className="text-[11px] text-muted-foreground">
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-medium group-hover:text-accent-foreground">
-                            {lesson.title}
-                          </span>
-                          <span className="mt-0.5 hidden truncate text-xs text-muted-foreground sm:block">
-                            {lesson.description}
-                          </span>
-                        </span>
-                        <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex sm:justify-end">
-                          <Clock3 className="size-3.5" />
-                          {lesson.durationMinutes} min
-                        </span>
-                        <span className="flex justify-end">
-                          <Badge
-                            variant="secondary"
-                            className="gap-1.5 border-term-green/30 bg-term-green/10 text-[10px] font-medium text-term-green"
-                          >
-                            <span className="size-1.5 rounded-full bg-term-green-bright" />
-                            READY
-                          </Badge>
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                );
-              })}
-            </>
-          )}
+                        {cancellingId === booking._id ? (
+                          <Loader2 className="size-3 animate-spin" />
+                        ) : (
+                          "cancel"
+                        )}
+                      </Button>
+                    )}
+                  {booking.status === "pending" && (
+                    <Button asChild variant="default" size="sm" className="h-7 px-2 text-[11px]">
+                      <Link to={`/booking/${booking._id}`}>pay</Link>
+                    </Button>
+                  )}
+                </span>
+              </div>
+            ))}
         </div>
 
-        {/* ── Status line ───────────────────────────────────────── */}
+        {cancelError && (
+          <p className="mt-3 border border-term-amber/40 bg-term-amber/[0.07] px-3 py-2 text-xs text-term-amber">
+            {cancelError}
+          </p>
+        )}
+
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <p>
             <span className="text-term-green">[ok]</span>{" "}
-            {lessons?.length ?? "…"} lessons · {modules.length} modules · ~
-            {totalMinutes} min total
+            {bookings?.length ?? "…"} bookings · synced live
           </p>
           <p>
-            <span className="text-term-green">[ok]</span> sync up to date
+            <span className="text-term-green">[ok]</span> paid bookings need
+            academy approval to cancel — contact us instead
           </p>
         </div>
       </div>
     </main>
+  );
+}
+
+function StatusBadge({
+  status,
+  paymentStatus,
+}: {
+  status: string;
+  paymentStatus: string;
+}) {
+  if (status === "confirmed") {
+    return (
+      <span
+        className={`border px-2 py-0.5 text-[10px] font-medium ${
+          paymentStatus === "paid"
+            ? "border-term-green/40 bg-term-green/10 text-term-green"
+            : "border-term-green/40 bg-term-green/10 text-term-green"
+        }`}
+      >
+        {paymentStatus === "paid" ? "PAID" : "CONFIRMED"}
+      </span>
+    );
+  }
+  if (status === "pending") {
+    return (
+      <span className="border border-term-amber/40 bg-term-amber/10 px-2 py-0.5 text-[10px] font-medium text-term-amber">
+        PENDING
+      </span>
+    );
+  }
+  return (
+    <span className="border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+      CANCELLED
+    </span>
   );
 }

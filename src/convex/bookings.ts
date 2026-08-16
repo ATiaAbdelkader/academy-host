@@ -50,6 +50,29 @@ export const removeSession = mutation({
   },
 });
 
+/** All sessions across the catalog with course title and booked seats — admin. */
+export const adminListSessions = query({
+  args: {},
+  handler: async (ctx) => {
+    const sessions = await ctx.db.query("sessions").order("desc").collect();
+    return Promise.all(
+      sessions.map(async (session) => {
+        const course = await ctx.db.get(session.courseId);
+        const active = await ctx.db
+          .query("bookings")
+          .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+          .filter((q) => q.neq(q.field("status"), "cancelled"))
+          .collect();
+        return {
+          ...session,
+          courseTitle: course?.title ?? "Course removed",
+          bookedCount: active.length,
+        };
+      }),
+    );
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Bookings (student)
 // ---------------------------------------------------------------------------

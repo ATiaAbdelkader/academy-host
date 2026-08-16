@@ -1,0 +1,356 @@
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { AppHeader } from "@/components/AppHeader";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { formatMoney, formatSession } from "@/lib/format";
+import { useAction, useMutation, useQuery } from "convex/react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  CreditCard,
+  Loader2,
+  TriangleAlert,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router";
+
+function WindowDots() {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className="size-2.5 rounded-full border border-border bg-muted" />
+      <span className="size-2.5 rounded-full border border-border bg-muted" />
+      <span className="size-2.5 rounded-full border border-border bg-muted" />
+    </span>
+  );
+}
+
+export default function Booking() {
+  const { bookingId } = useParams<{ bookingId: string }>();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+  const checkoutCancelled = searchParams.get("cancelled") === "1";
+
+  const { user } = useAuth();
+  const booking = useQuery(
+    api.bookings.getBooking,
+    bookingId ? { bookingId: bookingId as Id<"bookings"> } : "skip",
+  );
+
+  const createCheckout = useAction(api.bookings.createCheckoutSession);
+  const verifyCheckout = useAction(api.bookings.verifyCheckout);
+  const cancelBooking = useMutation(api.bookings.cancelBooking);
+
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [verifying, setVerifying] = useState(sessionId !== null);
+  const [error, setError] = useState<string | null>(null);
+  const verified = useRef(false);
+
+  // Verify a completed Stripe session exactly once after redirect.
+  useEffect(() => {
+    if (!sessionId || !bookingId || verified.current) return;
+    verified.current = true;
+    setVerifying(true);
+    void verifyCheckout({
+      bookingId: bookingId as Id<"bookings">,
+      sessionId,
+    })
+      .then((result) => {
+        if (!result.ok) {
+          setError(result.error);
+        }
+      })
+      .catch((err: unknown) => {
+        setError(
+          err instanceof Error ? err.message : "Could not verify payment.",
+        );
+      })
+      .finally(() => setVerifying(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, bookingId]);
+
+  const handleCheckout = async () => {
+    if (!booking) return;
+    setCheckingOut(true);
+    setError(null);
+    const origin = window.location.origin;
+    const result = await createCheckout({
+      bookingId: booking._id,
+      origin,
+    });
+    if (!result.ok) {
+      setError(result.error);
+      setCheckingOut(false);
+      return;
+    }
+    if (result.url) {
+      window.location.href = result.url;
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!booking) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      await cancelBooking({ bookingId: booking._id });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not cancel.");
+      setCancelling(false);
+    }
+  };
+
+  const isOwner = booking ? user?._id === booking.userId : true;
+
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <AppHeader path={`~/booking/${bookingId}`} />
+
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+        <Link
+          to="/dashboard"
+          className="group inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-term-green"
+        >
+          <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+          ../my-sessions
+        </Link>
+
+        {booking === undefined && (
+          <div className="mt-6 space-y-4 border border-border bg-card p-8">
+            <div className="h-6 w-1/2 animate-pulse bg-muted" />
+            <div className="h-4 w-full animate-pulse bg-muted" />
+            <div className="h-24 animate-pulse bg-muted" />
+          </div>
+        )}
+
+        {booking === null && (
+          <div className="mt-6 border border-border bg-card px-6 py-12 text-center">
+            <XCircle className="mx-auto size-8 text-term-amber" />
+            <p className="mt-3 text-sm">
+              <span className="text-term-amber">error:</span> booking not found
+            </p>
+            <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
+              <Link to="/dashboard">back to my sessions</Link>
+            </Button>
+          </div>
+        )}
+
+        {booking && !isOwner && (
+          <div className="mt-6 border border-border bg-card px-6 py-12 text-center">
+            <XCircle className="mx-auto size-8 text-term-amber" />
+            <p className="mt-3 text-sm">
+              This booking belongs to another account.
+            </p>
+            <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
+              <Link to="/dashboard">back to my sessions</Link>
+            </Button>
+          </div>
+        )}
+
+        {booking && isOwner && (
+          <div className="mt-6 border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_10%,transparent)]">
+            <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+              <span className="truncate text-xs text-muted-foreground">
+                agriskills — booking #{bookingId?.slice(0, 8)}
+              </span>
+              <WindowDots />
+            </div>
+
+            <div className="px-4 py-6 sm:px-6">
+              {verifying && (
+                <div className="flex items-center gap-2 border border-term-amber/40 bg-term-amber/[0.07] px-4 py-3 text-sm">
+                  <Loader2 className="size-4 animate-spin text-term-amber" />
+                  verifying payment with Stripe…
+                </div>
+              )}
+
+              {checkoutCancelled && !bookingConfirmed(booking.status) && (
+                <div className="border border-term-amber/40 bg-term-amber/[0.07] px-4 py-3 text-sm">
+                  <p className="flex items-center gap-2 font-semibold text-term-amber">
+                    <TriangleAlert className="size-4" />
+                    checkout cancelled
+                  </p>
+                  <p className="mt-1 text-xs text-foreground/75">
+                    No charge was made. You can retry payment below or choose a
+                    different session.
+                  </p>
+                </div>
+              )}
+
+              {error && (
+                <div className="border border-term-amber/40 bg-term-amber/[0.07] px-4 py-3 text-sm">
+                  <p className="flex items-center gap-2 font-semibold text-term-amber">
+                    <TriangleAlert className="size-4" />
+                    payment not completed
+                  </p>
+                  <p className="mt-1 text-xs text-foreground/75">{error}</p>
+                </div>
+              )}
+
+              {error === "STRIPE_KEY_MISSING" && (
+                <div className="mt-3 border border-term-amber/40 bg-term-amber/[0.07] px-4 py-3 text-xs text-foreground/75">
+                  <p className="font-semibold text-term-amber">
+                    &gt; setup required
+                  </p>
+                  <p className="mt-1">
+                    The academy has not added its Stripe secret key yet. Add{" "}
+                    <code className="bg-muted px-1">STRIPE_SECRET_KEY</code> in
+                    the project Keys to enable online payments.
+                  </p>
+                </div>
+              )}
+
+              {/* summary */}
+              <dl className="mt-4 space-y-3 text-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">course</dt>
+                  <dd className="text-right font-medium">
+                    <Link
+                      to={`/courses/${booking.courseSlug}`}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {booking.courseTitle}
+                    </Link>
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">session</dt>
+                  <dd className="flex items-center gap-1.5 text-right">
+                    <CalendarDays className="size-3.5 shrink-0 text-term-green" />
+                    {booking.sessionStartsAt
+                      ? formatSession(booking.sessionStartsAt)
+                      : "session removed"}
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">amount</dt>
+                  <dd className="font-semibold">
+                    {formatMoney(booking.amountCents)}
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">status</dt>
+                  <dd className="flex items-center gap-2">
+                    <StatusBadge
+                      status={booking.status}
+                      paymentStatus={booking.paymentStatus}
+                    />
+                  </dd>
+                </div>
+              </dl>
+
+              {/* actions */}
+              <div className="mt-6 space-y-3">
+                {booking.status === "pending" &&
+                  booking.paymentStatus === "unpaid" && (
+                    <>
+                      <Button
+                        onClick={handleCheckout}
+                        disabled={checkingOut}
+                        className="w-full gap-2 text-sm"
+                      >
+                        {checkingOut ? (
+                          <>
+                            <Loader2 className="size-4 animate-spin" />
+                            opening secure checkout…
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="size-4" />
+                            pay {formatMoney(booking.amountCents)} now
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleCancel}
+                        disabled={cancelling}
+                        className="w-full text-xs"
+                      >
+                        {cancelling ? "cancelling…" : "cancel booking"}
+                      </Button>
+                    </>
+                  )}
+
+                {booking.status === "confirmed" && (
+                  <div className="border border-term-green/40 border-l-2 border-l-term-green bg-term-green/[0.07] px-4 py-3">
+                    <p className="flex items-center gap-2 text-sm font-semibold text-term-green">
+                      <CheckCircle2 className="size-4" />
+                      {booking.paymentStatus === "paid"
+                        ? "payment received — you are booked"
+                        : "you are booked"}
+                    </p>
+                    <p className="mt-1 text-xs text-foreground/75">
+                      {booking.paymentStatus === "paid"
+                        ? "Your seat is confirmed. Your instructor will see you at the session."
+                        : "This free course is confirmed. Your instructor will see you at the session."}
+                    </p>
+                  </div>
+                )}
+
+                {booking.status === "cancelled" && (
+                  <div className="border border-border bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
+                    This booking has been cancelled.
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-4 border-t border-border pt-4 text-xs">
+                <Button asChild variant="outline" size="sm" className="text-xs">
+                  <Link to={`/courses/${booking.courseSlug}`}>
+                    view course
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="text-xs">
+                  <Link to="/dashboard">my sessions</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function bookingConfirmed(status: string): boolean {
+  return status === "confirmed";
+}
+
+function StatusBadge({
+  status,
+  paymentStatus,
+}: {
+  status: string;
+  paymentStatus: string;
+}) {
+  if (status === "confirmed" && paymentStatus === "paid") {
+    return (
+      <span className="border border-term-green/40 bg-term-green/10 px-2 py-0.5 text-[10px] font-medium text-term-green">
+        CONFIRMED · PAID
+      </span>
+    );
+  }
+  if (status === "confirmed") {
+    return (
+      <span className="border border-term-green/40 bg-term-green/10 px-2 py-0.5 text-[10px] font-medium text-term-green">
+        CONFIRMED
+      </span>
+    );
+  }
+  if (status === "pending") {
+    return (
+      <span className="border border-term-amber/40 bg-term-amber/10 px-2 py-0.5 text-[10px] font-medium text-term-amber">
+        PENDING PAYMENT
+      </span>
+    );
+  }
+  return (
+    <span className="border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+      CANCELLED
+    </span>
+  );
+}

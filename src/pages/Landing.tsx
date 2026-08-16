@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { useLessons } from "@/hooks/use-lessons";
+import { useCatalog } from "@/hooks/use-catalog";
+import { formatMoney } from "@/lib/format";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
@@ -24,7 +25,10 @@ function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
       <span className="inline-block size-3.5 bg-term-green" />
-      <span className="text-sm font-semibold tracking-tight">may_academy</span>
+      <span className="text-sm font-semibold tracking-tight">
+        AgriSkills
+        <span className="ml-1 font-normal text-muted-foreground">Academy</span>
+      </span>
       <span className="hidden text-xs text-muted-foreground sm:inline">
         v1.0
       </span>
@@ -33,15 +37,15 @@ function Brand() {
 }
 
 export default function Landing() {
-  const lessons = useLessons();
+  const courses = useCatalog();
+  const published = courses?.filter((c) => c.published) ?? [];
+  const categories = Array.from(
+    new Map(published.map((c) => [c.category, c.category])).values(),
+  );
 
-  const modules = [
-    { id: "01", name: "getting-started", label: "Getting Started", count: "2 lessons", duration: "18 min" },
-    { id: "02", name: "core-skills", label: "Core Skills", count: "2 lessons", duration: "27 min" },
-    { id: "03", name: "practice-assessment", label: "Practice & Assessment", count: "2 lessons", duration: "30 min" },
-  ];
-
-  const totalMinutes = lessons?.reduce((sum, l) => sum + l.durationMinutes, 0) ?? 75;
+  const totalMinutes =
+    published.reduce((sum, c) => sum + c.durationMinutes, 0) ?? 0;
+  const catalogRows = published.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -50,13 +54,19 @@ export default function Landing() {
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
           <nav className="hidden items-center gap-6 text-xs text-muted-foreground md:flex">
-            <a href="#curriculum" className="transition-colors hover:text-foreground">
-              ./modules
-            </a>
+            <Link
+              to="/courses"
+              className="transition-colors hover:text-foreground"
+            >
+              ./catalog
+            </Link>
             <a href="#how" className="transition-colors hover:text-foreground">
               ./how-it-works
             </a>
-            <a href="#access" className="transition-colors hover:text-foreground">
+            <a
+              href="#access"
+              className="transition-colors hover:text-foreground"
+            >
               ./access
             </a>
           </nav>
@@ -67,8 +77,8 @@ export default function Landing() {
               </Link>
             </Button>
             <Button asChild size="sm" className="text-xs">
-              <Link to="/auth?returnTo=/dashboard">
-                start learning <ArrowRight className="size-3.5" />
+              <Link to="/courses">
+                browse catalog <ArrowRight className="size-3.5" />
               </Link>
             </Button>
           </div>
@@ -77,38 +87,39 @@ export default function Landing() {
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="bg-grid-faint relative overflow-hidden border-b border-border">
-        <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-28">
+        <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
           <motion.div {...fadeUp}>
             <p className="flex items-center gap-2 text-xs text-term-green">
               <span className="inline-block size-2 rounded-full bg-term-green-bright" />
-              [ok] academy online — lessons ready for students
+              [ok] academy online — customer training open for enrollment
             </p>
-            <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Training that runs
+            <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+              Training for the people
               <br />
-              like a well-formed
+              who run your
               <br />
-              <span className="text-term-green">program.</span>
+              <span className="text-term-green">operation.</span>
             </h1>
             <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground">
-              May Academy hosts structured lessons for students. No chat
-              channels, no leaderboards, no noise — just a curriculum, in
-              order, one lesson at a time.
+              AgriSkills Academy is the customer training program behind our
+              products and services. A structured catalog of practical courses,
+              live instructor sessions, and a booking flow built for working
+              operations — not classrooms.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="gap-2 text-sm">
-                <Link to="/auth?returnTo=/dashboard">
-                  start learning <ArrowRight className="size-4" />
+                <Link to="/courses">
+                  browse catalog <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-sm">
-                <a href="#curriculum">
-                  <span className="text-term-green">$</span> ls modules/
-                </a>
+                <Link to="/auth?returnTo=/courses">
+                  <span className="text-term-green">$</span> create account
+                </Link>
               </Button>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              // student access — sign in with email or as a guest
+              // customer access — sign in with email or continue as a guest
             </p>
           </motion.div>
 
@@ -121,46 +132,67 @@ export default function Landing() {
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
               <span className="text-xs text-muted-foreground">
-                may_academy — student session
+                agriskills — customer session
               </span>
               <WindowDots />
             </div>
             <div className="space-y-2.5 px-4 py-5 text-[13px] leading-5">
               <p>
                 <span className="text-term-green">$</span>{" "}
-                <span className="text-foreground">mayacademy init --student</span>
+                <span className="text-foreground">
+                  agriskills init --customer
+                </span>
               </p>
               <p className="text-term-green">
-                [ok] identity confirmed · welcome back
+                [ok] account ready · welcome back
               </p>
               <p>
                 <span className="text-term-green">$</span>{" "}
-                <span className="text-foreground">mayacademy ls modules/</span>
+                <span className="text-foreground">
+                  agriskills catalog ls --published
+                </span>
               </p>
               <div className="border border-border">
-                <div className="grid grid-cols-[3rem_1fr_auto_auto] gap-x-4 border-b border-border bg-muted px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <span>mod</span>
-                  <span>name</span>
-                  <span className="text-right">lessons</span>
-                  <span className="w-14 text-right">time</span>
+                <div className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 border-b border-border bg-muted px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <span>code</span>
+                  <span>title</span>
+                  <span className="text-right">time</span>
+                  <span className="w-12 text-right">price</span>
                 </div>
-                {modules.map((m) => (
+                {catalogRows.map((course) => (
                   <div
-                    key={m.id}
-                    className="grid grid-cols-[3rem_1fr_auto_auto] gap-x-4 border-b border-border px-3 py-1.5 last:border-b-0"
+                    key={course._id}
+                    className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 border-b border-border px-3 py-1.5 last:border-b-0"
                   >
-                    <span className="text-term-green">{m.id}</span>
-                    <span>{m.name}</span>
-                    <span className="text-right text-muted-foreground">{m.count}</span>
-                    <span className="w-14 text-right text-muted-foreground">{m.duration}</span>
+                    <span className="text-term-green">
+                      {String(course.order).padStart(2, "0")}
+                    </span>
+                    <span className="truncate">{course.title}</span>
+                    <span className="text-right text-muted-foreground">
+                      {course.durationMinutes}m
+                    </span>
+                    <span className="w-12 text-right text-muted-foreground">
+                      {formatMoney(course.priceCents)}
+                    </span>
                   </div>
                 ))}
               </div>
               <p>
                 <span className="text-term-green">$</span>{" "}
-                <span className="text-foreground">mayacademy status --all</span>
+                <span className="text-foreground">
+                  agriskills book --next-session
+                </span>
               </p>
-              <p className="text-term-green">[ok] 3 modules · 6 lessons · ready</p>
+              <p className="text-term-green">
+                [ok] session found · seats available
+              </p>
+              <p>
+                <span className="text-term-green">$</span>{" "}
+                <span className="text-foreground">agriskills pay --secure</span>
+              </p>
+              <p className="text-term-green">
+                [ok] checkout complete · booking confirmed
+              </p>
               <p>
                 <span className="text-term-green">$</span>{" "}
                 <span className="inline-block h-4 w-2 translate-y-0.5 bg-foreground cursor-blink" />
@@ -170,71 +202,82 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Curriculum ──────────────────────────────────────────── */}
-      <section id="curriculum" className="border-b border-border">
+      {/* ── Catalog ─────────────────────────────────────────────── */}
+      <section id="catalog" className="border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs text-term-green">// curriculum</p>
+              <p className="text-xs text-term-green">// catalog</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-                Three modules. Six lessons. One order.
+                {published.length} courses. {categories.length} tracks. One
+                standard.
               </h2>
             </div>
             <p className="text-xs text-muted-foreground">
-              total load ≈ {totalMinutes} min · follow top to bottom
+              total load ≈ {totalMinutes} min · follow each track top to bottom
             </p>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            {modules.map((m, i) => {
-              const moduleLessons = lessons?.filter((l) =>
-                l.module.startsWith(m.id),
+          <div className="grid gap-5 lg:grid-cols-2">
+            {categories.map((category, i) => {
+              const categoryCourses = published.filter(
+                (c) => c.category === category,
               );
               return (
                 <div
-                  key={m.id}
+                  key={category}
                   className="border border-border bg-card transition-colors hover:border-term-green/50"
                 >
                   <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
                     <span className="text-xs font-semibold">
-                      module/{m.id}
+                      track/{String(i + 1).padStart(2, "0")} — {category}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
-                      {m.count} · {m.duration}
+                      {categoryCourses.length}{" "}
+                      {categoryCourses.length === 1 ? "course" : "courses"}
                     </span>
                   </div>
                   <div className="p-2">
-                    {moduleLessons?.length ? (
-                      moduleLessons.map((lesson, idx) => (
-                        <Link
-                          key={lesson._id}
-                          to="/auth?returnTo=/dashboard"
-                          className="group flex items-start gap-3 px-2 py-2.5 transition-colors hover:bg-accent/60"
-                        >
-                          <span className="mt-0.5 text-[11px] text-muted-foreground">
-                            [{String(idx + 1).padStart(2, "0")}]
+                    {categoryCourses.map((course, idx) => (
+                      <Link
+                        key={course._id}
+                        to={`/courses/${course.slug}`}
+                        className="group flex items-start gap-3 px-2 py-2.5 transition-colors hover:bg-accent/60"
+                      >
+                        <span className="mt-0.5 text-[11px] text-muted-foreground">
+                          [{String(idx + 1).padStart(2, "0")}]
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-medium group-hover:text-accent-foreground">
+                            {course.title}
                           </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[13px] font-medium group-hover:text-accent-foreground">
-                              {lesson.title}
-                            </span>
-                            <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
-                              {lesson.description}
-                            </span>
+                          <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+                            {course.description}
                           </span>
-                          <ChevronRight className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-term-green" />
-                        </Link>
-                      ))
-                    ) : (
-                      <div className="space-y-2 p-2">
-                        <div className="h-4 animate-pulse bg-muted" />
-                        <div className="h-4 animate-pulse bg-muted" />
-                      </div>
-                    )}
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2 text-[11px] text-muted-foreground">
+                          <span>
+                            {course.durationMinutes}m ·{" "}
+                            {formatMoney(course.priceCents)}
+                          </span>
+                          <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:text-term-green" />
+                        </span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               );
             })}
+
+            {published.length === 0 && (
+              <div className="border border-border bg-card p-8 text-sm text-muted-foreground lg:col-span-2">
+                <p>
+                  <span className="text-term-amber">[warn]</span> catalog is
+                  being prepared — courses will appear here once the academy
+                  finishes seeding.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -244,34 +287,34 @@ export default function Landing() {
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
           <p className="text-xs text-term-green">// how-it-works</p>
           <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            Built like a terminal. Scoped like version 1.
+            From catalog to confirmed seat in four steps.
           </h2>
           <div className="mt-10 border border-border">
             {[
               {
                 id: "01",
-                title: "Structured lessons",
-                body: "Every lesson is a sequence of blocks — prose, code, lists, notes — rendered like a well-formatted man page.",
+                title: "Browse the catalog",
+                body: "Search and filter the full catalog of courses. Every course states its duration, its price, and the session schedule up front.",
               },
               {
                 id: "02",
-                title: "Student access",
-                body: "Students sign in and follow the curriculum in order. Nothing to configure, nothing to break.",
+                title: "Book a live session",
+                body: "Each course runs on instructor-led sessions with real capacity. Pick the time that fits your season — seats are confirmed in real time.",
               },
               {
                 id: "03",
-                title: "Status you can read",
-                body: "Green means ready, amber means pay attention. One glance tells you where you are.",
+                title: "Pay securely",
+                body: "Checkout is handled by Stripe with a hosted payment page. Free courses are confirmed the moment you book.",
               },
               {
                 id: "04",
-                title: "No distractions",
-                body: "No chat, no progress walls, no notifications. The lesson is the product.",
+                title: "Keep the conversation going",
+                body: "Every course has a comments thread for questions between sessions. Our team replies within one business day.",
               },
             ].map((row, i) => (
               <div
                 key={row.id}
-                className={`grid gap-2 px-4 py-4 sm:grid-cols-[3.5rem_10rem_1fr] sm:gap-6 sm:px-6 ${
+                className={`grid gap-2 px-4 py-4 sm:grid-cols-[3.5rem_11rem_1fr] sm:gap-6 sm:px-6 ${
                   i !== 0 ? "border-t border-border" : ""
                 } ${i % 2 === 1 ? "bg-card" : ""}`}
               >
@@ -292,7 +335,7 @@ export default function Landing() {
           <div className="border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
               <span className="text-xs text-muted-foreground">
-                may_academy — enroll
+                agriskills — enroll
               </span>
               <WindowDots />
             </div>
@@ -300,16 +343,18 @@ export default function Landing() {
               <div>
                 <p className="text-sm">
                   <span className="text-term-green">$</span>{" "}
-                  <span className="font-semibold">mayacademy enroll --now</span>
+                  <span className="font-semibold">
+                    agriskills enroll --now
+                  </span>
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  // email verification or instant guest access — students only
+                  // email verification or instant guest access — customers only
                 </p>
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                 <Button asChild className="gap-2 text-sm">
-                  <Link to="/auth?returnTo=/dashboard">
-                    open lessons <ArrowRight className="size-4" />
+                  <Link to="/courses">
+                    browse catalog <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="text-sm">
@@ -324,9 +369,10 @@ export default function Landing() {
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-10 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>
-          <span className="text-term-green">may_academy</span> © 2026 — v1.0
+          <span className="text-term-green">agriskills_academy</span> © 2026 —
+          customer training
         </p>
-        <p>// lessons for students. nothing else.</p>
+        <p>// courses, live sessions, and support for our customers.</p>
       </footer>
     </div>
   );

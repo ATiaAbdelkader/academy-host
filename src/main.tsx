@@ -12,8 +12,11 @@ import "./index.css";
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
+const Catalog = lazy(() => import("./pages/Catalog.tsx"));
+const Course = lazy(() => import("./pages/Course.tsx"));
+const Booking = lazy(() => import("./pages/Booking.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
-const Lesson = lazy(() => import("./pages/Lesson.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -123,7 +126,17 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/" element={<Landing />} />
               <Route
                 path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
+                element={<AuthPage redirectAfterAuth="/courses" />}
+              />
+              <Route path="/courses" element={<Catalog />} />
+              <Route path="/courses/:slug" element={<Course />} />
+              <Route
+                path="/booking/:bookingId"
+                element={
+                  <RequireAuth>
+                    <Booking />
+                  </RequireAuth>
+                }
               />
               <Route
                 path="/dashboard"
@@ -134,10 +147,10 @@ createRoot(document.getElementById("root")!).render(
                 }
               />
               <Route
-                path="/lessons/:slug"
+                path="/admin"
                 element={
                   <RequireAuth>
-                    <Lesson />
+                    <Admin />
                   </RequireAuth>
                 }
               />

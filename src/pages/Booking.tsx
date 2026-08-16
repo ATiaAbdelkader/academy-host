@@ -459,16 +459,28 @@ export default function Booking() {
                         ? "Your seat is confirmed. Your instructor will see you at the session."
                         : "This free course is confirmed. Your instructor will see you at the session."}
                     </p>
-                    {booking.sessionJoinUrl && (
-                      <a
-                        href={booking.sessionJoinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-2 inline-block border border-term-green/40 bg-term-green/10 px-3 py-1.5 text-xs font-medium text-term-green hover:bg-term-green/20"
-                      >
-                        join session ↗
-                      </a>
-                    )}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {booking.sessionJoinUrl && (
+                        <a
+                          href={booking.sessionJoinUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block border border-term-green/40 bg-term-green/10 px-3 py-1.5 text-xs font-medium text-term-green hover:bg-term-green/20"
+                        >
+                          join session ↗
+                        </a>
+                      )}
+                      {booking.stripeReceiptUrl && (
+                        <a
+                          href={booking.stripeReceiptUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block border border-border px-3 py-1.5 text-xs font-medium text-foreground/80 hover:bg-accent"
+                        >
+                          view receipt ↗
+                        </a>
+                      )}
+                    </div>
                   </div>
                 )}
 

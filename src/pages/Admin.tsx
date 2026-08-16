@@ -791,6 +791,7 @@ function BookingsTab() {
   };
 
   const refundBooking = useAction(api.bookings.refundBooking);
+  const sendRefundNotice = useAction(api.notifications.sendRefundNotice);
   const markAttended = useMutation(api.bookings.markAttended);
   const [refundingId, setRefundingId] = useState<Id<"bookings"> | null>(null);
 
@@ -812,6 +813,11 @@ function BookingsTab() {
         );
       } else {
         toast.success("Refund issued — the student has been credited.");
+        // Notify the student by email (idempotent).
+        void sendRefundNotice({
+          bookingId,
+          origin: window.location.origin,
+        }).catch(() => {});
       }
     } catch (error) {
       toast.error(
@@ -1434,6 +1440,56 @@ function MetricsTab() {
           </p>
           <p className="mt-1 text-[11px] text-muted-foreground">
             awaiting payment
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            attended
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-green">
+            {stats?.attended ?? "…"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            of {stats?.confirmed ?? "…"} confirmed seats
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            refunded
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-amber">
+            {stats?.refundedCount ?? "…"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {formatMoney(stats?.refundedValueCents ?? 0)} returned
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            coupon savings
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-green">
+            {formatMoney(stats?.couponSavingsCents ?? 0)}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            given to students
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            engagement
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {stats && stats.confirmed > 0
+              ? Math.round(((stats.attended ?? 0) / stats.confirmed) * 100)
+              : 0}
+            %
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            attendance rate
           </p>
         </div>
       </div>

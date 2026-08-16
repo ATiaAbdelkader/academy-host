@@ -1,6 +1,8 @@
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut } from "lucide-react";
+import { useQuery } from "convex/react";
+import { Bell, LogOut } from "lucide-react";
 import { Link } from "react-router";
 
 export function Brand() {
@@ -24,6 +26,11 @@ export function Brand() {
  */
 export function AppHeader({ path }: { path?: string }) {
   const { user, isAuthenticated, signOut } = useAuth();
+  const notifications = useQuery(
+    api.inapp.myNotifications,
+    isAuthenticated ? {} : "skip",
+  );
+  const unread = notifications?.unread ?? 0;
 
   const handleSignOut = async () => {
     await signOut();
@@ -85,6 +92,18 @@ export function AppHeader({ path }: { path?: string }) {
               <span className="hidden max-w-44 truncate text-xs text-muted-foreground lg:inline">
                 {user?.email ?? user?.name ?? "student"}
               </span>
+              <Link
+                to="/notifications"
+                className="relative flex size-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-term-green/50 hover:text-foreground"
+                aria-label="notifications"
+              >
+                <Bell className="size-3.5" />
+                {unread > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center border border-background bg-term-green text-[9px] font-bold text-background">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </Link>
               <Button
                 type="button"
                 variant="outline"

@@ -3,6 +3,7 @@ import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import { notifyUser } from "./inapp";
 
 // ---------------------------------------------------------------------------
 // Sessions
@@ -260,6 +261,14 @@ export const confirmBooking = mutation({
         });
       }
     }
+    const course = await ctx.db.get(booking.courseId);
+    await notifyUser(ctx, {
+      userId: booking.userId,
+      kind: "booking_confirmed",
+      title: "Booking confirmed",
+      body: `${course?.title ?? "Your course"} — your seat is confirmed.`,
+      link: `/booking/${bookingId}`,
+    }).catch(() => {});
     return bookingId;
   },
 });
@@ -335,14 +344,27 @@ export const refundBooking = action({
   },
 });
 
-/** Record the Stripe payment intent on a booking after checkout. */
+/** Record that the refund notice email was sent. */
+export const markRefundEmailed = mutation({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, { bookingId }) => {
+    await ctx.db.patch(bookingId, { refundEmailSentAt: Date.now() });
+    return bookingId;
+  },
+});
+
+/** Record the Stripe payment intent (and hosted receipt) on a booking. */
 export const setPaymentIntent = mutation({
   args: {
     bookingId: v.id("bookings"),
     paymentIntentId: v.string(),
+    receiptUrl: v.optional(v.string()),
   },
-  handler: async (ctx, { bookingId, paymentIntentId }) => {
-    await ctx.db.patch(bookingId, { stripePaymentIntentId: paymentIntentId });
+  handler: async (ctx, { bookingId, paymentIntentId, receiptUrl }) => {
+    await ctx.db.patch(bookingId, {
+      stripePaymentIntentId: paymentIntentId,
+      stripeReceiptUrl: receiptUrl || undefined,
+    });
     return bookingId;
   },
 });
@@ -354,10 +376,21 @@ export const markBookingRefunded = mutation({
     refundId: v.string(),
   },
   handler: async (ctx, { bookingId, refundId }) => {
+    const booking = await ctx.db.get(bookingId);
     await ctx.db.patch(bookingId, {
       refundedAt: Date.now(),
       refundId,
     });
+    if (booking) {
+      const course = await ctx.db.get(booking.courseId);
+      await notifyUser(ctx, {
+        userId: booking.userId,
+        kind: "refunded",
+        title: "Refund issued",
+        body: `${course?.title ?? "Your course"} — your payment has been refunded.`,
+        link: `/booking/${bookingId}`,
+      }).catch(() => {});
+    }
     return bookingId;
   },
 });
@@ -449,6 +482,13 @@ export const cancelBooking = mutation({
             createdAt: Date.now(),
           });
           offeredBookingId = newBookingId;
+          await notifyUser(ctx, {
+            userId: nextUp.userId,
+            kind: "seat_offered",
+            title: "A seat opened up",
+            body: `${course?.title ?? "Your course"} — settle payment to confirm your seat.`,
+            link: `/booking/${newBookingId}`,
+          }).catch(() => {});
         }
       }
     }
@@ -627,10 +667,15 @@ export const verifyCheckout = action({
         ? session.payment_intent
         : session.payment_intent?.id;
     if (paymentIntentId) {
-      // Store the payment intent so the admin console can issue refunds.
+      // Store the payment intent so the admin console can issue refunds,
+      // plus the hosted receipt link for the student.
       await ctx.runMutation(api.bookings.setPaymentIntent, {
         bookingId,
         paymentIntentId,
+        receiptUrl:
+          (
+            session as unknown as { receipt_url?: string | null }
+          ).receipt_url ?? undefined,
       });
     }
     await ctx.runMutation(api.bookings.confirmBooking, {
@@ -689,6 +734,16 @@ export const setBookingStatus = mutation({
           ? "waived"
           : booking.paymentStatus,
     });
+    if (status === "confirmed") {
+      const course = await ctx.db.get(booking.courseId);
+      await notifyUser(ctx, {
+        userId: booking.userId,
+        kind: "booking_confirmed",
+        title: "Booking confirmed",
+        body: `${course?.title ?? "Your course"} — your seat is confirmed.`,
+        link: `/booking/${bookingId}`,
+      }).catch(() => {});
+    }
     return bookingId;
   },
 });
@@ -710,6 +765,10 @@ export const adminStats = query({
     let confirmed = 0;
     let pending = 0;
     let cancelled = 0;
+    let attended = 0;
+    let refundedCount = 0;
+    let refundedValueCents = 0;
+    let couponSavingsCents = 0;
     const perCourse = new Map<
       string,
       { title: string; revenueCents: number; count: number }
@@ -726,9 +785,17 @@ export const adminStats = query({
       const net = booking.amountCents - (booking.discountCents ?? 0);
       if (booking.paymentStatus === "paid") {
         paidRevenueCents += net;
+        couponSavingsCents += booking.discountCents ?? 0;
       }
       if (booking.status === "confirmed" && booking.paymentStatus === "waived") {
         onSiteValueCents += booking.amountCents;
+      }
+      if (booking.attendedAt) {
+        attended += 1;
+      }
+      if (booking.refundedAt) {
+        refundedCount += 1;
+        refundedValueCents += booking.amountCents;
       }
       const entry =
         perCourse.get(booking.courseId) ??
@@ -761,6 +828,10 @@ export const adminStats = query({
       confirmed,
       pending,
       cancelled,
+      attended,
+      refundedCount,
+      refundedValueCents,
+      couponSavingsCents,
       paidRevenueCents,
       onSiteValueCents,
       revenueByCourse,

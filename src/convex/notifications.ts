@@ -200,6 +200,74 @@ export const sendWaitlistOffer = action({
 });
 
 /**
+ * Emails the student that their booking was refunded. Idempotent via
+ * refundEmailSentAt.
+ */
+export const sendRefundNotice = action({
+  args: {
+    bookingId: v.id("bookings"),
+    origin: v.optional(v.string()),
+  },
+  handler: async (ctx, { bookingId, origin }) => {
+    if (!process.env.VLY_INTEGRATION_KEY) {
+      return { ok: false as const, error: "EMAIL_NOT_CONFIGURED" };
+    }
+    const booking = await ctx.runQuery(api.bookings.getBooking, { bookingId });
+    if (!booking) {
+      return { ok: false as const, error: "Booking not found." };
+    }
+    if (booking.refundEmailSentAt) {
+      return { ok: false as const, error: "Already sent." };
+    }
+    if (!booking.email) {
+      return { ok: false as const, error: "No email on account." };
+    }
+    if (!booking.refundedAt) {
+      return { ok: false as const, error: "Booking is not refunded." };
+    }
+    const amount =
+      booking.amountCents === 0
+        ? "$0.00"
+        : `$${(booking.amountCents / 100).toFixed(2)}`;
+    const base = origin ?? process.env.SITE_URL ?? "";
+    const bookingUrl = `${base}/booking/${bookingId}`;
+    const subject = `Refund issued — ${booking.courseTitle}`;
+    const text = [
+      "AgriSkills Academy",
+      "",
+      "Your payment has been refunded.",
+      "",
+      `  Course:   ${booking.courseTitle}`,
+      `  Amount:   ${amount}`,
+      `  Refund:   $${(booking.amountCents / 100).toFixed(2)}`,
+      "",
+      "The refund goes back to your original payment method. It can take 5–10 business days to appear, depending on your bank.",
+      "",
+      `View your booking: ${bookingUrl}`,
+    ].join("\n");
+    let result;
+    try {
+      result = await vly.email.send({
+        to: booking.email,
+        subject,
+        text,
+        html: text.replace(/\n/g, "<br/>"),
+      });
+    } catch (error) {
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Email send failed.",
+      };
+    }
+    if (result.success) {
+      await ctx.runMutation(api.bookings.markRefundEmailed, { bookingId });
+      return { ok: true as const };
+    }
+    return { ok: false as const, error: result.error ?? "Email send failed." };
+  },
+});
+
+/**
  * Cron target: sends the 24-hour and 1-hour session reminders. Each session's
  * bookings are emailed once per reminder; markers prevent duplicate sends.
  */

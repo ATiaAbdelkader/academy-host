@@ -114,8 +114,10 @@ const schema = defineSchema(
       discountCents: v.optional(v.number()), // amount discounted at checkout
       waitlistOfferEmailSentAt: v.optional(v.number()), // seat-offer email sent
       stripePaymentIntentId: v.optional(v.string()), // Stripe payment_intent id
+      stripeReceiptUrl: v.optional(v.string()), // Stripe hosted receipt link
       refundedAt: v.optional(v.number()), // when the admin refunded the booking
       refundId: v.optional(v.string()), // Stripe refund id
+      refundEmailSentAt: v.optional(v.number()), // refund notice email sent
       attendedAt: v.optional(v.number()), // when the admin marked the student attended
     })
       .index("by_user", ["userId"])
@@ -159,6 +161,21 @@ const schema = defineSchema(
     })
       .index("by_course", ["courseId"])
       .index("by_user", ["userId"]),
+
+    // In-app notifications for students (booking confirmed, seat offered, refunded).
+    notifications: defineTable({
+      userId: v.id("users"),
+      kind: v.union(
+        v.literal("booking_confirmed"),
+        v.literal("seat_offered"),
+        v.literal("refunded"),
+      ),
+      title: v.string(),
+      body: v.string(),
+      link: v.optional(v.string()),
+      readAt: v.optional(v.number()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
 
     // Discount codes the academy can apply at checkout.
     coupons: defineTable({

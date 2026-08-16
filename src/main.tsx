@@ -19,6 +19,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const Certificate = lazy(() => import("./pages/Certificate.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
+const Notifications = lazy(() => import("./pages/Notifications.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -161,6 +162,14 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <Settings />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <RequireAuth>
+                    <Notifications />
                   </RequireAuth>
                 }
               />

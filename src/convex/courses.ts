@@ -170,6 +170,47 @@ const seedCatalog: SeedCourse[] = [
         type: "paragraph",
         text: "You are not looking for a perfect score. You are building a trend line — and the trend, not the snapshot, is what guides your decisions.",
       },
+      {
+        type: "quiz",
+        title: "Soil health knowledge check",
+        instructions:
+          "Answer all three questions. You need 70% or higher to pass — you can retake as many times as you like.",
+        passPercent: 70,
+        questions: [
+          {
+            question: "Which four indicators does this course track?",
+            options: [
+              "Structure, biology, chemistry, and moisture",
+              "Nitrogen, phosphorus, potassium, and sulfur",
+              "Texture, color, slope, and drainage",
+              "Tillage, seeding, harvest, and storage",
+            ],
+            answerIndex: 0,
+          },
+          {
+            question:
+              "Why does the course recommend sampling the same three points in each field every time?",
+            options: [
+              "It keeps the record comparable season to season",
+              "It saves time during busy weeks",
+              "It avoids disturbing the crop",
+              "It is what the equipment supports",
+            ],
+            answerIndex: 0,
+          },
+          {
+            question:
+              "When you review your soil samples, what are you actually building?",
+            options: [
+              "A perfect score on every check",
+              "A trend line that guides your decisions",
+              "A bigger dataset than your neighbors",
+              "A laboratory-grade report",
+            ],
+            answerIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {

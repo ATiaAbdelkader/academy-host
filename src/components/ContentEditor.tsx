@@ -33,7 +33,10 @@ const BLOCK_TYPES: ContentBlock["type"][] = [
   "list",
   "note",
   "video",
+  "quiz",
 ];
+
+type QuizQuestion = Extract<ContentBlock, { type: "quiz" }>["questions"][number];
 
 function blankBlock(type: ContentBlock["type"]): ContentBlock {
   switch (type) {
@@ -49,6 +52,13 @@ function blankBlock(type: ContentBlock["type"]): ContentBlock {
       return { type: "note", text: "", tone: "info" };
     case "video":
       return { type: "video", url: "", caption: "" };
+    case "quiz":
+      return {
+        type: "quiz",
+        title: "",
+        passPercent: 70,
+        questions: [{ question: "", options: ["", ""], answerIndex: 0 }],
+      };
   }
 }
 
@@ -62,7 +72,9 @@ function convertBlock(
       ? block.items.join("\n")
       : block.type === "video"
         ? block.url
-        : block.text;
+        : block.type === "quiz"
+          ? block.title
+          : block.text;
   switch (type) {
     case "heading":
       return { type: "heading", text };
@@ -91,7 +103,176 @@ function convertBlock(
         url: text,
         caption: block.type === "video" ? block.caption : "",
       };
+    case "quiz":
+      return {
+        type: "quiz",
+        title: block.type === "quiz" ? block.title : text,
+        instructions: block.type === "quiz" ? block.instructions : undefined,
+        passPercent: block.type === "quiz" ? block.passPercent : 70,
+        questions:
+          block.type === "quiz"
+            ? block.questions
+            : [{ question: "", options: ["", ""], answerIndex: 0 }],
+      };
   }
+}
+
+function QuizFields({
+  block,
+  onChange,
+}: {
+  block: Extract<ContentBlock, { type: "quiz" }>;
+  onChange: (block: ContentBlock) => void;
+}) {
+  const updateQuestion = (index: number, patch: Partial<QuizQuestion>) => {
+    onChange({
+      ...block,
+      questions: block.questions.map((q, i) =>
+        i === index ? { ...q, ...patch } : q,
+      ),
+    });
+  };
+
+  const removeQuestion = (index: number) => {
+    onChange({
+      ...block,
+      questions: block.questions.filter((_, i) => i !== index),
+    });
+  };
+
+  const addQuestion = () => {
+    onChange({
+      ...block,
+      questions: [
+        ...block.questions,
+        { question: "", options: ["", ""], answerIndex: 0 },
+      ],
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label>quiz title</Label>
+          <Input
+            value={block.title}
+            onChange={(e) => onChange({ ...block, title: e.target.value })}
+            placeholder="Knowledge check — irrigation"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label>pass mark (%)</Label>
+          <Input
+            type="number"
+            min={1}
+            max={100}
+            value={block.passPercent}
+            onChange={(e) =>
+              onChange({
+                ...block,
+                passPercent: Number(e.target.value) || 70,
+              })
+            }
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>instructions (optional)</Label>
+        <Input
+          value={block.instructions ?? ""}
+          onChange={(e) =>
+            onChange({ ...block, instructions: e.target.value })
+          }
+          placeholder="Answer all questions — you can retake until you pass."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>questions</Label>
+        {block.questions.length === 0 && (
+          <p className="text-[11px] text-muted-foreground">
+            no questions yet — add one below.
+          </p>
+        )}
+        {block.questions.map((q, qi) => (
+          <div key={qi} className="space-y-2 border border-border bg-muted/40 p-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] text-muted-foreground">
+                question {qi + 1}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="size-6 text-destructive hover:text-destructive"
+                onClick={() => removeQuestion(qi)}
+              >
+                <Trash2 className="size-3" />
+              </Button>
+            </div>
+            <Input
+              value={q.question}
+              onChange={(e) =>
+                updateQuestion(qi, { question: e.target.value })
+              }
+              placeholder="What is the correct irrigation run time for clay soil?"
+            />
+            <div className="space-y-1">
+              <Label>options — one per line</Label>
+              <Textarea
+                value={q.options.join("\n")}
+                onChange={(e) => {
+                  const options = e.target.value.split("\n");
+                  updateQuestion(qi, {
+                    options,
+                    answerIndex: Math.min(q.answerIndex, options.length - 1),
+                  });
+                }}
+                rows={3}
+                placeholder={"30 minutes\n45 minutes\n60 minutes"}
+                className="resize-y text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>correct answer</Label>
+              <Select
+                value={String(q.answerIndex)}
+                onValueChange={(value) =>
+                  updateQuestion(qi, { answerIndex: Number(value) })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {q.options.map((_, oi) => (
+                    <SelectItem key={oi} value={String(oi)}>
+                      option {oi + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addQuestion}
+        >
+          <Plus className="size-3.5" />
+          add question
+        </Button>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Graded server-side. Students must pass this quiz to complete the course
+        (completion is blocked until then).
+      </p>
+    </div>
+  );
 }
 
 function BlockFields({
@@ -209,6 +390,10 @@ function BlockFields({
     );
   }
 
+  if (block.type === "quiz") {
+    return <QuizFields block={block} onChange={onChange} />;
+  }
+
   return (
     <div className="space-y-1.5">
       <Label>
@@ -240,6 +425,12 @@ function blockSummary(block: ContentBlock): string {
   }
   if (block.type === "video") {
     return block.url.trim().length > 0 ? "video link" : "empty";
+  }
+  if (block.type === "quiz") {
+    const count = block.questions.filter(
+      (q) => q.question.trim().length > 0,
+    ).length;
+    return `${count} question${count === 1 ? "" : "s"} · pass ${block.passPercent}%`;
   }
   const text = block.text;
   return text.trim().length > 0 ? `${text.trim().length} chars` : "empty";
@@ -307,6 +498,29 @@ export function ContentEditor({
             type: "video",
             url,
             caption: block.caption?.trim() || undefined,
+          });
+        }
+      } else if (block.type === "quiz") {
+        const questions = block.questions
+          .map((q) => ({
+            question: q.question.trim(),
+            options: q.options.map((o) => o.trim()).filter((o) => o.length > 0),
+            answerIndex: q.answerIndex,
+          }))
+          .filter((q) => q.question.length > 0 && q.options.length >= 2);
+        if (questions.length > 0) {
+          cleaned.push({
+            type: "quiz",
+            title: block.title.trim() || "Knowledge check",
+            instructions: block.instructions?.trim() || undefined,
+            passPercent: Math.min(
+              Math.max(Math.round(block.passPercent), 1),
+              100,
+            ),
+            questions: questions.map((q) => ({
+              ...q,
+              answerIndex: Math.min(q.answerIndex, q.options.length - 1),
+            })),
           });
         }
       } else {

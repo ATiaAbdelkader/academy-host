@@ -3,6 +3,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatSession } from "@/lib/format";
@@ -20,6 +21,7 @@ import {
   Star,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -130,7 +132,210 @@ function NoteBlock({ block }: { block: Extract<ContentBlock, { type: "note" }> }
   );
 }
 
-function BlockView({ block }: { block: ContentBlock }) {
+function QuizBlock({
+  block,
+  courseId,
+  index,
+}: {
+  block: Extract<ContentBlock, { type: "quiz" }>;
+  courseId: Id<"courses">;
+  index: number;
+}) {
+  const { isAuthenticated } = useAuth();
+  const submitQuiz = useMutation(api.quizzes.submitQuiz);
+  const results = useQuery(
+    api.quizzes.myQuizResults,
+    isAuthenticated ? { courseId } : "skip",
+  );
+
+  const [answers, setAnswers] = useState<(number | null)[]>(() =>
+    Array.from({ length: block.questions.length }, () => null),
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    correct: number;
+    total: number;
+    percent: number;
+    passed: boolean;
+    passPercent: number;
+  } | null>(null);
+
+  const attempts = (results ?? []).filter((a) => a.quizIndex === index);
+  const passed = attempts.some((a) => a.passed);
+  const answered = answers.every((a) => a !== null);
+
+  const handleSubmit = async () => {
+    if (!answered || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const result = await submitQuiz({
+        courseId,
+        quizIndex: index,
+        answers: answers.map((a) => a ?? 0),
+      });
+      setLastResult(result);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not submit the quiz.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="border border-border bg-muted/20">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2.5">
+        <span className="flex items-center gap-2 text-xs font-semibold">
+          <span className="text-term-green">[quiz]</span>
+          {block.title || `Knowledge check ${index + 1}`}
+        </span>
+        <span className="text-[11px] text-muted-foreground">
+          pass mark {block.passPercent}% · {block.questions.length}{" "}
+          {block.questions.length === 1 ? "question" : "questions"}
+        </span>
+      </div>
+
+      <div className="space-y-4 px-4 py-4">
+        {block.instructions && (
+          <p className="text-xs text-muted-foreground">
+            {block.instructions}
+          </p>
+        )}
+
+        {passed && (
+          <p className="border border-term-green/40 border-l-2 border-l-term-green bg-term-green/[0.07] px-3 py-2 text-xs text-term-green">
+            [ok] passed{lastResult ? ` — ${lastResult.percent}%` : ""} · you
+            may retake anytime
+          </p>
+        )}
+
+        {block.questions.map((question, qi) => {
+          const review = lastResult ? answers[qi] === question.answerIndex : null;
+          return (
+            <div key={qi} className="space-y-2">
+              <p className="text-sm font-medium">
+                <span className="mr-2 text-[11px] text-term-green">
+                  Q{qi + 1}
+                </span>
+                {question.question}
+              </p>
+              <RadioGroup
+                value={
+                  answers[qi] != null ? String(answers[qi]) : undefined
+                }
+                onValueChange={(value) =>
+                  setAnswers((prev) =>
+                    prev.map((a, i) => (i === qi ? Number(value) : a)),
+                  )
+                }
+                className="gap-1.5"
+              >
+                {question.options.map((option, oi) => (
+                  <div key={oi} className="flex items-center gap-2 text-sm">
+                    <RadioGroupItem
+                      id={`quiz-${index}-q${qi}-o${oi}`}
+                      value={String(oi)}
+                    />
+                    <label
+                      htmlFor={`quiz-${index}-q${qi}-o${oi}`}
+                      className={`flex items-center gap-1.5 ${
+                        review === null
+                          ? "text-foreground/85"
+                          : oi === question.answerIndex
+                            ? "text-term-green"
+                            : oi === answers[qi]
+                              ? "text-term-amber"
+                              : "text-muted-foreground/60"
+                      }`}
+                    >
+                      {review !== null && oi === question.answerIndex && (
+                        <Check className="size-3.5" />
+                      )}
+                      {review !== null &&
+                        oi === answers[qi] &&
+                        oi !== question.answerIndex && (
+                          <X className="size-3.5" />
+                        )}
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </RadioGroup>
+              {review !== null && (
+                <p
+                  className={`text-[11px] ${
+                    review ? "text-term-green" : "text-term-amber"
+                  }`}
+                >
+                  {review ? "correct" : "incorrect"}
+                </p>
+              )}
+            </div>
+          );
+        })}
+
+        {error && (
+          <p className="border border-term-amber/40 bg-term-amber/[0.07] px-3 py-2 text-xs text-term-amber">
+            {error}
+          </p>
+        )}
+
+        {!isAuthenticated ? (
+          <p className="text-xs text-muted-foreground">
+            <Link
+              to={`/auth?returnTo=${window.location.pathname}`}
+              className="text-term-green underline-offset-4 hover:underline"
+            >
+              Sign in
+            </Link>{" "}
+            to take the quiz and track your result.
+          </p>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              className="text-xs"
+              disabled={!answered || submitting}
+              onClick={() => void handleSubmit()}
+            >
+              {submitting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                "submit answers"
+              )}
+            </Button>
+            {lastResult && (
+              <span
+                className={`text-xs font-medium ${
+                  lastResult.passed ? "text-term-green" : "text-term-amber"
+                }`}
+              >
+                {lastResult.percent}% — {lastResult.correct}/{
+                  lastResult.total
+                }{" "}
+                correct ·{" "}
+                {lastResult.passed
+                  ? "passed"
+                  : `need ${lastResult.passPercent}%`}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BlockView({
+  block,
+  courseId,
+  quizIndex,
+}: {
+  block: ContentBlock;
+  courseId?: Id<"courses">;
+  quizIndex?: number;
+}) {
   switch (block.type) {
     case "heading":
       return (
@@ -162,6 +367,14 @@ function BlockView({ block }: { block: ContentBlock }) {
       return <NoteBlock block={block} />;
     case "video":
       return <VideoBlock block={block} />;
+    case "quiz":
+      return (
+        <QuizBlock
+          block={block}
+          courseId={courseId ?? ("" as Id<"courses">)}
+          index={quizIndex ?? 0}
+        />
+      );
     default:
       return null;
   }
@@ -208,6 +421,10 @@ export default function Course() {
     api.progress.myProgress,
     isAuthenticated ? {} : "skip",
   );
+  const quizResults = useQuery(
+    api.quizzes.myQuizResults,
+    isAuthenticated && course ? { courseId: course._id } : "skip",
+  );
 
   const [selectedSession, setSelectedSession] = useState<
     Id<"sessions"> | null
@@ -236,6 +453,19 @@ export default function Course() {
   const reviewSummary = course
     ? reviewSummaries?.find((s) => s.courseId === course._id)
     : undefined;
+  const quizBlocks = course
+    ? course.content.filter(
+        (b): b is Extract<ContentBlock, { type: "quiz" }> => b.type === "quiz",
+      )
+    : [];
+  const passedQuizIndexes = new Set(
+    (quizResults ?? []).filter((a) => a.passed).map((a) => a.quizIndex),
+  );
+  const quizzesPassed = quizBlocks.filter((_q, i) =>
+    passedQuizIndexes.has(i),
+  ).length;
+  const allQuizzesPassed =
+    quizBlocks.length === 0 || quizzesPassed === quizBlocks.length;
 
   useEffect(() => {
     setNotesDraft(progressEntry?.note ?? "");
@@ -497,9 +727,21 @@ export default function Course() {
                   )}
 
                   <div className="mt-8 space-y-4">
-                    {course.content.map((block, i) => (
-                      <BlockView key={i} block={block} />
-                    ))}
+                    {course.content.map((block, i) => {
+                      // quizIndex is the block's ordinal among quiz blocks
+                      // (the backend grades against that ordering).
+                      const quizIndex = course.content
+                        .slice(0, i)
+                        .filter((b) => b.type === "quiz").length;
+                      return (
+                        <BlockView
+                          key={i}
+                          block={block}
+                          courseId={course._id}
+                          quizIndex={quizIndex}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -690,6 +932,18 @@ export default function Course() {
                             : "in progress"
                           : "not started"}
                       </p>
+                      {quizBlocks.length > 0 && (
+                        <p
+                          className={`flex items-center gap-1.5 text-[11px] ${
+                            allQuizzesPassed
+                              ? "text-term-green"
+                              : "text-term-amber"
+                          }`}
+                        >
+                          <CheckCircle2 className="size-3" />
+                          quizzes {quizzesPassed}/{quizBlocks.length} passed
+                        </p>
+                      )}
                       <div className="flex gap-2">
                         <Button
                           variant={
@@ -712,12 +966,25 @@ export default function Course() {
                           }
                           size="sm"
                           className="flex-1 text-xs"
+                          disabled={
+                            quizBlocks.length > 0 && !allQuizzesPassed
+                          }
+                          title={
+                            quizBlocks.length > 0 && !allQuizzesPassed
+                              ? "Pass every quiz in this course first"
+                              : undefined
+                          }
                           onClick={() => handleSetProgress("completed")}
                         >
                           <CheckCircle2 className="size-3.5" />
                           completed
                         </Button>
                       </div>
+                      {quizBlocks.length > 0 && !allQuizzesPassed && (
+                        <p className="text-[11px] text-term-amber">
+                          pass every quiz above to mark this course completed
+                        </p>
+                      )}
                       {progressEntry?.status === "completed" && (
                         <Button
                           asChild

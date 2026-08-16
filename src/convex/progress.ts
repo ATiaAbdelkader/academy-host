@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import type { ContentBlock } from "./schema";
 
 /** The signed-in student's progress entries, joined with course info. */
 export const myProgress = query({
@@ -41,6 +42,32 @@ export const setStatus = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Sign in to track progress.");
+    }
+    // Completing a course requires passing every quiz block in it.
+    if (status === "completed") {
+      const course = await ctx.db.get(courseId);
+      if (course) {
+        const quizzes = course.content.filter(
+          (block): block is Extract<ContentBlock, { type: "quiz" }> =>
+            block.type === "quiz",
+        );
+        if (quizzes.length > 0) {
+          const attempts = await ctx.db
+            .query("quizAttempts")
+            .withIndex("by_user_course", (q) =>
+              q.eq("userId", userId).eq("courseId", courseId),
+            )
+            .collect();
+          const passed = new Set(
+            attempts.filter((a) => a.passed).map((a) => a.quizIndex),
+          );
+          if (quizzes.some((_quiz, i) => !passed.has(i))) {
+            throw new Error(
+              "Pass every quiz in this course before marking it completed.",
+            );
+          }
+        }
+      }
     }
     const existing = await ctx.db
       .query("progress")

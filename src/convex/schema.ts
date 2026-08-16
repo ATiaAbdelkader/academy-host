@@ -37,6 +37,19 @@ export const contentBlockValidator = v.union(
     url: v.string(),
     caption: v.optional(v.string()),
   }),
+  v.object({
+    type: v.literal("quiz"),
+    title: v.string(),
+    instructions: v.optional(v.string()),
+    passPercent: v.number(), // e.g. 70 = pass at 70%
+    questions: v.array(
+      v.object({
+        question: v.string(),
+        options: v.array(v.string()),
+        answerIndex: v.number(), // index of the correct option
+      }),
+    ),
+  }),
 );
 export type ContentBlock = Infer<typeof contentBlockValidator>;
 
@@ -161,6 +174,18 @@ const schema = defineSchema(
     })
       .index("by_course", ["courseId"])
       .index("by_user", ["userId"]),
+
+    // A student's graded attempt at one quiz block inside a course.
+    quizAttempts: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      quizIndex: v.number(), // which quiz block in the course (0-based)
+      correct: v.number(),
+      total: v.number(),
+      passed: v.boolean(),
+      answers: v.optional(v.array(v.number())), // chosen option per question
+      createdAt: v.number(),
+    }).index("by_user_course", ["userId", "courseId"]),
 
     // In-app notifications for students (booking confirmed, seat offered, refunded).
     notifications: defineTable({

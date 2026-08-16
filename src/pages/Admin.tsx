@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
+import { ContentEditor } from "@/components/ContentEditor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -161,6 +162,7 @@ function CoursesTab() {
   const [duration, setDuration] = useState("30");
   const [submitting, setSubmitting] = useState(false);
 
+  const [contentCourse, setContentCourse] = useState<CourseDoc | null>(null);
   const [editing, setEditing] = useState<CourseDoc | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
@@ -328,7 +330,7 @@ function CoursesTab() {
           <span className="hidden sm:block">category</span>
           <span className="text-right">price</span>
           <span className="text-right">status</span>
-          <span className="w-44 text-right">actions</span>
+          <span className="w-56 text-right">actions</span>
         </div>
         {courses === undefined && (
           <div className="space-y-2 p-4">
@@ -343,13 +345,17 @@ function CoursesTab() {
             className="grid grid-cols-[2rem_1fr_7rem_5rem_5rem_auto] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
           >
             <span className="text-[11px] text-term-green">{course.order}</span>
-            <span className="min-w-0 truncate text-sm font-medium">
+            <span className="min-w-0">
               <Link
                 to={`/courses/${course.slug}`}
-                className="underline-offset-4 hover:underline"
+                className="block truncate text-sm font-medium underline-offset-4 hover:underline"
               >
                 {course.title}
               </Link>
+              <span className="block text-[11px] text-muted-foreground">
+                {course.content.length}{" "}
+                {course.content.length === 1 ? "block" : "blocks"}
+              </span>
             </span>
             <span className="hidden truncate text-xs text-muted-foreground sm:block">
               {course.category}
@@ -368,7 +374,7 @@ function CoursesTab() {
                 {course.published ? "OPEN" : "DRAFT"}
               </span>
             </span>
-            <span className="flex w-44 justify-end gap-1.5">
+            <span className="flex w-56 justify-end gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
@@ -384,6 +390,14 @@ function CoursesTab() {
                 onClick={() => openEdit(course)}
               >
                 edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                onClick={() => setContentCourse(course)}
+              >
+                content
               </Button>
               <Button
                 variant="outline"
@@ -468,6 +482,14 @@ function CoursesTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ContentEditor
+        course={contentCourse}
+        open={contentCourse !== null}
+        onOpenChange={(open) => {
+          if (!open) setContentCourse(null);
+        }}
+      />
     </div>
   );
 }

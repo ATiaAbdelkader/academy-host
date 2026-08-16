@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import type { ContentBlock } from "./schema";
+import { contentBlockValidator, type ContentBlock } from "./schema";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -366,6 +366,7 @@ export const update = mutation({
     priceCents: v.optional(v.number()),
     durationMinutes: v.optional(v.number()),
     published: v.optional(v.boolean()),
+    content: v.optional(v.array(contentBlockValidator)),
   },
   handler: async (ctx, { id, ...patch }) => {
     const course = await ctx.db.get(id);
@@ -380,6 +381,7 @@ export const update = mutation({
     if (patch.durationMinutes !== undefined)
       fields.durationMinutes = patch.durationMinutes;
     if (patch.published !== undefined) fields.published = patch.published;
+    if (patch.content !== undefined) fields.content = patch.content;
     if (patch.title !== undefined) fields.slug = slugify(patch.title);
     await ctx.db.patch(id, fields);
     return id;

@@ -61,6 +61,14 @@ export function AppHeader({ path }: { path?: string }) {
               ./my-sessions
             </Link>
           )}
+          {isAuthenticated && (
+            <Link
+              to="/settings"
+              className="transition-colors hover:text-foreground"
+            >
+              ./settings
+            </Link>
+          )}
           {isAdmin && (
             <Link
               to="/admin"

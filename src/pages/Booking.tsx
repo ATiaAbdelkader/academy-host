@@ -308,6 +308,26 @@ export default function Booking() {
                       : "session removed"}
                   </dd>
                 </div>
+                {(booking.sessionVenue || booking.sessionJoinUrl) && (
+                  <div className="flex items-start justify-between gap-4">
+                    <dt className="text-muted-foreground">venue</dt>
+                    <dd className="text-right">
+                      {booking.sessionVenue && (
+                        <span className="block">{booking.sessionVenue}</span>
+                      )}
+                      {booking.sessionJoinUrl && (
+                        <a
+                          href={booking.sessionJoinUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-term-green underline-offset-4 hover:underline"
+                        >
+                          join online session ↗
+                        </a>
+                      )}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-muted-foreground">amount</dt>
                   <dd className="text-right font-semibold">
@@ -439,6 +459,16 @@ export default function Booking() {
                         ? "Your seat is confirmed. Your instructor will see you at the session."
                         : "This free course is confirmed. Your instructor will see you at the session."}
                     </p>
+                    {booking.sessionJoinUrl && (
+                      <a
+                        href={booking.sessionJoinUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-2 inline-block border border-term-green/40 bg-term-green/10 px-3 py-1.5 text-xs font-medium text-term-green hover:bg-term-green/20"
+                      >
+                        join session ↗
+                      </a>
+                    )}
                   </div>
                 )}
 

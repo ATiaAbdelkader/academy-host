@@ -37,8 +37,9 @@ export const create = mutation({
   args: {
     code: v.string(),
     percentOff: v.number(),
+    maxUses: v.optional(v.number()),
   },
-  handler: async (ctx, { code, percentOff }) => {
+  handler: async (ctx, { code, percentOff, maxUses }) => {
     const normalized = normalizeCode(code);
     if (normalized.length < 3) {
       throw new Error("Code must be at least 3 characters.");
@@ -47,6 +48,10 @@ export const create = mutation({
     if (percent < 1 || percent > 99) {
       throw new Error("Discount must be between 1 and 99 percent.");
     }
+    const cap =
+      maxUses !== undefined && Number.isFinite(maxUses)
+        ? Math.max(1, Math.round(maxUses))
+        : undefined;
     const existing = await ctx.db
       .query("coupons")
       .withIndex("by_code")
@@ -59,6 +64,7 @@ export const create = mutation({
       code: normalized,
       percentOff: percent,
       active: true,
+      maxUses: cap,
       createdAt: Date.now(),
     });
   },

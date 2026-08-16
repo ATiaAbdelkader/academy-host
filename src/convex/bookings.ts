@@ -37,9 +37,18 @@ export const createSession = mutation({
     startsAt: v.number(),
     durationMinutes: v.number(),
     capacity: v.number(),
+    venue: v.optional(v.string()),
+    joinUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return ctx.db.insert("sessions", args);
+    return ctx.db.insert("sessions", {
+      courseId: args.courseId,
+      startsAt: args.startsAt,
+      durationMinutes: args.durationMinutes,
+      capacity: args.capacity,
+      venue: args.venue?.trim() || undefined,
+      joinUrl: args.joinUrl?.trim() || undefined,
+    });
   },
 });
 
@@ -151,6 +160,9 @@ export const getBooking = query({
       courseTitle: course?.title ?? "Course removed",
       courseSlug: course?.slug ?? "",
       sessionStartsAt: session?.startsAt ?? 0,
+      sessionVenue: session?.venue ?? null,
+      sessionJoinUrl: session?.joinUrl ?? null,
+      instructor: course?.instructor ?? null,
       email: user?.email ?? null,
     };
   },
@@ -231,6 +243,121 @@ export const confirmBooking = mutation({
       throw new Error("This booking was cancelled.");
     }
     await ctx.db.patch(bookingId, { status: "confirmed", paymentStatus });
+    // Count coupon usage once, when a paid booking settles.
+    if (
+      paymentStatus === "paid" &&
+      booking.paymentStatus !== "paid" &&
+      booking.couponCode
+    ) {
+      const coupon = await ctx.db
+        .query("coupons")
+        .withIndex("by_code")
+        .filter((q) => q.eq(q.field("code"), booking.couponCode))
+        .first();
+      if (coupon) {
+        await ctx.db.patch(coupon._id, {
+          usedCount: (coupon.usedCount ?? 0) + 1,
+        });
+      }
+    }
+    return bookingId;
+  },
+});
+
+/** Admin: mark a confirmed booking as attended (or clear it). */
+export const markAttended = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    attended: v.boolean(),
+  },
+  handler: async (ctx, { bookingId, attended }) => {
+    const booking = await ctx.db.get(bookingId);
+    if (!booking) {
+      throw new Error("Booking not found.");
+    }
+    if (attended && booking.status !== "confirmed") {
+      throw new Error("Only confirmed bookings can be marked attended.");
+    }
+    await ctx.db.patch(bookingId, {
+      attendedAt: attended ? Date.now() : undefined,
+    });
+    return bookingId;
+  },
+});
+
+/**
+ * Admin: refund a paid booking through Stripe. Requires the payment intent
+ * stored during checkout verification. Idempotent — a booking is refunded once.
+ */
+export const refundBooking = action({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, { bookingId }) => {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      return { ok: false as const, error: "STRIPE_KEY_MISSING" };
+    }
+    const booking = await ctx.runQuery(api.bookings.getBooking, { bookingId });
+    if (!booking) {
+      return { ok: false as const, error: "Booking not found." };
+    }
+    if (booking.paymentStatus !== "paid") {
+      return {
+        ok: false as const,
+        error: "Only paid bookings can be refunded.",
+      };
+    }
+    if (booking.refundedAt) {
+      return { ok: false as const, error: "This booking was already refunded." };
+    }
+    if (!booking.stripePaymentIntentId) {
+      return {
+        ok: false as const,
+        error: "No payment intent recorded for this booking.",
+      };
+    }
+    const Stripe = await import("stripe");
+    const stripe = new Stripe.default(key);
+    const refund = await stripe.refunds.create({
+      payment_intent: booking.stripePaymentIntentId,
+      metadata: { bookingId },
+    });
+    if (refund.status !== "succeeded" && refund.status !== "pending") {
+      return {
+        ok: false as const,
+        error: `Refund ${refund.status} — try again shortly.`,
+      };
+    }
+    await ctx.runMutation(api.bookings.markBookingRefunded, {
+      bookingId,
+      refundId: refund.id,
+    });
+    return { ok: true as const, refundId: refund.id };
+  },
+});
+
+/** Record the Stripe payment intent on a booking after checkout. */
+export const setPaymentIntent = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    paymentIntentId: v.string(),
+  },
+  handler: async (ctx, { bookingId, paymentIntentId }) => {
+    await ctx.db.patch(bookingId, { stripePaymentIntentId: paymentIntentId });
+    return bookingId;
+  },
+});
+
+/** Record that a booking was refunded. */
+export const markBookingRefunded = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    refundId: v.string(),
+  },
+  handler: async (ctx, { bookingId, refundId }) => {
+    await ctx.db.patch(bookingId, {
+      refundedAt: Date.now(),
+      refundId,
+    });
     return bookingId;
   },
 });
@@ -257,6 +384,8 @@ export const myBookings = query({
           courseTitle: course?.title ?? "Course removed",
           courseSlug: course?.slug ?? "",
           sessionStartsAt: session?.startsAt ?? 0,
+          sessionVenue: session?.venue ?? null,
+          sessionJoinUrl: session?.joinUrl ?? null,
         };
       }),
     );
@@ -360,6 +489,12 @@ export const applyCoupon = mutation({
       .first();
     if (!coupon || !coupon.active) {
       return { ok: false as const, error: "That code is not valid." };
+    }
+    if (coupon.maxUses !== undefined && (coupon.usedCount ?? 0) >= coupon.maxUses) {
+      return {
+        ok: false as const,
+        error: "That code has reached its usage limit.",
+      };
     }
     const discountCents = Math.round(
       (booking.amountCents * coupon.percentOff) / 100,
@@ -486,6 +621,17 @@ export const verifyCheckout = action({
     }
     if (session.payment_status !== "paid") {
       return { ok: false as const, error: "Payment was not completed." };
+    }
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id;
+    if (paymentIntentId) {
+      // Store the payment intent so the admin console can issue refunds.
+      await ctx.runMutation(api.bookings.setPaymentIntent, {
+        bookingId,
+        paymentIntentId,
+      });
     }
     await ctx.runMutation(api.bookings.confirmBooking, {
       bookingId,

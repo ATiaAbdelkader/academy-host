@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -29,6 +30,100 @@ export const reminderSessions = query({
         };
       }),
     );
+  },
+});
+
+/**
+ * One student's full training record — bookings, progress, reviews, comments,
+ * and waitlists, each joined with course/session info. Admin only.
+ */
+export const studentHistory = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    const callerId = await getAuthUserId(ctx);
+    if (callerId === null) {
+      throw new Error("Not signed in.");
+    }
+    const caller = await ctx.db.get(callerId);
+    if (caller?.role !== "admin") {
+      throw new Error("Administrator access required.");
+    }
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      return null;
+    }
+
+    const bookings = await ctx.db
+      .query("bookings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+    const joinedBookings = await Promise.all(
+      bookings.map(async (booking) => {
+        const course = await ctx.db.get(booking.courseId);
+        const session = await ctx.db.get(booking.sessionId);
+        return {
+          ...booking,
+          courseTitle: course?.title ?? "Course removed",
+          courseSlug: course?.slug ?? "",
+          sessionStartsAt: session?.startsAt ?? 0,
+        };
+      }),
+    );
+
+    const progress = await ctx.db
+      .query("progress")
+      .withIndex("by_user_course", (q) => q.eq("userId", userId))
+      .collect();
+    const joinedProgress = await Promise.all(
+      progress.map(async (entry) => {
+        const course = await ctx.db.get(entry.courseId);
+        return {
+          ...entry,
+          courseTitle: course?.title ?? "Course removed",
+          courseSlug: course?.slug ?? "",
+        };
+      }),
+    );
+
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+    const joinedReviews = await Promise.all(
+      reviews.map(async (review) => {
+        const course = await ctx.db.get(review.courseId);
+        return {
+          ...review,
+          courseTitle: course?.title ?? "Course removed",
+        };
+      }),
+    );
+
+    const waitlists = await ctx.db
+      .query("waitlist")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const joinedWaitlists = await Promise.all(
+      waitlists.map(async (entry) => {
+        const session = await ctx.db.get(entry.sessionId);
+        const course = session ? await ctx.db.get(session.courseId) : null;
+        return {
+          ...entry,
+          courseTitle: course?.title ?? "Course removed",
+          sessionStartsAt: session?.startsAt ?? 0,
+        };
+      }),
+    );
+
+    return {
+      user,
+      bookings: joinedBookings,
+      progress: joinedProgress,
+      reviews: joinedReviews,
+      waitlists: joinedWaitlists,
+    };
   },
 });
 

@@ -94,6 +94,8 @@ const schema = defineSchema(
       startsAt: v.number(), // epoch ms
       durationMinutes: v.number(),
       capacity: v.number(),
+      venue: v.optional(v.string()), // physical location, e.g. "Shed 4, Training Yard"
+      joinUrl: v.optional(v.string()), // virtual meeting link for online sessions
       reminder24hSentAt: v.optional(v.number()), // when the 24h email went out
       reminder1hSentAt: v.optional(v.number()), // when the 1h email went out
     }).index("by_course_start", ["courseId", "startsAt"]),
@@ -111,6 +113,10 @@ const schema = defineSchema(
       couponCode: v.optional(v.string()), // applied discount code, if any
       discountCents: v.optional(v.number()), // amount discounted at checkout
       waitlistOfferEmailSentAt: v.optional(v.number()), // seat-offer email sent
+      stripePaymentIntentId: v.optional(v.string()), // Stripe payment_intent id
+      refundedAt: v.optional(v.number()), // when the admin refunded the booking
+      refundId: v.optional(v.string()), // Stripe refund id
+      attendedAt: v.optional(v.number()), // when the admin marked the student attended
     })
       .index("by_user", ["userId"])
       .index("by_session", ["sessionId"]),
@@ -130,6 +136,7 @@ const schema = defineSchema(
       userId: v.id("users"),
       courseId: v.id("courses"),
       status: v.union(v.literal("started"), v.literal("completed")),
+      note: v.optional(v.string()), // private study notes for this course
       updatedAt: v.number(),
     }).index("by_user_course", ["userId", "courseId"]),
 
@@ -158,6 +165,8 @@ const schema = defineSchema(
       code: v.string(), // uppercase, e.g. "HARVEST15"
       percentOff: v.number(), // 1–99
       active: v.boolean(),
+      maxUses: v.optional(v.number()), // optional usage cap; missing = unlimited
+      usedCount: v.optional(v.number()), // how many paid bookings used it
       createdAt: v.number(),
     }).index("by_code", ["code"]),
   },

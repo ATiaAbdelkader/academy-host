@@ -21,7 +21,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
 import { toast } from "sonner";
@@ -199,6 +199,7 @@ export default function Course() {
   const postComment = useMutation(api.comments.post);
   const postReview = useMutation(api.reviews.post);
   const setProgress = useMutation(api.progress.setStatus);
+  const setNote = useMutation(api.progress.setNote);
   const joinWaitlist = useMutation(api.waitlist.join);
   const leaveWaitlist = useMutation(api.waitlist.leave);
   const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
@@ -224,6 +225,9 @@ export default function Course() {
   const [reviewComment, setReviewComment] = useState("");
   const [postingReview, setPostingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
@@ -232,6 +236,12 @@ export default function Course() {
   const reviewSummary = course
     ? reviewSummaries?.find((s) => s.courseId === course._id)
     : undefined;
+
+  useEffect(() => {
+    setNotesDraft(progressEntry?.note ?? "");
+    setNotesSaved(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressEntry]);
   const selectedSessionData =
     sessions?.find((s) => s._id === selectedSession) ?? null;
   const selectedIsFull = selectedSessionData
@@ -320,6 +330,21 @@ export default function Course() {
       );
     } finally {
       setPosting(false);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    if (!course) return;
+    setSavingNotes(true);
+    try {
+      await setNote({ courseId: course._id, note: notesDraft });
+      setNotesSaved(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not save notes.",
+      );
+    } finally {
+      setSavingNotes(false);
     }
   };
 
@@ -556,6 +581,11 @@ export default function Course() {
                                     ? "1 seat left"
                                     : `${seatsLeft} seats left`}
                               </span>
+                              {session.venue && (
+                                <span className="mt-1 block truncate text-[10px] text-muted-foreground/80">
+                                  @ {session.venue}
+                                </span>
+                              )}
                             </button>
                           );
                         })}
@@ -711,6 +741,61 @@ export default function Course() {
                           clear progress
                         </Button>
                       )}
+
+                      <div className="space-y-2 border-t border-border pt-3">
+                        <p className="text-[11px] font-medium text-muted-foreground">
+                          my notes — private to you
+                        </p>
+                        <Textarea
+                          value={notesDraft}
+                          onChange={(e) => setNotesDraft(e.target.value)}
+                          rows={3}
+                          placeholder="Your own study notes for this course…"
+                          maxLength={5000}
+                          className="resize-none text-xs"
+                        />
+                        <div className="flex items-center justify-end gap-2">
+                          {notesDraft !== (progressEntry?.note ?? "") && (
+                            <span className="mr-auto text-[10px] text-term-amber">
+                              unsaved
+                            </span>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-[11px]"
+                            disabled={
+                              savingNotes ||
+                              notesDraft === (progressEntry?.note ?? "")
+                            }
+                            onClick={() =>
+                              setNotesDraft(progressEntry?.note ?? "")
+                            }
+                          >
+                            discard
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="h-7 text-[11px]"
+                            disabled={
+                              savingNotes ||
+                              notesDraft === (progressEntry?.note ?? "")
+                            }
+                            onClick={() => void handleSaveNotes()}
+                          >
+                            {savingNotes ? (
+                              <Loader2 className="size-3 animate-spin" />
+                            ) : (
+                              "save notes"
+                            )}
+                          </Button>
+                        </div>
+                        {notesSaved && (
+                          <p className="text-[10px] text-term-green">
+                            [ok] notes saved
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

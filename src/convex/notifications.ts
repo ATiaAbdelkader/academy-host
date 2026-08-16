@@ -54,6 +54,12 @@ export const sendBookingConfirmation = action({
         : `$${(booking.amountCents / 100).toFixed(2)}`;
 
     const subject = `Booking confirmed — ${booking.courseTitle}`;
+    const venueParts = [booking.sessionVenue, booking.sessionJoinUrl].filter(
+      Boolean,
+    );
+    const venueLine = venueParts.length
+      ? `  Venue:    ${venueParts.join(" · ")}`
+      : null;
     const text = [
       "AgriSkills Academy",
       "",
@@ -61,6 +67,7 @@ export const sendBookingConfirmation = action({
       "",
       `  Course:   ${booking.courseTitle}`,
       `  Session:  ${sessionAt}`,
+      ...(venueLine ? [venueLine] : []),
       `  Amount:   ${amount}`,
       "",
       `Manage your booking: ${bookingUrl}`,
@@ -73,6 +80,11 @@ export const sendBookingConfirmation = action({
       `<table style="border-collapse:collapse;border:1px solid #ddd;width:100%;">`,
       `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666;">Course</td><td style="padding:8px 12px;border-bottom:1px solid #eee;">${booking.courseTitle}</td></tr>`,
       `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666;">Session</td><td style="padding:8px 12px;border-bottom:1px solid #eee;">${sessionAt}</td></tr>`,
+      ...(venueParts.length
+        ? [
+            `<tr><td style="padding:8px 12px;color:#666;">Venue</td><td style="padding:8px 12px;">${venueParts.join(" · ")}</td></tr>`,
+          ]
+        : []),
       `<tr><td style="padding:8px 12px;color:#666;">Amount</td><td style="padding:8px 12px;">${amount}</td></tr>`,
       `</table>`,
       `<p style="margin:16px 0 0;"><a href="${bookingUrl}" style="color:#1a6b3c;">Manage your booking</a> · <a href="${courseUrl}" style="color:#1a6b3c;">View the course</a></p>`,
@@ -228,6 +240,10 @@ export const sendSessionReminders = action({
           kind === "24h"
             ? `Tomorrow: ${session.title} session`
             : `Starting soon: ${session.title} session`;
+        const venueParts = [session.venue, session.joinUrl].filter(Boolean);
+        const venueLine = venueParts.length
+          ? `  Venue:    ${venueParts.join(" · ")}`
+          : null;
         const text = [
           "AgriSkills Academy",
           "",
@@ -238,6 +254,7 @@ export const sendSessionReminders = action({
           `  Course:   ${session.title}`,
           `  Session:  ${sessionAt}`,
           `  Duration: ${session.durationMinutes} min`,
+          ...(venueLine ? [venueLine] : []),
           "",
           `View the course: ${process.env.SITE_URL ?? ""}/courses/${session.slug}`,
         ].join("\n");

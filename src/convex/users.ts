@@ -89,6 +89,23 @@ export const setRole = mutation({
   },
 });
 
+/** Update the signed-in account's display name. */
+export const updateProfile = mutation({
+  args: { name: v.string() },
+  handler: async (ctx, { name }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error("Not signed in.");
+    }
+    const trimmed = name.trim();
+    if (trimmed.length > 60) {
+      throw new Error("Keep the display name under 60 characters.");
+    }
+    await ctx.db.patch(userId, { name: trimmed || undefined });
+    return userId;
+  },
+});
+
 export const claimFirstAdmin = mutation({
   args: {},
   handler: async (ctx) => {

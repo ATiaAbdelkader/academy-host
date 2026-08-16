@@ -276,17 +276,32 @@ export default function Dashboard() {
                       ? formatSession(booking.sessionStartsAt)
                       : "session removed"}
                   </span>
+                  {booking.sessionVenue && (
+                    <span className="mt-0.5 block truncate text-[10px] text-muted-foreground/75 sm:hidden">
+                      @ {booking.sessionVenue}
+                    </span>
+                  )}
                 </span>
                 <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
                   <CalendarDays className="size-3.5 shrink-0" />
                   {booking.sessionStartsAt
                     ? formatSession(booking.sessionStartsAt)
                     : "session removed"}
+                  {booking.sessionVenue && (
+                    <span className="truncate text-[10px] text-muted-foreground/75">
+                      @ {booking.sessionVenue}
+                    </span>
+                  )}
                 </span>
                 <span className="text-right text-xs text-muted-foreground">
                   {formatMoney(booking.amountCents)}
                 </span>
-                <span className="flex justify-end">
+                <span className="flex justify-end gap-1.5">
+                  {booking.attendedAt && (
+                    <span className="border border-term-green/40 bg-term-green/10 px-1.5 py-0.5 text-[10px] font-medium text-term-green">
+                      ATTENDED
+                    </span>
+                  )}
                   <StatusBadge
                     status={booking.status}
                     paymentStatus={booking.paymentStatus}

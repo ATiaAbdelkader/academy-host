@@ -32,8 +32,8 @@ import {
   toLocalInputValue,
 } from "@/lib/format";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Loader2, ShieldCheck, Star, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Download, Loader2, ShieldCheck, Star, Trash2 } from "lucide-react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 
@@ -577,6 +577,8 @@ function SessionsTab() {
   });
   const [duration, setDuration] = useState("30");
   const [capacity, setCapacity] = useState("12");
+  const [venue, setVenue] = useState("");
+  const [joinUrl, setJoinUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -592,7 +594,11 @@ function SessionsTab() {
         startsAt: fromLocalInputValue(startsAt),
         durationMinutes: Math.max(1, parseInt(duration, 10)),
         capacity: Math.max(1, parseInt(capacity, 10)),
+        venue: venue.trim() || undefined,
+        joinUrl: joinUrl.trim() || undefined,
       });
+      setVenue("");
+      setJoinUrl("");
       toast.success("Session scheduled.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not create session.");
@@ -663,6 +669,24 @@ function SessionsTab() {
               min="1"
               value={capacity}
               onChange={(e) => setCapacity(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="session-venue">venue (optional)</Label>
+            <Input
+              id="session-venue"
+              value={venue}
+              onChange={(e) => setVenue(e.target.value)}
+              placeholder="e.g. Shed 4, Training Yard"
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="session-join">join link (optional)</Label>
+            <Input
+              id="session-join"
+              value={joinUrl}
+              onChange={(e) => setJoinUrl(e.target.value)}
+              placeholder="https://meet.example.com/…"
             />
           </div>
           <div className="sm:col-span-2 lg:col-span-4">
@@ -760,19 +784,120 @@ function BookingsTab() {
         toast.success("Booking cancelled.");
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not update booking.");
+      toast.error(
+        error instanceof Error ? error.message : "Could not update booking.",
+      );
     }
+  };
+
+  const refundBooking = useAction(api.bookings.refundBooking);
+  const markAttended = useMutation(api.bookings.markAttended);
+  const [refundingId, setRefundingId] = useState<Id<"bookings"> | null>(null);
+
+  const handleRefund = async (bookingId: Id<"bookings">) => {
+    if (
+      !window.confirm(
+        "Refund this booking through Stripe? The student will be credited automatically.",
+      )
+    )
+      return;
+    setRefundingId(bookingId);
+    try {
+      const result = await refundBooking({ bookingId });
+      if (!result.ok) {
+        toast.error(
+          result.error === "STRIPE_KEY_MISSING"
+            ? "Add STRIPE_SECRET_KEY in the project Keys to enable refunds."
+            : result.error,
+        );
+      } else {
+        toast.success("Refund issued — the student has been credited.");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not issue the refund.",
+      );
+    } finally {
+      setRefundingId(null);
+    }
+  };
+
+  const handleAttended = async (
+    bookingId: Id<"bookings">,
+    attended: boolean,
+  ) => {
+    try {
+      await markAttended({ bookingId, attended });
+      toast.success(attended ? "Marked as attended." : "Attendance cleared.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not update attendance.",
+      );
+    }
+  };
+
+  const exportCsv = () => {
+    if (!bookings) return;
+    const esc = (value: string) =>
+      `"${String(value).replace(/"/g, '""')}"`;
+    const header = [
+      "booking",
+      "course",
+      "email",
+      "session_utc",
+      "amount_cents",
+      "status",
+      "payment",
+      "refunded",
+      "attended",
+    ];
+    const rows = bookings.map((b) => [
+      b._id,
+      b.courseTitle,
+      b.email ?? "",
+      b.sessionStartsAt ? new Date(b.sessionStartsAt).toISOString() : "",
+      String(b.amountCents),
+      b.status,
+      b.paymentStatus,
+      b.refundedAt ? "yes" : "no",
+      b.attendedAt ? "yes" : "no",
+    ]);
+    const csv = [header, ...rows].map((r) => r.map(esc).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
     <div className="border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2">
+        <span className="text-xs text-muted-foreground">
+          {bookings === undefined
+            ? "loading bookings…"
+            : `${bookings.length} bookings`}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 gap-1 text-[11px]"
+          onClick={exportCsv}
+          disabled={!bookings || bookings.length === 0}
+        >
+          <Download className="size-3" />
+          export csv
+        </Button>
+      </div>
       <div className="grid grid-cols-[1fr_1fr_1fr_5rem_4rem_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
         <span>course</span>
         <span>student</span>
         <span className="hidden sm:block">session</span>
         <span className="text-right">amount</span>
         <span className="text-right">status</span>
-        <span className="w-40 text-right">actions</span>
+        <span className="w-72 text-right">actions</span>
       </div>
       {bookings === undefined && (
         <div className="space-y-2 p-4">
@@ -801,12 +926,42 @@ function BookingsTab() {
           </span>
           <span className="text-right text-xs">{formatMoney(booking.amountCents)}</span>
           <span className="text-right">
-            <BookingStatusLabel
-              status={booking.status}
-              paymentStatus={booking.paymentStatus}
-            />
+            {booking.refundedAt ? (
+              <span className="border border-term-amber/40 bg-term-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-term-amber">
+                REFUNDED
+              </span>
+            ) : (
+              <BookingStatusLabel
+                status={booking.status}
+                paymentStatus={booking.paymentStatus}
+              />
+            )}
           </span>
-          <span className="flex w-40 justify-end gap-1.5">
+          <span className="flex w-72 justify-end gap-1.5">
+            {booking.status === "confirmed" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                disabled={refundingId === booking._id}
+                onClick={() =>
+                  handleAttended(booking._id, !booking.attendedAt)
+                }
+              >
+                {booking.attendedAt ? "unmark" : "attended"}
+              </Button>
+            )}
+            {booking.paymentStatus === "paid" && !booking.refundedAt && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                disabled={refundingId === booking._id}
+                onClick={() => handleRefund(booking._id)}
+              >
+                {refundingId === booking._id ? "refunding…" : "refund"}
+              </Button>
+            )}
             {booking.status !== "confirmed" && (
               <Button
                 variant="outline"
@@ -970,6 +1125,13 @@ function UsersTab() {
   const users = useQuery(api.users.adminListUsers);
   const setRole = useMutation(api.users.setRole);
   const [busyId, setBusyId] = useState<Id<"users"> | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
+    null,
+  );
+  const history = useQuery(
+    api.admin.studentHistory,
+    selectedUserId ? { userId: selectedUserId } : "skip",
+  );
 
   const handleRole = async (
     userId: Id<"users">,
@@ -1012,10 +1174,16 @@ function UsersTab() {
       {users?.map((user) => {
         const isMe = me?._id === user._id;
         const currentRole = user.role ?? "user";
+        const selected = selectedUserId === user._id;
         return (
+          <Fragment key={user._id}>
           <div
-            key={user._id}
-            className="grid grid-cols-[minmax(0,1fr)_9rem_8rem_5rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
+            onClick={() =>
+              setSelectedUserId((prev) => (prev === user._id ? null : user._id))
+            }
+            className={`grid cursor-pointer grid-cols-[minmax(0,1fr)_9rem_8rem_5rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/40 ${
+              selected ? "bg-accent/30" : ""
+            }`}
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
@@ -1033,7 +1201,7 @@ function UsersTab() {
             <span className="text-xs text-muted-foreground">
               {formatDate(user._creationTime)}
             </span>
-            <span>
+            <span onClick={(e) => e.stopPropagation()}>
               <Select
                 value={currentRole}
                 disabled={isMe || busyId === user._id}
@@ -1056,8 +1224,160 @@ function UsersTab() {
             </span>
             <span className="text-right text-xs text-muted-foreground">
               {user.activeBookings}
+              {selectedUserId === user._id && (
+                <span className="ml-1 text-term-green">▲</span>
+              )}
             </span>
           </div>
+          {selected && (
+            <div className="border-b border-border bg-muted/40 px-4 py-4">
+              {history === undefined && (
+                <div className="h-16 animate-pulse bg-muted" />
+              )}
+              {history === null && (
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-term-amber">[warn]</span> account not
+                  found.
+                </p>
+              )}
+              {history && (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs">
+                      <span className="text-term-green">[ok]</span> training
+                      record — {history.user.name ?? "unnamed"}
+                      {history.user.email ? ` · ${history.user.email}` : ""}
+                    </p>
+                    <span className="text-[11px] text-muted-foreground">
+                      {history.bookings.length} bookings ·{" "}
+                      {history.progress.length} progress ·{" "}
+                      {history.reviews.length} reviews ·{" "}
+                      {history.waitlists.length} waitlists
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {history.bookings.length > 0 && (
+                      <div className="border border-border bg-card">
+                        <div className="border-b border-border bg-muted px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          bookings
+                        </div>
+                        {history.bookings.map((booking) => (
+                          <div
+                            key={booking._id}
+                            className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
+                          >
+                            <Link
+                              to={`/courses/${booking.courseSlug}`}
+                              className="truncate font-medium underline-offset-4 hover:underline"
+                            >
+                              {booking.courseTitle}
+                            </Link>
+                            <span className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                              <span>
+                                {booking.sessionStartsAt
+                                  ? formatSession(booking.sessionStartsAt)
+                                  : "session removed"}
+                              </span>
+                              <span>{formatMoney(booking.amountCents)}</span>
+                              <BookingStatusLabel
+                                status={booking.status}
+                                paymentStatus={booking.paymentStatus}
+                              />
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {history.progress.length > 0 && (
+                      <div className="border border-border bg-card">
+                        <div className="border-b border-border bg-muted px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          progress
+                        </div>
+                        {history.progress.map((entry) => (
+                          <div
+                            key={entry._id}
+                            className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
+                          >
+                            <Link
+                              to={`/courses/${entry.courseSlug}`}
+                              className="truncate font-medium underline-offset-4 hover:underline"
+                            >
+                              {entry.courseTitle}
+                            </Link>
+                            <span
+                              className={`border px-1.5 py-0.5 text-[10px] font-medium ${
+                                entry.status === "completed"
+                                  ? "border-term-green/40 bg-term-green/10 text-term-green"
+                                  : "border-term-amber/40 bg-term-amber/10 text-term-amber"
+                              }`}
+                            >
+                              {entry.status === "completed"
+                                ? "COMPLETED"
+                                : "IN PROGRESS"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {history.reviews.length > 0 && (
+                      <div className="border border-border bg-card">
+                        <div className="border-b border-border bg-muted px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          reviews
+                        </div>
+                        {history.reviews.map((review) => (
+                          <div
+                            key={review._id}
+                            className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
+                          >
+                            <span className="truncate">
+                              {review.courseTitle}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((value) => (
+                                <Star
+                                  key={value}
+                                  className={`size-3 ${
+                                    value <= review.rating
+                                      ? "fill-term-amber text-term-amber"
+                                      : "text-muted-foreground/40"
+                                  }`}
+                                />
+                              ))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {history.waitlists.length > 0 && (
+                      <div className="border border-border bg-card">
+                        <div className="border-b border-border bg-muted px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          waitlists
+                        </div>
+                        {history.waitlists.map((entry) => (
+                          <div
+                            key={entry._id}
+                            className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
+                          >
+                            <span className="truncate">{entry.courseTitle}</span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {entry.sessionStartsAt
+                                ? formatSession(entry.sessionStartsAt)
+                                : "session removed"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          </Fragment>
         );
       })}
     </div>
@@ -1269,6 +1589,7 @@ function CouponsTab() {
 
   const [code, setCode] = useState("");
   const [percent, setPercent] = useState("15");
+  const [maxUses, setMaxUses] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -1282,9 +1603,12 @@ function CouponsTab() {
       await createCoupon({
         code: code.trim().toUpperCase(),
         percentOff: parseInt(percent, 10) || 15,
+        maxUses:
+          maxUses.trim() !== "" ? parseInt(maxUses, 10) || undefined : undefined,
       });
       setCode("");
       setPercent("15");
+      setMaxUses("");
       toast.success("Coupon created and active.");
     } catch (error) {
       toast.error(
@@ -1349,6 +1673,18 @@ function CouponsTab() {
               className="w-28"
             />
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="coupon-uses">max uses (blank = unlimited)</Label>
+            <Input
+              id="coupon-uses"
+              type="number"
+              min="1"
+              value={maxUses}
+              onChange={(e) => setMaxUses(e.target.value)}
+              className="w-28"
+              placeholder="unlimited"
+            />
+          </div>
           <Button type="submit" size="sm" disabled={submitting}>
             {submitting ? <Loader2 className="size-3.5 animate-spin" /> : null}
             create coupon
@@ -1357,10 +1693,11 @@ function CouponsTab() {
       </form>
 
       <div className="mt-6 border border-border bg-card">
-        <div className="grid grid-cols-[1fr_6rem_9rem_6rem_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+        <div className="grid grid-cols-[1fr_5rem_8rem_5rem_5rem_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
           <span>code</span>
           <span className="text-right">discount</span>
           <span>created</span>
+          <span className="text-right">usage</span>
           <span className="text-right">status</span>
           <span className="w-24 text-right">actions</span>
         </div>
@@ -1381,7 +1718,7 @@ function CouponsTab() {
         {coupons?.map((coupon) => (
           <div
             key={coupon._id}
-            className="grid grid-cols-[1fr_6rem_9rem_6rem_auto] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
+            className="grid grid-cols-[1fr_5rem_8rem_5rem_5rem_auto] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
           >
             <span className="font-mono text-sm font-semibold">
               {coupon.code}
@@ -1395,6 +1732,17 @@ function CouponsTab() {
                 day: "numeric",
                 year: "numeric",
               })}
+            </span>
+            <span
+              className={`text-right text-xs ${
+                coupon.maxUses !== undefined &&
+                (coupon.usedCount ?? 0) >= coupon.maxUses
+                  ? "text-term-amber"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {coupon.usedCount ?? 0}
+              {coupon.maxUses !== undefined ? ` / ${coupon.maxUses}` : ""}
             </span>
             <span className="text-right">
               <span

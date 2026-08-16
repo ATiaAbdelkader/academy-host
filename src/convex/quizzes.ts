@@ -70,6 +70,86 @@ export const submitQuiz = mutation({
 });
 
 /**
+ * Admin overview of quiz engagement: attempt volume, unique students, pass
+ * rate, and average score — overall and broken out per course.
+ */
+export const adminQuizStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const attempts = await ctx.db.query("quizAttempts").collect();
+    const courses = await ctx.db.query("courses").collect();
+    const courseById = new Map(courses.map((c) => [c._id, c]));
+
+    type CourseRow = {
+      courseId: string;
+      title: string;
+      attempts: number;
+      passed: number;
+      students: Set<string>;
+      sumPercent: number;
+    };
+    const perCourse = new Map<string, CourseRow>();
+    let passedAttempts = 0;
+    let sumPercent = 0;
+
+    for (const attempt of attempts) {
+      const percent =
+        attempt.total > 0
+          ? Math.round((attempt.correct / attempt.total) * 100)
+          : 0;
+      sumPercent += percent;
+      if (attempt.passed) {
+        passedAttempts += 1;
+      }
+      const row =
+        perCourse.get(attempt.courseId) ??
+        ({
+          courseId: attempt.courseId,
+          title: courseById.get(attempt.courseId)?.title ?? "Course removed",
+          attempts: 0,
+          passed: 0,
+          students: new Set<string>(),
+          sumPercent: 0,
+        } satisfies CourseRow);
+      row.attempts += 1;
+      if (attempt.passed) {
+        row.passed += 1;
+      }
+      row.students.add(attempt.userId);
+      row.sumPercent += percent;
+      perCourse.set(attempt.courseId, row);
+    }
+
+    const totalAttempts = attempts.length;
+    const byCourse = Array.from(perCourse.values())
+      .map((row) => ({
+        courseId: row.courseId,
+        title: row.title,
+        attempts: row.attempts,
+        students: row.students.size,
+        passRate:
+          row.attempts > 0 ? Math.round((row.passed / row.attempts) * 100) : 0,
+        avgScore:
+          row.attempts > 0 ? Math.round(row.sumPercent / row.attempts) : 0,
+      }))
+      .sort((a, b) => b.attempts - a.attempts)
+      .slice(0, 8);
+
+    return {
+      totalAttempts,
+      uniqueStudents: new Set(attempts.map((a) => a.userId)).size,
+      passRate:
+        totalAttempts > 0
+          ? Math.round((passedAttempts / totalAttempts) * 100)
+          : 0,
+      avgScore:
+        totalAttempts > 0 ? Math.round(sumPercent / totalAttempts) : 0,
+      byCourse,
+    };
+  },
+});
+
+/**
  * The signed-in student's attempts for one course, newest first, plus the best
  * passing result per quiz block (used for the completion gate).
  */

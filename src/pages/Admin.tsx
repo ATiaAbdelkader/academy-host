@@ -1396,6 +1396,7 @@ function UsersTab() {
 
 function MetricsTab() {
   const stats = useQuery(api.bookings.adminStats);
+  const quizStats = useQuery(api.quizzes.adminQuizStats);
 
   return (
     <div className="space-y-6">
@@ -1533,11 +1534,117 @@ function MetricsTab() {
         ))}
       </div>
 
+      {/* ── Quiz performance ──────────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            quiz attempts
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {quizStats?.totalAttempts ?? "…"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            graded submissions
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            students quizzing
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {quizStats?.uniqueStudents ?? "…"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            unique participants
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            pass rate
+          </p>
+          <p
+            className={`mt-2 text-2xl font-bold ${
+              (quizStats?.passRate ?? 0) >= 70
+                ? "text-term-green"
+                : "text-term-amber"
+            }`}
+          >
+            {quizStats?.passRate ?? "…"}%
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            of attempts passed
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            average score
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-green">
+            {quizStats?.avgScore ?? "…"}%
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            across all attempts
+          </p>
+        </div>
+      </div>
+
+      <div className="border border-border bg-card">
+        <div className="border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          quiz performance by course
+        </div>
+        <div className="grid grid-cols-[1fr_5rem_5rem_5rem_5rem] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <span>course</span>
+          <span className="text-right">attempts</span>
+          <span className="text-right">students</span>
+          <span className="text-right">pass rate</span>
+          <span className="text-right">avg score</span>
+        </div>
+        {quizStats === undefined && (
+          <div className="space-y-2 p-4">
+            <div className="h-4 animate-pulse bg-muted" />
+            <div className="h-4 animate-pulse bg-muted" />
+          </div>
+        )}
+        {quizStats !== undefined && quizStats.byCourse.length === 0 && (
+          <div className="px-4 py-8 text-center text-xs text-muted-foreground">
+            <p>
+              <span className="text-term-green">[ok]</span> no quiz attempts yet
+              — scores appear here as students submit quizzes.
+            </p>
+          </div>
+        )}
+        {quizStats?.byCourse.map((row) => (
+          <div
+            key={row.courseId}
+            className="grid grid-cols-[1fr_5rem_5rem_5rem_5rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0"
+          >
+            <span className="min-w-0 truncate text-sm">{row.title}</span>
+            <span className="text-right text-xs text-muted-foreground">
+              {row.attempts}
+            </span>
+            <span className="text-right text-xs text-muted-foreground">
+              {row.students}
+            </span>
+            <span
+              className={`text-right text-xs font-semibold ${
+                row.passRate >= 70 ? "text-term-green" : "text-term-amber"
+              }`}
+            >
+              {row.passRate}%
+            </span>
+            <span className="text-right text-xs font-semibold">
+              {row.avgScore}%
+            </span>
+          </div>
+        ))}
+      </div>
+
       <p className="text-xs text-muted-foreground">
         <span className="text-term-green">[ok]</span> {stats?.bookingsTotal ?? "…"}{" "}
         bookings total · {stats?.cancelled ?? "…"} cancelled ·{" "}
         {stats?.reviewsCount ?? "…"} reviews · {stats?.couponsCount ?? "…"}{" "}
-        coupons — synced live
+        coupons · {quizStats?.totalAttempts ?? "…"} quiz attempts — synced
+        live
       </p>
     </div>
   );

@@ -9,6 +9,7 @@ import { formatMoney, formatSession } from "@/lib/format";
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
   ArrowLeft,
+  Award,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
   Flag,
   Loader2,
   MessageSquare,
+  Star,
   UserRound,
   Users,
 } from "lucide-react";
@@ -51,6 +53,58 @@ function CodeBlock({ block }: { block: Extract<ContentBlock, { type: "code" }> }
         </span>
       ))}
     </pre>
+  );
+}
+
+function VideoBlock({
+  block,
+}: {
+  block: Extract<ContentBlock, { type: "video" }>;
+}) {
+  const url = block.url.trim();
+  let embedUrl: string | null = null;
+  const yt = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]{6,})/,
+  );
+  if (yt) {
+    embedUrl = `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  } else {
+    const vm = url.match(/vimeo\.com\/(\d+)/);
+    if (vm) {
+      embedUrl = `https://player.vimeo.com/video/${vm[1]}`;
+    }
+  }
+  const isDirect = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
+  return (
+    <figure>
+      <div className="border border-border bg-muted/30">
+        {embedUrl ? (
+          <iframe
+            src={embedUrl}
+            title={block.caption ?? "Course video"}
+            className="aspect-video w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : isDirect ? (
+          <video src={url} controls className="aspect-video w-full" />
+        ) : (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="block px-4 py-8 text-center text-xs text-term-green underline-offset-4 hover:underline"
+          >
+            ▸ open video — {url}
+          </a>
+        )}
+      </div>
+      {block.caption && (
+        <figcaption className="mt-2 text-xs text-muted-foreground">
+          {block.caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
@@ -106,6 +160,8 @@ function BlockView({ block }: { block: ContentBlock }) {
       );
     case "note":
       return <NoteBlock block={block} />;
+    case "video":
+      return <VideoBlock block={block} />;
     default:
       return null;
   }
@@ -125,9 +181,23 @@ export default function Course() {
     api.comments.listForCourse,
     course ? { courseId: course._id } : "skip",
   );
+  const reviewSummaries = useQuery(api.reviews.summaries);
+  const reviews = useQuery(
+    api.reviews.listForCourse,
+    course ? { courseId: course._id } : "skip",
+  );
+  const myReview = useQuery(
+    api.reviews.myReview,
+    isAuthenticated && course ? { courseId: course._id } : "skip",
+  );
+  const reviewPermission = useQuery(
+    api.reviews.canReview,
+    isAuthenticated && course ? { courseId: course._id } : "skip",
+  );
 
   const bookSession = useMutation(api.bookings.bookSession);
   const postComment = useMutation(api.comments.post);
+  const postReview = useMutation(api.reviews.post);
   const setProgress = useMutation(api.progress.setStatus);
   const joinWaitlist = useMutation(api.waitlist.join);
   const leaveWaitlist = useMutation(api.waitlist.leave);
@@ -150,10 +220,17 @@ export default function Course() {
   const [commentText, setCommentText] = useState("");
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [postingReview, setPostingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
     ? progress?.find((p) => p.courseId === course._id)
+    : undefined;
+  const reviewSummary = course
+    ? reviewSummaries?.find((s) => s.courseId === course._id)
     : undefined;
   const selectedSessionData =
     sessions?.find((s) => s._id === selectedSession) ?? null;
@@ -243,6 +320,27 @@ export default function Course() {
       );
     } finally {
       setPosting(false);
+    }
+  };
+
+  const handlePostReview = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!course || postingReview) return;
+    setPostingReview(true);
+    setReviewError(null);
+    try {
+      await postReview({
+        courseId: course._id,
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      });
+      setReviewComment("");
+    } catch (error) {
+      setReviewError(
+        error instanceof Error ? error.message : "Could not post the review.",
+      );
+    } finally {
+      setPostingReview(false);
     }
   };
 
@@ -344,6 +442,21 @@ export default function Course() {
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {course.description}
                   </p>
+
+                  {reviewSummary && (
+                    <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Star className="size-3.5 fill-term-amber text-term-amber" />
+                      <span className="font-medium text-foreground/80">
+                        {reviewSummary.avgRating.toFixed(1)}
+                      </span>
+                      <span>
+                        · {reviewSummary.reviewCount}{" "}
+                        {reviewSummary.reviewCount === 1
+                          ? "review"
+                          : "reviews"}
+                      </span>
+                    </p>
+                  )}
 
                   {course.instructor && (
                     <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -575,6 +688,19 @@ export default function Course() {
                           completed
                         </Button>
                       </div>
+                      {progressEntry?.status === "completed" && (
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-xs"
+                        >
+                          <Link to={`/certificate/${course._id}`}>
+                            <Award className="size-3.5" />
+                            view certificate
+                          </Link>
+                        </Button>
+                      )}
                       {progressEntry && (
                         <Button
                           variant="ghost"
@@ -688,6 +814,176 @@ export default function Course() {
                       <p className="mt-1.5 text-sm leading-6 text-foreground/85">
                         {comment.text}
                       </p>
+                    </div>
+                  ))}
+              </div>
+            </section>
+
+            {/* ── Reviews ────────────────────────────────────────── */}
+            <section className="mt-12">
+              <p className="flex items-center gap-1.5 text-xs text-term-green">
+                <Star className="size-3.5" />
+                // reviews & ratings
+              </p>
+              <h2 className="mt-2 text-lg font-bold tracking-tight">
+                {reviewSummary
+                  ? `${reviewSummary.avgRating.toFixed(1)} / 5 · ${
+                      reviewSummary.reviewCount
+                    } ${reviewSummary.reviewCount === 1 ? "review" : "reviews"}`
+                  : "Reviews"}
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ratings come from students with a confirmed booking for this
+                course.
+              </p>
+
+              <div className="mt-5 border border-border bg-card">
+                {isAuthenticated &&
+                  myReview === null &&
+                  reviewPermission?.allowed && (
+                    <form
+                      onSubmit={handlePostReview}
+                      className="space-y-3 border-b border-border px-4 py-4"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="mr-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                          your rating
+                        </span>
+                        {[1, 2, 3, 4, 5].map((value) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setReviewRating(value)}
+                            className="p-0.5 transition-transform hover:scale-110"
+                            aria-label={`${value} star${value === 1 ? "" : "s"}`}
+                          >
+                            <Star
+                              className={`size-4 ${
+                                value <= reviewRating
+                                  ? "fill-term-amber text-term-amber"
+                                  : "text-muted-foreground/40"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                        <span className="ml-2 text-xs font-medium">
+                          {reviewRating}/5
+                        </span>
+                      </div>
+                      <Textarea
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        placeholder="What did the course do well? (optional)"
+                        rows={2}
+                        maxLength={1000}
+                        className="resize-none"
+                      />
+                      {reviewError && (
+                        <p className="border border-term-amber/40 bg-term-amber/[0.07] px-3 py-2 text-xs text-term-amber">
+                          {reviewError}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">
+                          {reviewComment.length}/1000
+                        </span>
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="text-xs"
+                          disabled={postingReview}
+                        >
+                          {postingReview ? (
+                            <Loader2 className="size-3.5 animate-spin" />
+                          ) : (
+                            "post review"
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                {isAuthenticated && myReview !== undefined && myReview !== null && (
+                  <div className="border-b border-border px-4 py-3">
+                    <p className="flex items-center gap-1.5 text-[11px]">
+                      <span className="font-semibold text-term-green">
+                        your review
+                      </span>
+                      <span className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((value) => (
+                          <Star
+                            key={value}
+                            className={`size-3 ${
+                              value <= myReview.rating
+                                ? "fill-term-amber text-term-amber"
+                                : "text-muted-foreground/40"
+                            }`}
+                          />
+                        ))}
+                      </span>
+                    </p>
+                    {myReview.comment && (
+                      <p className="mt-1.5 text-sm leading-6 text-foreground/85">
+                        {myReview.comment}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {isAuthenticated &&
+                  myReview === null &&
+                  reviewPermission !== undefined &&
+                  !reviewPermission.allowed && (
+                    <div className="border-b border-border px-4 py-3 text-xs text-muted-foreground">
+                      {reviewPermission.reason}
+                    </div>
+                  )}
+
+                {reviews !== undefined && reviews.length === 0 && (
+                  <div className="px-4 py-8 text-center text-xs text-muted-foreground">
+                    <p>
+                      <span className="text-term-green">[ok]</span> no reviews
+                      yet — be the first to rate this course.
+                    </p>
+                  </div>
+                )}
+
+                {reviews !== undefined &&
+                  reviews.length > 0 &&
+                  reviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="border-b border-border px-4 py-3 last:border-b-0"
+                    >
+                      <p className="flex items-baseline gap-2 text-[11px]">
+                        <span className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((value) => (
+                            <Star
+                              key={value}
+                              className={`size-3 ${
+                                value <= review.rating
+                                  ? "fill-term-amber text-term-amber"
+                                  : "text-muted-foreground/40"
+                              }`}
+                            />
+                          ))}
+                        </span>
+                        <span className="font-semibold text-term-green">
+                          {review.authorName}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {new Date(review.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </p>
+                      {review.comment && (
+                        <p className="mt-1.5 text-sm leading-6 text-foreground/85">
+                          {review.comment}
+                        </p>
+                      )}
                     </div>
                   ))}
               </div>

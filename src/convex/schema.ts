@@ -17,7 +17,7 @@ export const roleValidator = v.union(
 export type Role = Infer<typeof roleValidator>;
 
 // Structured content blocks that make up a course. Rendered by the course
-// reader in a terminal style (headings, prose, code, lists, notes).
+// reader in a terminal style (headings, prose, code, lists, notes, video).
 export const contentBlockValidator = v.union(
   v.object({ type: v.literal("heading"), text: v.string() }),
   v.object({ type: v.literal("paragraph"), text: v.string() }),
@@ -31,6 +31,11 @@ export const contentBlockValidator = v.union(
     type: v.literal("note"),
     text: v.string(),
     tone: v.union(v.literal("info"), v.literal("warn")),
+  }),
+  v.object({
+    type: v.literal("video"),
+    url: v.string(),
+    caption: v.optional(v.string()),
   }),
 );
 export type ContentBlock = Infer<typeof contentBlockValidator>;
@@ -89,6 +94,8 @@ const schema = defineSchema(
       startsAt: v.number(), // epoch ms
       durationMinutes: v.number(),
       capacity: v.number(),
+      reminder24hSentAt: v.optional(v.number()), // when the 24h email went out
+      reminder1hSentAt: v.optional(v.number()), // when the 1h email went out
     }).index("by_course_start", ["courseId", "startsAt"]),
 
     // A customer's booking for one session of one course.
@@ -101,6 +108,9 @@ const schema = defineSchema(
       paymentStatus: paymentStatusValidator, // unpaid | paid | waived
       createdAt: v.number(),
       confirmationEmailSentAt: v.optional(v.number()), // when the confirm email went out
+      couponCode: v.optional(v.string()), // applied discount code, if any
+      discountCents: v.optional(v.number()), // amount discounted at checkout
+      waitlistOfferEmailSentAt: v.optional(v.number()), // seat-offer email sent
     })
       .index("by_user", ["userId"])
       .index("by_session", ["sessionId"]),
@@ -131,6 +141,25 @@ const schema = defineSchema(
     })
       .index("by_session", ["sessionId"])
       .index("by_user", ["userId"]),
+
+    // Post-course ratings from students who attended (1–5 stars + optional note).
+    reviews: defineTable({
+      courseId: v.id("courses"),
+      userId: v.id("users"),
+      rating: v.number(), // 1–5
+      comment: v.optional(v.string()),
+      createdAt: v.number(),
+    })
+      .index("by_course", ["courseId"])
+      .index("by_user", ["userId"]),
+
+    // Discount codes the academy can apply at checkout.
+    coupons: defineTable({
+      code: v.string(), // uppercase, e.g. "HARVEST15"
+      percentOff: v.number(), // 1–99
+      active: v.boolean(),
+      createdAt: v.number(),
+    }).index("by_code", ["code"]),
   },
   {
     schemaValidation: false,

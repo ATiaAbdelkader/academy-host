@@ -32,7 +32,7 @@ import {
   toLocalInputValue,
 } from "@/lib/format";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Loader2, ShieldCheck, Trash2 } from "lucide-react";
+import { Loader2, ShieldCheck, Star, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -120,15 +120,21 @@ export default function Admin() {
           subtitle="Manage the catalog, session schedule, bookings, and community comments from one place."
         />
 
-        <Tabs defaultValue="courses" className="mt-8">
+        <Tabs defaultValue="metrics" className="mt-8">
           <TabsList className="gap-1 rounded-none border border-border bg-muted">
+            <TabsTrigger value="metrics">metrics</TabsTrigger>
             <TabsTrigger value="courses">courses</TabsTrigger>
             <TabsTrigger value="sessions">sessions</TabsTrigger>
             <TabsTrigger value="bookings">bookings</TabsTrigger>
             <TabsTrigger value="comments">comments</TabsTrigger>
+            <TabsTrigger value="reviews">reviews</TabsTrigger>
+            <TabsTrigger value="coupons">coupons</TabsTrigger>
             <TabsTrigger value="users">users</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="metrics" className="mt-6">
+            <MetricsTab />
+          </TabsContent>
           <TabsContent value="courses" className="mt-6">
             <CoursesTab />
           </TabsContent>
@@ -140,6 +146,12 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="comments" className="mt-6">
             <CommentsTab />
+          </TabsContent>
+          <TabsContent value="reviews" className="mt-6">
+            <ReviewsTab />
+          </TabsContent>
+          <TabsContent value="coupons" className="mt-6">
+            <CouponsTab />
           </TabsContent>
           <TabsContent value="users" className="mt-6">
             <UsersTab />
@@ -1048,6 +1060,374 @@ function UsersTab() {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Metrics
+// ---------------------------------------------------------------------------
+
+function MetricsTab() {
+  const stats = useQuery(api.bookings.adminStats);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            paid revenue
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-green">
+            {formatMoney(stats?.paidRevenueCents ?? 0)}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            settled through checkout
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            on-site value
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-green">
+            {formatMoney(stats?.onSiteValueCents ?? 0)}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            waived / settled in person
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            confirmed
+          </p>
+          <p className="mt-2 text-2xl font-bold">{stats?.confirmed ?? "…"}</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            active seats booked
+          </p>
+        </div>
+        <div className="border border-border bg-card px-4 py-4">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            pending
+          </p>
+          <p className="mt-2 text-2xl font-bold text-term-amber">
+            {stats?.pending ?? "…"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            awaiting payment
+          </p>
+        </div>
+      </div>
+
+      <div className="border border-border bg-card">
+        <div className="border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          revenue by course
+        </div>
+        <div className="grid grid-cols-[1fr_6rem_6rem] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <span>course</span>
+          <span className="text-right">bookings</span>
+          <span className="text-right">revenue</span>
+        </div>
+        {stats === undefined && (
+          <div className="space-y-2 p-4">
+            <div className="h-4 animate-pulse bg-muted" />
+            <div className="h-4 animate-pulse bg-muted" />
+          </div>
+        )}
+        {stats !== undefined && stats.revenueByCourse.length === 0 && (
+          <div className="px-4 py-8 text-center text-xs text-muted-foreground">
+            <p>
+              <span className="text-term-green">[ok]</span> no paid bookings yet
+              — revenue appears here as checkout payments settle.
+            </p>
+          </div>
+        )}
+        {stats?.revenueByCourse.map((row) => (
+          <div
+            key={row.title}
+            className="grid grid-cols-[1fr_6rem_6rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0"
+          >
+            <span className="min-w-0 truncate text-sm">{row.title}</span>
+            <span className="text-right text-xs text-muted-foreground">
+              {row.count}
+            </span>
+            <span className="text-right text-xs font-semibold">
+              {formatMoney(row.revenueCents)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        <span className="text-term-green">[ok]</span> {stats?.bookingsTotal ?? "…"}{" "}
+        bookings total · {stats?.cancelled ?? "…"} cancelled ·{" "}
+        {stats?.reviewsCount ?? "…"} reviews · {stats?.couponsCount ?? "…"}{" "}
+        coupons — synced live
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Reviews
+// ---------------------------------------------------------------------------
+
+function ReviewsTab() {
+  const reviews = useQuery(api.reviews.adminList);
+  const removeReview = useMutation(api.reviews.remove);
+
+  const handleDelete = async (id: Id<"reviews">) => {
+    if (!window.confirm("Permanently delete this review?")) return;
+    try {
+      await removeReview({ id });
+      toast.success("Review deleted.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not delete review.",
+      );
+    }
+  };
+
+  return (
+    <div className="border border-border bg-card">
+      <div className="grid grid-cols-[10rem_8rem_1fr_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span>course</span>
+        <span>student</span>
+        <span>review</span>
+        <span className="w-12 text-right">action</span>
+      </div>
+      {reviews === undefined && (
+        <div className="space-y-2 p-4">
+          <div className="h-4 animate-pulse bg-muted" />
+          <div className="h-4 animate-pulse bg-muted" />
+        </div>
+      )}
+      {reviews !== undefined && reviews.length === 0 && (
+        <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+          <p>
+            <span className="text-term-green">[ok]</span> no reviews yet.
+          </p>
+        </div>
+      )}
+      {reviews?.map((review) => (
+        <div
+          key={review._id}
+          className="grid grid-cols-[10rem_8rem_1fr_auto] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
+        >
+          <span className="truncate text-xs text-muted-foreground">
+            {review.courseTitle}
+          </span>
+          <span className="truncate text-xs text-muted-foreground">
+            {review.authorName}
+          </span>
+          <span className="min-w-0">
+            <span className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <Star
+                  key={value}
+                  className={`size-3 ${
+                    value <= review.rating
+                      ? "fill-term-amber text-term-amber"
+                      : "text-muted-foreground/40"
+                  }`}
+                />
+              ))}
+              <span className="ml-1 text-[10px] text-muted-foreground">
+                {review.rating}/5
+              </span>
+            </span>
+            {review.comment && (
+              <span className="mt-0.5 block truncate text-xs text-foreground/80">
+                {review.comment}
+              </span>
+            )}
+          </span>
+          <span className="flex w-12 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-[11px] text-destructive hover:text-destructive"
+              onClick={() => handleDelete(review._id)}
+            >
+              <Trash2 className="size-3" />
+            </Button>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Coupons
+// ---------------------------------------------------------------------------
+
+function CouponsTab() {
+  const coupons = useQuery(api.coupons.adminList);
+  const createCoupon = useMutation(api.coupons.create);
+  const setActive = useMutation(api.coupons.setActive);
+  const removeCoupon = useMutation(api.coupons.remove);
+
+  const [code, setCode] = useState("");
+  const [percent, setPercent] = useState("15");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (code.trim().length < 3) {
+      toast.error("Code must be at least 3 characters.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await createCoupon({
+        code: code.trim().toUpperCase(),
+        percentOff: parseInt(percent, 10) || 15,
+      });
+      setCode("");
+      setPercent("15");
+      toast.success("Coupon created and active.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not create coupon.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleToggle = async (id: Id<"coupons">, active: boolean) => {
+    try {
+      await setActive({ id, active });
+      toast.success(active ? "Coupon activated." : "Coupon paused.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not update coupon.",
+      );
+    }
+  };
+
+  const handleDelete = async (id: Id<"coupons">) => {
+    if (!window.confirm("Delete this coupon? Bookings keep their discount."))
+      return;
+    try {
+      await removeCoupon({ id });
+      toast.success("Coupon deleted.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not delete coupon.",
+      );
+    }
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleCreate} className="border border-border bg-card">
+        <div className="border-b border-border bg-muted px-4 py-2.5">
+          <span className="text-xs font-semibold">create coupon</span>
+        </div>
+        <div className="flex flex-wrap items-end gap-3 p-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="coupon-code">code</Label>
+            <Input
+              id="coupon-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="HARVEST15"
+              className="w-44 font-mono uppercase"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="coupon-percent">percent off</Label>
+            <Input
+              id="coupon-percent"
+              type="number"
+              min="1"
+              max="99"
+              value={percent}
+              onChange={(e) => setPercent(e.target.value)}
+              className="w-28"
+            />
+          </div>
+          <Button type="submit" size="sm" disabled={submitting}>
+            {submitting ? <Loader2 className="size-3.5 animate-spin" /> : null}
+            create coupon
+          </Button>
+        </div>
+      </form>
+
+      <div className="mt-6 border border-border bg-card">
+        <div className="grid grid-cols-[1fr_6rem_9rem_6rem_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <span>code</span>
+          <span className="text-right">discount</span>
+          <span>created</span>
+          <span className="text-right">status</span>
+          <span className="w-24 text-right">actions</span>
+        </div>
+        {coupons === undefined && (
+          <div className="space-y-2 p-4">
+            <div className="h-4 animate-pulse bg-muted" />
+            <div className="h-4 animate-pulse bg-muted" />
+          </div>
+        )}
+        {coupons !== undefined && coupons.length === 0 && (
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+            <p>
+              <span className="text-term-green">[ok]</span> no coupons yet —
+              create one above and share the code with students.
+            </p>
+          </div>
+        )}
+        {coupons?.map((coupon) => (
+          <div
+            key={coupon._id}
+            className="grid grid-cols-[1fr_6rem_9rem_6rem_auto] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
+          >
+            <span className="font-mono text-sm font-semibold">
+              {coupon.code}
+            </span>
+            <span className="text-right text-xs text-term-green">
+              {coupon.percentOff}%
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {new Date(coupon.createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+            <span className="text-right">
+              <span
+                className={`border px-1.5 py-0.5 text-[10px] font-medium ${
+                  coupon.active
+                    ? "border-term-green/40 bg-term-green/10 text-term-green"
+                    : "border-term-amber/40 bg-term-amber/10 text-term-amber"
+                }`}
+              >
+                {coupon.active ? "ACTIVE" : "PAUSED"}
+              </span>
+            </span>
+            <span className="flex w-24 justify-end gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                onClick={() => handleToggle(coupon._id, !coupon.active)}
+              >
+                {coupon.active ? "pause" : "activate"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px] text-destructive hover:text-destructive"
+                onClick={() => handleDelete(coupon._id)}
+              >
+                <Trash2 className="size-3" />
+              </Button>
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

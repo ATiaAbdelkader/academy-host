@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney, formatSession } from "@/lib/format";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
+  Award,
   CalendarDays,
   CheckCircle2,
   Flag,
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const courses = useCatalog();
   const cancelBooking = useMutation(api.bookings.cancelBooking);
   const leaveWaitlist = useMutation(api.waitlist.leave);
+  const sendWaitlistOffer = useAction(api.notifications.sendWaitlistOffer);
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
@@ -46,7 +48,14 @@ export default function Dashboard() {
     setCancellingId(bookingId);
     setCancelError(null);
     try {
-      await cancelBooking({ bookingId });
+      const result = await cancelBooking({ bookingId });
+      // If a waitlisted student was offered the freed seat, notify them.
+      if (result.offeredBookingId) {
+        void sendWaitlistOffer({
+          bookingId: result.offeredBookingId,
+          origin: window.location.origin,
+        }).catch(() => {});
+      }
       toast.success("Booking cancelled.");
     } catch (err) {
       setCancelError(
@@ -119,6 +128,14 @@ export default function Dashboard() {
               <p className="mt-1.5 font-mono text-xs text-term-green">
                 [{progressBar}] {progressPct}%
               </p>
+              {completedCount > 0 && (
+                <p className="mt-1.5 flex items-center gap-1 text-[11px] text-term-green">
+                  <Award className="size-3" />
+                  [ok] certified in {completedCount}{" "}
+                  {completedCount === 1 ? "course" : "courses"} — view
+                  certificates from the list below
+                </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -149,24 +166,39 @@ export default function Dashboard() {
           {progress !== undefined && progress.length > 0 && (
             <div className="border-t border-border">
               {progress.map((entry) => (
-                <Link
+                <div
                   key={entry._id}
-                  to={`/courses/${entry.courseSlug}`}
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
                 >
-                  <span className="min-w-0 truncate text-sm">
-                    {entry.courseTitle}
-                  </span>
-                  <span
-                    className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-medium ${
-                      entry.status === "completed"
-                        ? "border-term-green/40 bg-term-green/10 text-term-green"
-                        : "border-term-amber/40 bg-term-amber/10 text-term-amber"
-                    }`}
+                  <Link
+                    to={`/courses/${entry.courseSlug}`}
+                    className="min-w-0 truncate text-sm font-medium underline-offset-4 hover:underline"
                   >
-                    {entry.status === "completed" ? "COMPLETED" : "IN PROGRESS"}
+                    {entry.courseTitle}
+                  </Link>
+                  <span className="flex shrink-0 items-center gap-2">
+                    {entry.status === "completed" && (
+                      <Link
+                        to={`/certificate/${entry.courseId}`}
+                        className="flex items-center gap-1 text-[11px] text-term-green underline-offset-4 hover:underline"
+                      >
+                        <Award className="size-3" />
+                        certificate
+                      </Link>
+                    )}
+                    <span
+                      className={`border px-1.5 py-0.5 text-[10px] font-medium ${
+                        entry.status === "completed"
+                          ? "border-term-green/40 bg-term-green/10 text-term-green"
+                          : "border-term-amber/40 bg-term-amber/10 text-term-amber"
+                      }`}
+                    >
+                      {entry.status === "completed"
+                        ? "COMPLETED"
+                        : "IN PROGRESS"}
+                    </span>
                   </span>
-                </Link>
+                </div>
               ))}
             </div>
           )}

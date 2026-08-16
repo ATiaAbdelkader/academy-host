@@ -156,6 +156,12 @@ const seedCatalog: SeedCourse[] = [
         text: "soil check --profile field-04\n[ok] structure    good\n[ok] biology     fair\n[ok] chemistry   good\n[ok] moisture    monitor",
       },
       {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+        caption:
+          "Field demonstration — watch how the four indicators play out together.",
+      },
+      {
         type: "note",
         tone: "info",
         text: "Sample the same three points in each field every time. Consistency is what makes the record comparable season to season.",

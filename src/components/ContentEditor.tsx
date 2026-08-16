@@ -32,6 +32,7 @@ const BLOCK_TYPES: ContentBlock["type"][] = [
   "code",
   "list",
   "note",
+  "video",
 ];
 
 function blankBlock(type: ContentBlock["type"]): ContentBlock {
@@ -46,6 +47,8 @@ function blankBlock(type: ContentBlock["type"]): ContentBlock {
       return { type: "list", items: [""] };
     case "note":
       return { type: "note", text: "", tone: "info" };
+    case "video":
+      return { type: "video", url: "", caption: "" };
   }
 }
 
@@ -55,7 +58,11 @@ function convertBlock(
   type: ContentBlock["type"],
 ): ContentBlock {
   const text =
-    block.type === "list" ? block.items.join("\n") : block.text;
+    block.type === "list"
+      ? block.items.join("\n")
+      : block.type === "video"
+        ? block.url
+        : block.text;
   switch (type) {
     case "heading":
       return { type: "heading", text };
@@ -77,6 +84,12 @@ function convertBlock(
         type: "note",
         text,
         tone: block.type === "note" ? block.tone : "info",
+      };
+    case "video":
+      return {
+        type: "video",
+        url: text,
+        caption: block.type === "video" ? block.caption : "",
       };
   }
 }
@@ -167,6 +180,35 @@ function BlockFields({
     );
   }
 
+  if (block.type === "video") {
+    return (
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label>video url</Label>
+          <Input
+            value={block.url}
+            onChange={(e) => onChange({ ...block, url: e.target.value })}
+            placeholder={
+              "https://www.youtube.com/watch?v=… or https://…/clip.mp4"
+            }
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label>caption (optional)</Label>
+          <Input
+            value={block.caption ?? ""}
+            onChange={(e) => onChange({ ...block, caption: e.target.value })}
+            placeholder="Field demonstration — watch how it plays out"
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          YouTube and Vimeo links embed as players; direct .mp4 / .webm files
+          play inline.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-1.5">
       <Label>
@@ -195,6 +237,9 @@ function blockSummary(block: ContentBlock): string {
   if (block.type === "list") {
     const count = block.items.filter((i) => i.trim().length > 0).length;
     return `${count} item${count === 1 ? "" : "s"}`;
+  }
+  if (block.type === "video") {
+    return block.url.trim().length > 0 ? "video link" : "empty";
   }
   const text = block.text;
   return text.trim().length > 0 ? `${text.trim().length} chars` : "empty";
@@ -255,8 +300,17 @@ export function ContentEditor({
         if (items.length > 0) {
           cleaned.push({ type: "list", items });
         }
+      } else if (block.type === "video") {
+        const url = block.url.trim();
+        if (url.length > 0) {
+          cleaned.push({
+            type: "video",
+            url,
+            caption: block.caption?.trim() || undefined,
+          });
+        }
       } else {
-        const text = "text" in block ? block.text.trim() : "";
+        const text = block.text.trim();
         if (text.length > 0) {
           cleaned.push({ ...block, text } as ContentBlock);
         }

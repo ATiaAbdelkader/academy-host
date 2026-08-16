@@ -1,14 +1,17 @@
+import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
-import { ChevronRight, Search } from "lucide-react";
+import { useQuery } from "convex/react";
+import { ChevronRight, Search, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 export default function Catalog() {
   const courses = useCatalog();
+  const reviewSummaries = useQuery(api.reviews.summaries);
   const published = useMemo(
     () => (courses ? [...courses].filter((c) => c.published) : undefined),
     [courses],
@@ -144,7 +147,11 @@ export default function Catalog() {
 
           {filtered !== undefined &&
             filtered.length > 0 &&
-            filtered.map((course) => (
+            filtered.map((course) => {
+              const summary = reviewSummaries?.find(
+                (s) => s.courseId === course._id,
+              );
+              return (
               <Link
                 key={course._id}
                 to={`/courses/${course.slug}`}
@@ -160,6 +167,13 @@ export default function Catalog() {
                   <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                     {course.description}
                   </span>
+                  {summary && (
+                    <span className="mt-0.5 flex items-center gap-1 text-[11px] text-term-amber">
+                      <Star className="size-3 fill-term-amber text-term-amber" />
+                      {summary.avgRating.toFixed(1)} · {summary.reviewCount}{" "}
+                      {summary.reviewCount === 1 ? "review" : "reviews"}
+                    </span>
+                  )}
                 </span>
                 <span className="hidden text-right text-xs text-muted-foreground sm:block">
                   {course.category}
@@ -180,7 +194,8 @@ export default function Catalog() {
                   <ChevronRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-term-green" />
                 </span>
               </Link>
-            ))}
+              );
+            })}
         </div>
 
         {/* ── Status line ───────────────────────────────────────── */}

@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 // ---------------------------------------------------------------------------
 // Sessions
@@ -274,7 +275,7 @@ export const cancelBooking = mutation({
       throw new Error("Booking not found.");
     }
     if (booking.status === "cancelled") {
-      return bookingId;
+      return { bookingId, offeredBookingId: null };
     }
     if (booking.paymentStatus === "paid") {
       throw new Error(
@@ -285,6 +286,7 @@ export const cancelBooking = mutation({
 
     // A freed seat goes to the longest-waiting student on the session's
     // waitlist. They get a pending booking and can settle it in checkout.
+    let offeredBookingId: Id<"bookings"> | null = null;
     const session = await ctx.db.get(booking.sessionId);
     if (session) {
       const waitlist = await ctx.db
@@ -317,9 +319,80 @@ export const cancelBooking = mutation({
             paymentStatus: isFree ? "waived" : "unpaid",
             createdAt: Date.now(),
           });
+          offeredBookingId = newBookingId;
         }
       }
     }
+    return { bookingId, offeredBookingId };
+  },
+});
+
+/** Apply (or clear) a discount code on a booking before checkout. */
+export const applyCoupon = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    code: v.string(),
+  },
+  handler: async (ctx, { bookingId, code }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Sign in to apply a coupon.");
+    }
+    const booking = await ctx.db.get(bookingId);
+    if (!booking || booking.userId !== userId) {
+      throw new Error("Booking not found.");
+    }
+    if (booking.status !== "pending" || booking.paymentStatus !== "unpaid") {
+      throw new Error("Coupons can only be applied before payment.");
+    }
+    const normalized = code.trim().toUpperCase().replace(/\s+/g, "");
+    if (normalized.length === 0) {
+      await ctx.db.patch(bookingId, {
+        couponCode: undefined,
+        discountCents: undefined,
+      });
+      return { ok: true as const, percentOff: 0 };
+    }
+    const coupon = await ctx.db
+      .query("coupons")
+      .withIndex("by_code")
+      .filter((q) => q.eq(q.field("code"), normalized))
+      .first();
+    if (!coupon || !coupon.active) {
+      return { ok: false as const, error: "That code is not valid." };
+    }
+    const discountCents = Math.round(
+      (booking.amountCents * coupon.percentOff) / 100,
+    );
+    await ctx.db.patch(bookingId, {
+      couponCode: coupon.code,
+      discountCents,
+    });
+    return { ok: true as const, percentOff: coupon.percentOff };
+  },
+});
+
+/** Record that a session reminder email was sent. */
+export const markReminderSent = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+    kind: v.union(v.literal("24h"), v.literal("1h")),
+  },
+  handler: async (ctx, { sessionId, kind }) => {
+    await ctx.db.patch(sessionId, {
+      [kind === "24h" ? "reminder24hSentAt" : "reminder1hSentAt"]: Date.now(),
+    });
+    return sessionId;
+  },
+});
+
+/** Record that a waitlist seat-offer email was sent for a booking. */
+export const markWaitlistOfferEmailed = mutation({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, { bookingId }) => {
+    await ctx.db.patch(bookingId, {
+      waitlistOfferEmailSentAt: Date.now(),
+    });
     return bookingId;
   },
 });
@@ -357,6 +430,14 @@ export const createCheckoutSession = action({
       return { ok: false as const, error: "This booking is already settled." };
     }
 
+    const unitAmount = booking.amountCents - (booking.discountCents ?? 0);
+    if (unitAmount <= 0) {
+      return {
+        ok: false as const,
+        error: "The discount covers the full price — nothing to pay.",
+      };
+    }
+
     const Stripe = await import("stripe");
     const stripe = new Stripe.default(key);
     const session = await stripe.checkout.sessions.create({
@@ -368,7 +449,7 @@ export const createCheckoutSession = action({
             product_data: {
               name: `AgriSkills Academy — ${booking.courseTitle}`,
             },
-            unit_amount: booking.amountCents,
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
@@ -463,5 +544,82 @@ export const setBookingStatus = mutation({
           : booking.paymentStatus,
     });
     return bookingId;
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Admin — metrics
+// ---------------------------------------------------------------------------
+
+/** Summary numbers for the admin revenue dashboard. */
+export const adminStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const bookings = await ctx.db.query("bookings").collect();
+    const courses = await ctx.db.query("courses").collect();
+    const courseById = new Map(courses.map((c) => [c._id, c]));
+
+    let paidRevenueCents = 0;
+    let onSiteValueCents = 0;
+    let confirmed = 0;
+    let pending = 0;
+    let cancelled = 0;
+    const perCourse = new Map<
+      string,
+      { title: string; revenueCents: number; count: number }
+    >();
+
+    for (const booking of bookings) {
+      if (booking.status === "cancelled") {
+        cancelled += 1;
+      } else if (booking.status === "pending") {
+        pending += 1;
+      } else {
+        confirmed += 1;
+      }
+      const net = booking.amountCents - (booking.discountCents ?? 0);
+      if (booking.paymentStatus === "paid") {
+        paidRevenueCents += net;
+      }
+      if (booking.status === "confirmed" && booking.paymentStatus === "waived") {
+        onSiteValueCents += booking.amountCents;
+      }
+      const entry =
+        perCourse.get(booking.courseId) ??
+        ({
+          title: courseById.get(booking.courseId)?.title ?? "Course removed",
+          revenueCents: 0,
+          count: 0,
+        } satisfies {
+          title: string;
+          revenueCents: number;
+          count: number;
+        });
+      if (booking.paymentStatus === "paid") {
+        entry.revenueCents += net;
+      }
+      if (booking.status !== "cancelled") {
+        entry.count += 1;
+      }
+      perCourse.set(booking.courseId, entry);
+    }
+
+    const revenueByCourse = Array.from(perCourse.values())
+      .sort((a, b) => b.revenueCents - a.revenueCents)
+      .slice(0, 6);
+    const reviews = await ctx.db.query("reviews").collect();
+    const coupons = await ctx.db.query("coupons").collect();
+
+    return {
+      bookingsTotal: bookings.length,
+      confirmed,
+      pending,
+      cancelled,
+      paidRevenueCents,
+      onSiteValueCents,
+      revenueByCourse,
+      reviewsCount: reviews.length,
+      couponsCount: coupons.length,
+    };
   },
 });

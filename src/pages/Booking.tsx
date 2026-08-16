@@ -2,6 +2,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatSession } from "@/lib/format";
 import { useAction, useMutation, useQuery } from "convex/react";
@@ -43,6 +44,8 @@ export default function Booking() {
   const verifyCheckout = useAction(api.bookings.verifyCheckout);
   const cancelBooking = useMutation(api.bookings.cancelBooking);
   const rescheduleBooking = useMutation(api.bookings.rescheduleBooking);
+  const applyCoupon = useMutation(api.bookings.applyCoupon);
+  const sendWaitlistOffer = useAction(api.notifications.sendWaitlistOffer);
   const alternativeSessions = useQuery(
     api.bookings.listSessionsForCourse,
     booking ? { courseId: booking.courseId } : "skip",
@@ -50,6 +53,9 @@ export default function Booking() {
 
   const [checkingOut, setCheckingOut] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [couponMessage, setCouponMessage] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(sessionId !== null);
   const [error, setError] = useState<string | null>(null);
   const [showReschedule, setShowReschedule] = useState(false);
@@ -110,10 +116,40 @@ export default function Booking() {
     setCancelling(true);
     setError(null);
     try {
-      await cancelBooking({ bookingId: booking._id });
+      const result = await cancelBooking({ bookingId: booking._id });
+      // If a waitlisted student was offered the freed seat, notify them.
+      if (result.offeredBookingId) {
+        void sendWaitlistOffer({
+          bookingId: result.offeredBookingId,
+          origin: window.location.origin,
+        }).catch(() => {});
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not cancel.");
       setCancelling(false);
+    }
+  };
+
+  const handleApplyCoupon = async (code: string) => {
+    if (!booking) return;
+    setApplyingCoupon(true);
+    setCouponMessage(null);
+    try {
+      const result = await applyCoupon({ bookingId: booking._id, code });
+      if (!result.ok) {
+        setCouponMessage(result.error);
+      } else if (result.percentOff > 0) {
+        setCouponMessage(`Code applied — ${result.percentOff}% off.`);
+        setCouponInput("");
+      } else {
+        setCouponMessage("Coupon removed.");
+      }
+    } catch (err) {
+      setCouponMessage(
+        err instanceof Error ? err.message : "Could not apply the code.",
+      );
+    } finally {
+      setApplyingCoupon(false);
     }
   };
 
@@ -274,8 +310,22 @@ export default function Booking() {
                 </div>
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-muted-foreground">amount</dt>
-                  <dd className="font-semibold">
-                    {formatMoney(booking.amountCents)}
+                  <dd className="text-right font-semibold">
+                    {booking.discountCents ? (
+                      <>
+                        <span className="mr-1.5 text-xs font-normal text-muted-foreground line-through">
+                          {formatMoney(booking.amountCents)}
+                        </span>
+                        {formatMoney(
+                          booking.amountCents - booking.discountCents,
+                        )}
+                        <span className="ml-1.5 border border-term-green/40 bg-term-green/10 px-1 text-[10px] font-medium text-term-green">
+                          {booking.couponCode}
+                        </span>
+                      </>
+                    ) : (
+                      formatMoney(booking.amountCents)
+                    )}
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">
@@ -294,6 +344,56 @@ export default function Booking() {
                 {booking.status === "pending" &&
                   booking.paymentStatus === "unpaid" && (
                     <>
+                      <div className="space-y-2 border border-border bg-muted/30 px-3 py-2.5">
+                        {booking.couponCode ? (
+                          <div className="flex items-center justify-between gap-2 text-xs">
+                            <span className="text-term-green">
+                              code applied:{" "}
+                              <span className="font-semibold">
+                                {booking.couponCode}
+                              </span>
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-[11px] text-muted-foreground"
+                              disabled={applyingCoupon}
+                              onClick={() => void handleApplyCoupon("")}
+                            >
+                              remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Input
+                              value={couponInput}
+                              onChange={(e) =>
+                                setCouponInput(e.target.value.toUpperCase())
+                              }
+                              placeholder="discount code"
+                              className="h-9 font-mono text-xs uppercase"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-9 shrink-0 text-xs"
+                              disabled={applyingCoupon}
+                              onClick={() => void handleApplyCoupon(couponInput)}
+                            >
+                              {applyingCoupon ? (
+                                <Loader2 className="size-3.5 animate-spin" />
+                              ) : (
+                                "apply"
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                        {couponMessage && (
+                          <p className="text-[11px] text-term-amber">
+                            {couponMessage}
+                          </p>
+                        )}
+                      </div>
                       <Button
                         onClick={handleCheckout}
                         disabled={checkingOut}
@@ -307,7 +407,11 @@ export default function Booking() {
                         ) : (
                           <>
                             <CreditCard className="size-4" />
-                            pay {formatMoney(booking.amountCents)} now
+                            pay{" "}
+                            {formatMoney(
+                              booking.amountCents - (booking.discountCents ?? 0),
+                            )}{" "}
+                            now
                           </>
                         )}
                       </Button>

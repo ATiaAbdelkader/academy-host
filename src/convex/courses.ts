@@ -6,6 +6,9 @@ import {
   type ContentBlock,
   type CourseModule,
 } from "./schema";
+import { extraCourse10 } from "./extra_course_10";
+import { extraCourse11 } from "./extra_course_11";
+import { extraCourse12 } from "./extra_course_12";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -59,6 +62,11 @@ type SeedCourse = {
 const SEED_CONTENT_VERSION = 2;
 
 const seedCatalog: SeedCourse[] = [
+  // Extended catalog — newest tracks first in source; canonical ordering is
+  // restored by each course's explicit `order` field.
+  extraCourse10,
+  extraCourse11,
+  extraCourse12,
   {
     category: "Foundations",
     title: "Welcome to AgriSkills Academy",

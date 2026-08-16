@@ -16,9 +16,9 @@ export const roleValidator = v.union(
 );
 export type Role = Infer<typeof roleValidator>;
 
-// Structured content blocks that make up a lesson. Rendered by the lesson
+// Structured content blocks that make up a course. Rendered by the course
 // reader in a terminal style (headings, prose, code, lists, notes).
-export const lessonBlockValidator = v.union(
+export const contentBlockValidator = v.union(
   v.object({ type: v.literal("heading"), text: v.string() }),
   v.object({ type: v.literal("paragraph"), text: v.string() }),
   v.object({
@@ -33,7 +33,21 @@ export const lessonBlockValidator = v.union(
     tone: v.union(v.literal("info"), v.literal("warn")),
   }),
 );
-export type LessonBlock = Infer<typeof lessonBlockValidator>;
+export type ContentBlock = Infer<typeof contentBlockValidator>;
+
+export const bookingStatusValidator = v.union(
+  v.literal("pending"),
+  v.literal("confirmed"),
+  v.literal("cancelled"),
+);
+export type BookingStatus = Infer<typeof bookingStatusValidator>;
+
+export const paymentStatusValidator = v.union(
+  v.literal("unpaid"),
+  v.literal("paid"),
+  v.literal("waived"),
+);
+export type PaymentStatus = Infer<typeof paymentStatusValidator>;
 
 const schema = defineSchema(
   {
@@ -51,18 +65,52 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // Lessons hosted for students (version 1 scope).
-    lessons: defineTable({
-      module: v.string(), // curriculum module label, e.g. "01 · Getting Started"
+    // The training catalog. One course = one catalog item customers can
+    // browse, book a session for, and pay to attend.
+    courses: defineTable({
+      category: v.string(), // catalog category, e.g. "Foundations"
       title: v.string(),
-      slug: v.string(), // url-safe identifier for /lessons/:slug
+      slug: v.string(), // url-safe identifier for /courses/:slug
       description: v.string(),
+      priceCents: v.number(), // 0 = free
       durationMinutes: v.number(),
-      order: v.number(), // global sort order across modules
-      content: v.array(lessonBlockValidator), // ordered content blocks
+      order: v.number(), // global sort order across the catalog
+      published: v.boolean(), // visible in the student catalog
+      content: v.array(contentBlockValidator), // ordered content blocks
     })
       .index("by_slug", ["slug"])
       .index("by_order", ["order"]),
+
+    // Live, bookable training sessions for a course.
+    sessions: defineTable({
+      courseId: v.id("courses"),
+      startsAt: v.number(), // epoch ms
+      durationMinutes: v.number(),
+      capacity: v.number(),
+    }).index("by_course_start", ["courseId", "startsAt"]),
+
+    // A customer's booking for one session of one course.
+    bookings: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      sessionId: v.id("sessions"),
+      amountCents: v.number(), // price at booking time
+      status: bookingStatusValidator, // pending | confirmed | cancelled
+      paymentStatus: paymentStatusValidator, // unpaid | paid | waived
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_session", ["sessionId"]),
+
+    // Questions and comments attached to a course.
+    comments: defineTable({
+      courseId: v.id("courses"),
+      userId: v.id("users"),
+      authorName: v.string(),
+      text: v.string(),
+      visible: v.boolean(),
+      createdAt: v.number(),
+    }).index("by_course", ["courseId"]),
   },
   {
     schemaValidation: false,

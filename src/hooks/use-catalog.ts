@@ -3,8 +3,10 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef } from "react";
 
 /**
- * Subscribes to the training catalog and seeds the starter curriculum on first
- * load (idempotent — the seed mutation no-ops once courses exist).
+ * Subscribes to the training catalog and seeds the starter curriculum. The
+ * seed is idempotent and fills in only missing courses, so it runs once per
+ * session load — new catalog additions reach existing deployments on their
+ * next load.
  */
 export function useCatalog() {
   const courses = useQuery(api.courses.list);
@@ -12,7 +14,7 @@ export function useCatalog() {
   const attempted = useRef(false);
 
   useEffect(() => {
-    if (courses !== undefined && courses.length === 0 && !attempted.current) {
+    if (courses !== undefined && !attempted.current) {
       attempted.current = true;
       void seed();
     }

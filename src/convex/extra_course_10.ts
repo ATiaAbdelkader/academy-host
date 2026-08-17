@@ -31,6 +31,11 @@ export const extraCourse10: ExtraCourse = {
           text: "An uncalibrated sprayer is a guess you pay for twice: once in wasted product, once in crop damage or failed control. Ten minutes of calibration before the season saves hours of fixing after it — and keeps every label rate honest.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=0N8hZBa0vGo",
+          caption: "Field sprayer calibration — why it matters and how to do it.",
+        },
+        {
           type: "list",
           items: [
             "Calibration is part of every application, not optional maintenance.",
@@ -86,6 +91,11 @@ export const extraCourse10: ExtraCourse = {
           text: "The goal is output per area: how many litres you apply per hectare at your actual field speed. Measure each nozzle's output into a jug for thirty seconds at spraying pressure, convert to litres per minute, and work out the boom's total output for the area it covers per minute.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=S1gkpo33U20",
+          caption: "Calibrating a tractor-pulled sprayer, step by step.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "sprayer check --boom-18m --speed-8kph\n[ok] nozzle output  1.1 L/min (target 1.0–1.2)\n[ok] boom width     18 m\n[ok] speed          8 kph\n[info] application rate ≈ 92 L/ha\n[warn] re-check at field speed — GPS may differ",
@@ -130,6 +140,11 @@ export const extraCourse10: ExtraCourse = {
         {
           type: "paragraph",
           text: "Nozzles decide droplet size, and droplet size decides coverage and drift. Flat-fan nozzles give broad even coverage; air-induction nozzles are the choice when drift matters. A worn nozzle can over-deliver by ten percent or more — replace them as a set, never one at a time.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=uspCrwiysGA",
+          caption: "Nozzle selection and droplet size for coverage vs. drift.",
         },
         {
           type: "list",
@@ -187,6 +202,11 @@ export const extraCourse10: ExtraCourse = {
           text: "Drift is a wind problem before it is a nozzle problem. Wind over about fifteen kilometres an hour — or a temperature inversion — pushes product where it does not belong. Check the weather at the field, not at the house, and hold a buffer from water and neighbours.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=TGfgMP3iBnM",
+          caption: "Spraying decisions that reduce drift.",
+        },
+        {
           type: "note",
           tone: "warn",
           text: "A temperature inversion can hold fine droplets in a low layer and carry them sideways for kilometres. If the air feels still but haze hangs low, that is a red flag — wait.",
@@ -231,6 +251,11 @@ export const extraCourse10: ExtraCourse = {
         {
           type: "paragraph",
           text: "Read the label's PPE section before you open the container, not after. Gloves, eye protection and the listed coverings are the difference between a routine job and a clinic visit. Mix in the order the label gives, on a contained pad, and keep clean water nearby for spills and rinsing.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=nhdZF4lYAsI",
+          caption: "Optimizing applications — mixing and filling safely.",
         },
         {
           type: "list",
@@ -286,6 +311,11 @@ export const extraCourse10: ExtraCourse = {
         {
           type: "paragraph",
           text: "An application you did not record is an application you cannot defend. Log the product, rate, area, weather, nozzles and operator for every pass — and verify the boom pattern before you trust the whole season to it.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=TXjCXBV1Jik",
+          caption: "How to calibrate a boom sprayer — then verify with the record.",
         },
         {
           type: "code",

@@ -1,5 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { AiAssistant, AssistantToggle } from "@/components/AiAssistant";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -517,6 +518,7 @@ export default function Course() {
   const [reviewComment, setReviewComment] = useState("");
   const [postingReview, setPostingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
@@ -906,6 +908,21 @@ export default function Course() {
                           </p>
                         </section>
                       ),
+                    )}
+                  </div>
+
+                  <div className="mt-8">
+                    <AssistantToggle
+                      open={assistantOpen}
+                      onToggle={() => setAssistantOpen((open) => !open)}
+                    />
+                    {assistantOpen && (
+                      <div className="mt-3">
+                        <AiAssistant
+                          courseId={course._id}
+                          courseTitle={course.title}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

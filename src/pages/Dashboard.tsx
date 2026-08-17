@@ -4,18 +4,23 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCatalog } from "@/hooks/use-catalog";
+import { BADGE_DEFS } from "@/lib/badges";
 import { formatMoney, formatSession } from "@/lib/format";
+import { downloadIcs } from "@/lib/ics";
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
   Award,
   CalendarDays,
+  CalendarPlus,
   CheckCircle2,
+  Flame,
   Flag,
   ListMinus,
   Loader2,
   ShieldCheck,
+  Trophy,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 
@@ -24,6 +29,8 @@ export default function Dashboard() {
   const bookings = useQuery(api.bookings.myBookings);
   const progressQuery = useQuery(api.progress.myProgress);
   const waitlists = useQuery(api.waitlist.myWaitlists);
+  const myStats = useQuery(api.gamification.myStats);
+  const leaderboard = useQuery(api.gamification.leaderboard);
   const progress = progressQuery ?? [];
   const courses = useCatalog();
   const cancelBooking = useMutation(api.bookings.cancelBooking);
@@ -64,6 +71,28 @@ export default function Dashboard() {
     } finally {
       setCancellingId(null);
     }
+  };
+
+  const handleCalendarExport = () => {
+    const events = (bookings ?? [])
+      .filter((b) => b.status !== "cancelled" && b.sessionStartsAt)
+      .map((b) => ({
+        uid: `agriskills-booking-${b._id}`,
+        title: `AgriSkills Academy — ${b.courseTitle}`,
+        description:
+          b.status === "pending"
+            ? "Payment pending — settle checkout to confirm your seat."
+            : "Live training session.",
+        location: b.sessionVenue ?? b.sessionJoinUrl ?? undefined,
+        start: b.sessionStartsAt,
+        end: b.sessionStartsAt + 60 * 60 * 1000,
+      }));
+    if (events.length === 0) {
+      toast.error("No upcoming sessions to export.");
+      return;
+    }
+    downloadIcs(events, "agriskills-my-sessions");
+    toast.success("Calendar file downloaded — import it into any calendar app.");
   };
 
   const handleLeaveWaitlist = async (sessionId: Id<"sessions">) => {
@@ -213,11 +242,174 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ── Bookings ───────────────────────────────────────────── */}
+        {/* ── Gamification ──────────────────────────────────────── */}
         <div className="mt-8 flex items-center gap-2 text-sm">
           <span className="text-term-green">$</span>
-          <span>ls bookings/</span>
+          <span>cat learner-profile.json</span>
           <span className="inline-block h-4 w-2 bg-foreground cursor-blink" />
+        </div>
+
+        <div className="mt-3 border border-border bg-card">
+          <div className="grid gap-0 lg:grid-cols-[1.15fr_1fr]">
+            <div className="border-b border-border lg:border-b-0 lg:border-r">
+              <div className="flex items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2.5">
+                <span className="text-xs font-semibold">learner profile</span>
+                <span className="text-[11px] text-muted-foreground">
+                  points update live as you study
+                </span>
+              </div>
+              {myStats === undefined || myStats === null ? (
+                <div className="space-y-2 p-4">
+                  <div className="h-4 animate-pulse bg-muted" />
+                  <div className="h-4 animate-pulse bg-muted" />
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+                    <Stat
+                      icon={<Trophy className="size-3.5 text-term-amber" />}
+                      label="points"
+                      value={String(myStats.points)}
+                    />
+                    <Stat
+                      icon={<Award className="size-3.5 text-term-green" />}
+                      label="rank"
+                      value={myStats.rank ? `#${myStats.rank}` : "—"}
+                    />
+                    <Stat
+                      icon={
+                        <Flame
+                          className={`size-3.5 ${
+                            myStats.streakDays >= 3
+                              ? "text-term-amber"
+                              : "text-muted-foreground"
+                          }`}
+                        />
+                      }
+                      label="streak"
+                      value={`${myStats.streakDays} ${myStats.streakDays === 1 ? "day" : "days"}`}
+                    />
+                    <Stat
+                      icon={<CheckCircle2 className="size-3.5 text-term-green" />}
+                      label="courses done"
+                      value={String(myStats.coursesCompleted)}
+                    />
+                  </div>
+                  <div className="px-4 py-3">
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                      badges ({myStats.badges.length}/
+                      {Object.keys(BADGE_DEFS).length})
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {Object.entries(BADGE_DEFS).map(([id, def]) => {
+                        const earned = myStats.badges.includes(id);
+                        return (
+                          <span
+                            key={id}
+                            title={`${def.label} — ${def.blurb}`}
+                            className={`border px-1.5 py-0.5 text-[10px] font-medium ${
+                              earned
+                                ? "border-term-green/40 bg-term-green/10 text-term-green"
+                                : "border-border bg-muted text-muted-foreground/50"
+                            }`}
+                          >
+                            {def.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                      <span className="text-term-green">[ok]</span> +10 pass a
+                      module quiz · +50 complete a course · +20 attend a
+                      session · +5 book · +5 review
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div>
+              <div className="border-b border-border bg-muted px-4 py-2.5">
+                <span className="text-xs font-semibold">leaderboard</span>
+                <span className="ml-2 text-[11px] text-muted-foreground">
+                  top students this season
+                </span>
+              </div>
+              {leaderboard === undefined && (
+                <div className="space-y-2 p-4">
+                  <div className="h-4 animate-pulse bg-muted" />
+                  <div className="h-4 animate-pulse bg-muted" />
+                </div>
+              )}
+              {leaderboard !== undefined && leaderboard.rows.length === 0 && (
+                <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                  <p>
+                    <span className="text-term-green">[ok]</span> no points on
+                    the board yet — pass a quiz and start the climb.
+                  </p>
+                </div>
+              )}
+              {leaderboard !== undefined && leaderboard.rows.length > 0 && (
+                <div>
+                  {leaderboard.rows.map((row) => (
+                    <div
+                      key={row.rank}
+                      className="flex items-center justify-between gap-2 border-b border-border px-4 py-2 text-xs last:border-b-0 hover:bg-accent/30"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="w-7 shrink-0 font-mono text-term-green">
+                          #{row.rank}
+                        </span>
+                        <span className="truncate font-medium">{row.name}</span>
+                        {row.rank === 1 && (
+                          <Trophy className="size-3 shrink-0 text-term-amber" />
+                        )}
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        <span className="text-muted-foreground">
+                          {row.points} pts
+                        </span>
+                        {row.streakDays >= 3 && (
+                          <Flame className="size-3 text-term-amber" />
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                  {leaderboard.myRank && (
+                    <div className="flex items-center justify-between gap-2 bg-term-green/5 px-4 py-2 text-xs">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="w-7 shrink-0 font-mono text-term-green">
+                          #{leaderboard.myRank}
+                        </span>
+                        <span className="truncate font-semibold">you</span>
+                      </span>
+                      <span className="text-muted-foreground">
+                        {leaderboard.myPoints} pts
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Bookings ───────────────────────────────────────────── */}
+        <div className="mt-8 flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-term-green">$</span>
+            <span>ls bookings/</span>
+            <span className="inline-block h-4 w-2 bg-foreground cursor-blink" />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 text-[11px]"
+            onClick={handleCalendarExport}
+          >
+            <CalendarPlus className="size-3.5" />
+            add to calendar (.ics)
+          </Button>
         </div>
 
         <div className="mt-3 border border-border bg-card">
@@ -429,6 +621,26 @@ export default function Dashboard() {
         </div>
       </div>
     </main>
+  );
+}
+
+function Stat({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-card px-4 py-3">
+      <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-1 font-mono text-xl font-semibold">{value}</p>
+    </div>
   );
 }
 

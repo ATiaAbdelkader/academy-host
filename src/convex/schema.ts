@@ -221,6 +221,54 @@ const schema = defineSchema(
       usedCount: v.optional(v.number()), // how many paid bookings used it
       createdAt: v.number(),
     }).index("by_code", ["code"]),
+
+    // Per-user gamification stats: points, streaks, and lifetime counters
+    // used to derive badges. One row per user, upserted on activity.
+    userStats: defineTable({
+      userId: v.id("users"),
+      points: v.number(),
+      streakDays: v.number(), // current consecutive-day streak
+      bestStreak: v.number(),
+      lastActiveDate: v.optional(v.string()), // "YYYY-MM-DD" (UTC)
+      quizPasses: v.number(), // distinct module quizzes first-passed
+      coursesCompleted: v.number(),
+      bookingsCount: v.number(),
+      attendedCount: v.number(),
+      reviewsCount: v.number(),
+      badges: v.array(v.string()),
+      updatedAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // A student's scheduled study plan for one course. Tasks (one lesson +
+    // one quiz per module, then a review) unfold day by day.
+    studyPlans: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      title: v.string(),
+      startDate: v.number(), // epoch ms of the plan's first day
+      completed: v.boolean(),
+      completedAt: v.optional(v.number()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // Individual study tasks inside a plan.
+    studyTasks: defineTable({
+      planId: v.id("studyPlans"),
+      day: v.number(), // day offset from the plan start (0-based)
+      title: v.string(),
+      kind: v.union(v.literal("lesson"), v.literal("quiz"), v.literal("review")),
+      done: v.boolean(),
+      doneAt: v.optional(v.number()),
+    }).index("by_plan", ["planId"]),
+
+    // Chat history for the AI study assistant.
+    aiMessages: defineTable({
+      userId: v.id("users"),
+      role: v.union(v.literal("user"), v.literal("assistant")),
+      content: v.string(),
+      courseId: v.optional(v.id("courses")),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

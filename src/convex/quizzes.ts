@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { ContentBlock } from "./schema";
 import type { Doc } from "./_generated/dataModel";
+import { POINTS, recordActivity } from "./gamification";
 
 /** Every content block in a course, in reading order — modules flatten to one stream. */
 function blocksOf(course: Doc<"courses">): ContentBlock[] {
@@ -84,6 +85,27 @@ export const submitQuiz = mutation({
     const total = quiz.questions.length;
     const percent = Math.round((correct / total) * 100);
     const passed = percent >= quiz.passPercent;
+    // First passing attempt of this quiz counts toward gamification only once.
+    if (passed) {
+      const priorPass = await ctx.db
+        .query("quizAttempts")
+        .withIndex("by_user_course", (q) =>
+          q.eq("userId", userId).eq("courseId", courseId),
+        )
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("quizIndex"), quizIndex),
+            q.eq(q.field("passed"), true),
+          ),
+        )
+        .first();
+      if (!priorPass) {
+        void recordActivity(ctx, userId, {
+          points: POINTS.quizPass,
+          quizPass: true,
+        });
+      }
+    }
     const attemptId = await ctx.db.insert("quizAttempts", {
       userId,
       courseId,

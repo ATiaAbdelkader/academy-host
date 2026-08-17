@@ -32,7 +32,15 @@ import {
   toLocalInputValue,
 } from "@/lib/format";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Download, Loader2, ShieldCheck, Star, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Download,
+  Loader2,
+  ShieldCheck,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -125,6 +133,7 @@ export default function Admin() {
             <TabsTrigger value="metrics">metrics</TabsTrigger>
             <TabsTrigger value="courses">courses</TabsTrigger>
             <TabsTrigger value="sessions">sessions</TabsTrigger>
+            <TabsTrigger value="roster">roster</TabsTrigger>
             <TabsTrigger value="bookings">bookings</TabsTrigger>
             <TabsTrigger value="comments">comments</TabsTrigger>
             <TabsTrigger value="reviews">reviews</TabsTrigger>
@@ -140,6 +149,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="sessions" className="mt-6">
             <SessionsTab />
+          </TabsContent>
+          <TabsContent value="roster" className="mt-6">
+            <RosterTab />
           </TabsContent>
           <TabsContent value="bookings" className="mt-6">
             <BookingsTab />
@@ -556,6 +568,253 @@ function CoursesTab() {
           if (!open) setContentCourse(null);
         }}
       />
+    </div>
+  );
+}// ---------------------------------------------------------------------------
+// Roster — attendance & waitlist per session
+// ---------------------------------------------------------------------------
+
+function RosterTab() {
+  const rosters = useQuery(api.admin.sessionRosters);
+  const markAttended = useMutation(api.bookings.markAttended);
+  const [expanded, setExpanded] = useState<Id<"sessions"> | null>(null);
+  const [busy, setBusy] = useState<Id<"bookings"> | null>(null);
+
+  const handleAttended = async (bookingId: Id<"bookings">, attended: boolean) => {
+    setBusy(bookingId);
+    try {
+      await markAttended({ bookingId, attended });
+      toast.success(attended ? "Marked as attended." : "Attendance cleared.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update attendance.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const sorted = [...(rosters ?? [])].sort((a, b) => b.startsAt - a.startsAt);
+  const upcoming = sorted.filter((r) => r.startsAt >= Date.now());
+  const past = sorted.filter((r) => r.startsAt < Date.now());
+
+  return (
+    <div className="space-y-6">
+      <div className="border border-border bg-card">
+        <div className="border-b border-border bg-muted px-4 py-2.5">
+          <span className="text-xs font-semibold">
+            upcoming sessions — attendance & waitlist
+          </span>
+        </div>
+        {rosters === undefined && (
+          <div className="space-y-2 p-4">
+            <div className="h-4 animate-pulse bg-muted" />
+            <div className="h-4 animate-pulse bg-muted" />
+          </div>
+        )}
+        {upcoming.length === 0 && rosters !== undefined && (
+          <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+            <p>
+              <span className="text-term-green">[ok]</span> no upcoming sessions
+              scheduled.
+            </p>
+          </div>
+        )}
+        {upcoming.map((roster) => (
+          <RosterRow
+            key={roster.sessionId}
+            roster={roster}
+            expanded={expanded === roster.sessionId}
+            onToggle={() =>
+              setExpanded(expanded === roster.sessionId ? null : roster.sessionId)
+            }
+            busy={busy}
+            onAttended={handleAttended}
+          />
+        ))}
+      </div>
+
+      <div className="border border-border bg-card">
+        <div className="border-b border-border bg-muted px-4 py-2.5">
+          <span className="text-xs font-semibold">past sessions</span>
+        </div>
+        {past.length === 0 && rosters !== undefined && (
+          <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+            <p>
+              <span className="text-term-green">[ok]</span> no past sessions yet.
+            </p>
+          </div>
+        )}
+        {past.map((roster) => (
+          <RosterRow
+            key={roster.sessionId}
+            roster={roster}
+            expanded={expanded === roster.sessionId}
+            onToggle={() =>
+              setExpanded(expanded === roster.sessionId ? null : roster.sessionId)
+            }
+            busy={busy}
+            onAttended={handleAttended}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RosterRow({
+  roster,
+  expanded,
+  onToggle,
+  busy,
+  onAttended,
+}: {
+  roster: {
+    sessionId: Id<"sessions">;
+    courseTitle: string;
+    startsAt: number;
+    durationMinutes: number;
+    capacity: number;
+    venue: string | null;
+    roster: Array<{
+      bookingId: Id<"bookings">;
+      name: string;
+      email: string | null;
+      status: string;
+      paymentStatus: string;
+      attendedAt: number | null;
+    }>;
+    waitlist: Array<{
+      waitlistId: Id<"waitlist">;
+      name: string;
+      email: string | null;
+      joinedAt: number;
+    }>;
+  };
+  expanded: boolean;
+  onToggle: () => void;
+  busy: Id<"bookings"> | null;
+  onAttended: (bookingId: Id<"bookings">, attended: boolean) => void;
+}) {
+  const attendedCount = roster.roster.filter((b) => b.attendedAt).length;
+  const past = roster.startsAt < Date.now();
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left transition-colors hover:bg-accent/30"
+      >
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-medium">
+            {roster.courseTitle}
+          </span>
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <CalendarDays className="size-3" />
+              {formatSession(roster.startsAt)}
+            </span>
+            <span>{roster.durationMinutes}m</span>
+            {roster.venue && <span>@{roster.venue}</span>}
+          </span>
+        </span>
+        <span className="flex shrink-0 items-center gap-2 text-[11px]">
+          <span className="border border-term-green/40 bg-term-green/10 px-1.5 py-0.5 font-medium text-term-green">
+            {attendedCount}/{roster.roster.length} attended
+          </span>
+          {roster.waitlist.length > 0 && (
+            <span className="border border-term-amber/40 bg-term-amber/10 px-1.5 py-0.5 font-medium text-term-amber">
+              {roster.waitlist.length} waiting
+            </span>
+          )}
+          <span className="text-muted-foreground">
+            {expanded ? "[-]" : "[+]"}
+          </span>
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border bg-muted/30 px-4 py-3">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            attendees ({roster.roster.length}/{roster.capacity})
+          </p>
+          {roster.roster.length === 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              <span className="text-term-green">[ok]</span> nobody booked yet.
+            </p>
+          )}
+          <div className="mt-2 space-y-1.5">
+            {roster.roster.map((entry) => (
+              <div
+                key={entry.bookingId}
+                className="flex flex-wrap items-center justify-between gap-2 border border-border bg-card px-3 py-2"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm">{entry.name}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {entry.email ?? "no email"} · {entry.status}
+                    {entry.paymentStatus === "paid" ? " · paid" : ""}
+                  </span>
+                </span>
+                {past && (
+                  <Button
+                    variant={
+                      entry.attendedAt ? "default" : "outline"
+                    }
+                    size="sm"
+                    className="h-7 gap-1 px-2 text-[11px]"
+                    disabled={busy === entry.bookingId}
+                    onClick={() =>
+                      onAttended(entry.bookingId, !entry.attendedAt)
+                    }
+                  >
+                    {busy === entry.bookingId ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="size-3" />
+                    )}
+                    {entry.attendedAt ? "unmark" : "attended"}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-4 text-[11px] uppercase tracking-wider text-muted-foreground">
+            waitlist ({roster.waitlist.length})
+          </p>
+          {roster.waitlist.length === 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              <span className="text-term-green">[ok]</span> no waitlisted
+              students. Freed seats go straight back to the catalog.
+            </p>
+          )}
+          <div className="mt-2 space-y-1.5">
+            {roster.waitlist.map((entry, index) => (
+              <div
+                key={entry.waitlistId}
+                className="flex items-center justify-between gap-2 border border-border bg-card px-3 py-2"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm">
+                    #{index + 1} {entry.name}
+                  </span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {entry.email ?? "no email"} · joined{" "}
+                    {formatDate(entry.joinedAt)}
+                  </span>
+                </span>
+                <span className="border border-term-amber/40 bg-term-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-term-amber">
+                  QUEUE
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            <span className="text-term-green">[ok]</span> when a student
+            cancels, the longest-waiting student is offered the freed seat
+            automatically.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

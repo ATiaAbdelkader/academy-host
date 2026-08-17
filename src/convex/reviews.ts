@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { POINTS, recordActivity } from "./gamification";
 
 /** Rating aggregates for every course — one query for the whole catalog. */
 export const summaries = query({
@@ -141,13 +142,18 @@ export const post = mutation({
     if (!booking) {
       throw new Error("Only students with a confirmed booking can review.");
     }
-    return ctx.db.insert("reviews", {
+    const reviewId = await ctx.db.insert("reviews", {
       courseId,
       userId,
       rating: cleanRating,
       comment: trimmed.length > 0 ? trimmed : undefined,
       createdAt: Date.now(),
     });
+    void recordActivity(ctx, userId, {
+      points: POINTS.review,
+      review: true,
+    });
+    return reviewId;
   },
 });
 

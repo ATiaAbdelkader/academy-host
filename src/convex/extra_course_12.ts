@@ -31,6 +31,11 @@ export const extraCourse12: ExtraCourse = {
           text: "Soil health is a living system, and the chemistry you read in a lab report is the output of that system. Worms, fungi and bacteria build structure, recycle nutrients and suppress disease. Feed them, and the chemistry follows; starve them, and no amount of fertilizer replaces them.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=xJrGeLd-iy8",
+          caption: "Carbon is the fuel of soil biology.",
+        },
+        {
           type: "list",
           items: [
             "Soil biology builds the structure chemistry depends on.",
@@ -86,6 +91,11 @@ export const extraCourse12: ExtraCourse = {
           text: "Compost is a recipe, not a pile of leftovers. Aim for roughly twenty-five to thirty parts carbon to one part nitrogen, keep the pile as wet as a wrung-out sponge, and turn it when the core cools. A working pile heats, steams and shrinks — those are the signs the biology is doing its job.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=Bg0CXHT6kQk",
+          caption: "How great compost gets made at scale.",
+        },
+        {
           type: "note",
           tone: "warn",
           text: "A cold, wet, slimy pile is starving for air or carbon. If it smells like ammonia, add carbon; if it smells rotten, turn it.",
@@ -130,6 +140,11 @@ export const extraCourse12: ExtraCourse = {
         {
           type: "paragraph",
           text: "Compost improves soil over years, not days. Apply it at the right rate — usually a few centimetres or tonnes per hectare, not a mountain — and work it where the roots live. Its job is to feed the biology and buffer the soil, not to replace fertilizer this season.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=FcDUh1oS1Yo",
+          caption: "How to make and use compost — full masterclass.",
         },
         {
           type: "list",
@@ -182,6 +197,11 @@ export const extraCourse12: ExtraCourse = {
           text: "A cover crop is planted for what it does after the main crop, not for harvest. Grasses build organic matter fast, legumes fix nitrogen, and deep taproots break compaction. Choose by the goal — then plant early enough that the cover actually establishes before winter.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=-j7uBM6MsJg",
+          caption: "Cover crops and minimal tillage: the secret to healthy soil.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "cover plan --field-12\n[ok] goal      nitrogen + organic matter\n[ok] species   vetch + oats mix\n[ok] seed      55 kg/ha\n[ok] window    plant by Sep 20 · before first frost\n[ok] terminate spring · before flowering",
@@ -226,6 +246,11 @@ export const extraCourse12: ExtraCourse = {
         {
           type: "paragraph",
           text: "Rotation is how you make biology work for you across the whole year. Different root systems feed different microbial communities, residue from one crop feeds the next, and breaking pest cycles beats fighting them. The sequence matters more than any single practice.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=XQMJK9UYOF4",
+          caption: "Cover cropping for soil health — no-till and low-till strategies.",
         },
         {
           type: "list",
@@ -281,6 +306,11 @@ export const extraCourse12: ExtraCourse = {
         {
           type: "paragraph",
           text: "Biology is slower than chemistry, so measure what you can see and keep records. Earthworm counts, infiltration rate, residue cover and how fast a test strip of cloth or cotton breaks down are all cheap indicators. Year over year, the trend — not the snapshot — is the truth.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=OgFQp8HvEso",
+          caption: "A real farm's soil health progress with cover crops and no-till.",
         },
         {
           type: "code",

@@ -3,6 +3,7 @@ import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import { POINTS, recordActivity } from "./gamification";
 import { notifyUser } from "./inapp";
 
 // ---------------------------------------------------------------------------
@@ -140,6 +141,10 @@ export const bookSession = mutation({
       status: isFree ? "confirmed" : "pending",
       paymentStatus: isFree ? "waived" : "unpaid",
       createdAt: Date.now(),
+    });
+    void recordActivity(ctx, userId, {
+      points: POINTS.booking,
+      booking: true,
     });
     return bookingId;
   },
@@ -287,9 +292,16 @@ export const markAttended = mutation({
     if (attended && booking.status !== "confirmed") {
       throw new Error("Only confirmed bookings can be marked attended.");
     }
+    const firstAttendance = attended && !booking.attendedAt;
     await ctx.db.patch(bookingId, {
       attendedAt: attended ? Date.now() : undefined,
     });
+    if (firstAttendance) {
+      void recordActivity(ctx, booking.userId, {
+        points: POINTS.attended,
+        attended: true,
+      });
+    }
     return bookingId;
   },
 });

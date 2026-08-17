@@ -43,6 +43,14 @@ export const getBySlug = query({
   },
 });
 
+/** A single course by id. Returns null when not found. */
+export const getById = query({
+  args: { courseId: v.id("courses") },
+  handler: async (ctx, { courseId }) => {
+    return (await ctx.db.get(courseId)) ?? null;
+  },
+});
+
 /**
  * Instructor directory built from the published catalog. Groups courses by
  * instructor name and attaches each instructor's credential title (the title
@@ -160,6 +168,11 @@ const seedCatalog: SeedCourse[] = [
             text: "AgriSkills Academy is the training home for customers of our products and services. Every course is a sequence of modules, and each module ends with a short quiz. You pass a module's quiz to unlock the next one — and you pass the last one to earn your certificate.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=vS3L4kemR6s",
+            caption: "How certificate courses work: lessons, quizzes, and your certificate.",
+          },
+          {
             type: "list",
             items: [
               "Every course belongs to a category — begin with Foundations.",
@@ -213,6 +226,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Your account carries your progress, bookings, comments, and certificates. Keep your display name current — it is what appears on your certificate and on every comment you leave.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=E7CwqNHn_Ns",
+            caption: "Set up your study toolkit — notes, review, and your progress tracker.",
           },
           {
             type: "list",
@@ -269,6 +287,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Live sessions are how you train with an instructor. Pick an upcoming session on the course page, book it, and — for paid courses — settle checkout to confirm your seat.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=Z-zNHHpXoMM",
+            caption: "Schedule your sessions like you schedule your studying: at regular intervals.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "course open soil-health-essentials\n[ok] session  Sat 09:00 · 12 seats\n[ok] booked · checkout pending\n[ok] confirmed",
@@ -320,6 +343,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Read, watch, and practice in order. Take notes — every course has a private notes panel attached to your progress. The quizzes test what the module actually taught, not trivia.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=eVajQPuRmk8",
+            caption: "Active recall — the technique behind our module quizzes.",
+          },
+          {
             type: "note",
             tone: "info",
             text: "You can retake any quiz as many times as you like. The point is mastery, not a perfect first try.",
@@ -369,6 +397,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Comments stay open under every course, and our team answers within one business day. When you need help, the more context you give — course, module, what you tried — the faster the answer is useful.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=RLSwj690Tgc",
+            caption: "When to revisit material — and when to ask for help.",
           },
           {
             type: "list",
@@ -423,6 +456,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Your dashboard tracks every course you start or complete. Complete a course by passing all its module quizzes, and you unlock a certificate you can print or save as a PDF from the certificate page.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=cVf38y07cfk",
+            caption: "How review schedules build your learning record — and your certificate.",
           },
           {
             type: "list",
@@ -492,6 +530,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Your product ships with a digital records side — an app and a cloud account that are part of what you bought. The value is not the software; it is the log you build in it. Set up once, correctly, and every event this season lands in a record you can use.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=AQ_jQ8t3dRo",
+            caption: "Start with structure: operations, fields, and units in one place.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "records setup --operation sunrise-farm\n[ok] operation   created\n[ok] field-01    added\n[ok] field-04    added\n[ok] unit        linked 2 devices\n[ok] team        3 members",
@@ -541,6 +584,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Linked product units make every log richer: an application logged from a linked unit carries the machine, the rate, and the time automatically. Link each unit once, under the field it works most.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=82ti-m7uHU4",
+            caption: "Digital tools that connect your machines to your records.",
           },
           {
             type: "list",
@@ -597,6 +645,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Logs are most valuable when they are boring and consistent. Ten seconds of entry per event beats one perfect spreadsheet at harvest. Make logging part of the task itself — before you leave the field, the event is in.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=sDpm3zjRLFI",
+            caption: "The habit of logging as you go — before you leave the field.",
+          },
+          {
             type: "note",
             tone: "info",
             text: "A log in the phone is not a record until it is synced to the cloud. Sync before you leave the field.",
@@ -648,6 +701,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Standard event types keep exports clean: applications, irrigation, scouting runs, maintenance. Your own labels are fine — keep them few, spell them the same way every time, and the trend views stay trustworthy.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=LP2K7tVXzYg",
+            caption: "Consistent records make clean exports.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "records log --field-04 --type application\n[ok] product    fert-12-12-12\n[ok] rate       180 kg/ha\n[ok] unit       spreader-01\n[ok] synced",
@@ -697,6 +755,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Sync keeps the cloud record current and safe. Export hands the same data to your spreadsheet or your agronomist's inbox — the export is the moment the log earns its keep.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=aa9fTVCWR90",
+            caption: "Sync and export strategies that keep compliance easy.",
           },
           {
             type: "list",
@@ -751,6 +814,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Trend views turn the log into decisions: last season's irrigation history, this year's scouting counts, each field's fertility line. The snapshot is a moment; the trend is the story — and the story is what you paid for.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=h0uuIDtT2xU",
+            caption: "Turning logged data into decisions.",
           },
           {
             type: "code",
@@ -817,6 +885,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Product and field guides are dense by design: they are reference documents, not novels. Reading them front to back wastes time and buries the useful parts. Treat them as a map to query, not a story to consume.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=6l4JPsCUWug",
+            caption: "Two purposes, safety and maintenance — the manual is the map.",
+          },
+          {
             type: "list",
             items: [
               "Guides answer questions; they do not entertain.",
@@ -871,6 +944,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Use a loop instead of a front-to-back pass: scan, read, review. Scan builds the map, read pulls the details, review makes them stick — and each pass takes a fraction of the time of reading cold.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=E7CwqNHn_Ns",
+            caption: "A note-taking method that works on any technical document.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "scan()   -> read()  -> review()\nmap      -> notes    -> recall\n10% time -> 60% time -> 30% time",
@@ -920,6 +998,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Do not skim the safety sections. They exist because equipment failures are unforgiving. Read them before anything else, and re-read them before any task you have not done recently.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=6Y_VT14aYSE",
+            caption: "How manufacturers turn safety sections into checklists.",
           },
           {
             type: "note",
@@ -973,6 +1056,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Tables and diagrams carry most of the real information in a guide: clearances, torques, capacities, and flow paths. Read the caption, find your model, and trace the row — do not read a table like prose.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=BggoEriIKLo",
+            caption: "Reading spec tables: find your machine, trace the row.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "spec --model m-400 --clearance\n[ok] front   110 cm\n[ok] rear    95 cm\n[ok] note    check with attachment fitted",
@@ -1022,6 +1110,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "The parts of a guide that apply to you are a small fraction of the whole. Collect them into a personal field manual — your equipment, your settings, your numbers — and the manufacturer's guide becomes a reference you rarely need to reopen.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=V6MXP0NK9hA",
+            caption: "Build your own field manual from the parts that apply to your kit.",
           },
           {
             type: "list",
@@ -1076,6 +1169,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "The loop is deliberately mechanical. A habit does not need to be clever — it needs to run every time you open a manual. Next guide you open: scan it, read the sections that apply, review what you learned, and file one line in your field manual.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=XIZcC_NRoOE",
+            caption: "The loop in action on real equipment.",
           },
           {
             type: "note",
@@ -1142,6 +1240,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Soil health is the foundation of every other decision on the farm. Water, nutrients, and root depth all report to the soil. Fix the soil and the rest of the system has a chance; ignore it and no input spends well.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=aXY7UiiWVuY",
+            caption: "Soil health principles — composition, organic matter, and structure.",
+          },
+          {
             type: "list",
             items: [
               "Every input passes through the soil first.",
@@ -1194,6 +1297,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "You do not need laboratory equipment to track soil health. Four observable indicators — structure, biology, chemistry, and moisture — give you a practical framework you can check at the same points, in the same way, every time.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=7gHOOZcpXbs",
+            caption: "Moisture, the fourth indicator, managed properly.",
           },
           {
             type: "list",
@@ -1251,6 +1359,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Structure is how aggregates hold together under pressure — crumbly but cohesive, with pore space for air and roots. Biology is the organisms doing the work: bacteria, fungi, and the earthworms that are the visible proof of a functioning soil food web.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=xJrGeLd-iy8",
+            caption: "Carbon fuels the biology that builds structure.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "soil check --profile field-04\n[ok] structure    good — crumbly, holds shape\n[ok] biology     fair — worms at 3 points\n[ok] note        add organic matter this fall",
@@ -1302,6 +1415,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Chemistry is nutrient availability — the part of the soil you can move with a fertilizer plan, and the reason soil tests exist. Moisture is how the soil holds and drains water: too tight drowns roots, too loose loses every drop.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=qcH9aYIbgF4",
+            caption: "Home chemistry checks: pH and nutrients in practice.",
+          },
+          {
             type: "note",
             tone: "info",
             text: "Moisture is the indicator that changes fastest. Check it the same day of the week, and note the weather since the last check.",
@@ -1351,6 +1469,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Sample the same three points in each field every time. Consistency is what makes the record comparable season to season — a change between checks means something only if the method did not change between checks.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=np9RbtHX6mA",
+            caption: "Sampling technique — the same way, every time.",
           },
           {
             type: "list",
@@ -1405,6 +1528,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "You are not looking for a perfect score. You are building a trend line — and the trend, not the snapshot, is what guides your decisions. A fair biology reading that improves across three seasons is worth more than one perfect reading.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=HYrkcfE62Pg",
+            caption: "Interpreting the report so the trend guides the decision.",
           },
           {
             type: "code",
@@ -1471,6 +1599,11 @@ const seedCatalog: SeedCourse[] = [
             text: "A soil test is only as useful as the plan you build from it. The report is a snapshot of availability at one moment; the plan turns that snapshot into actions — what to apply, how much, and how to record it so next season's test means something.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=np9RbtHX6mA",
+            caption: "What a soil test measures — and what the report means.",
+          },
+          {
             type: "list",
             items: [
               "The report measures availability, not total nutrients.",
@@ -1525,6 +1658,11 @@ const seedCatalog: SeedCourse[] = [
             text: "pH is the master switch. Outside the 6.0–7.0 band, nutrients lock up no matter how much you apply. Read it first, correct it first, and re-test before spending a cent on the rest of the plan.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=qcH9aYIbgF4",
+            caption: "Testing pH — the master switch in practice.",
+          },
+          {
             type: "note",
             tone: "warn",
             text: "Lime takes months to work. Correct pH a season ahead of the crop that needs it.",
@@ -1576,6 +1714,11 @@ const seedCatalog: SeedCourse[] = [
             text: "CEC is your soil's nutrient holding capacity. High-CEC soils forgive mistakes — they hold what you apply and release it slowly. Low-CEC soils punish them: every application is a race against leaching.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=vgLJ_u4GtpY",
+            caption: "CEC, organic matter, pH, and buffer index on a real report.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "lab report --field-04 --spring\n[ok] ph      6.4    target 6.2–6.8\n[ok] cec     12.8   meq/100g — medium\n[ok] p       34     ppm    target 25–40\n[warn] k       118    ppm    low — below 140",
@@ -1625,6 +1768,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Nitrogen, phosphorus, potassium, and sulfur are reported as availability, not truth. Compare each against the target for your crop and soil type — the report's 'low / medium / high' banding does the first pass for you.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=HYrkcfE62Pg",
+            caption: "Interpreting your soil test results line by line.",
           },
           {
             type: "list",
@@ -1681,6 +1829,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Correct pH first — lime or sulfur changes everything downstream. Then address the deficit that costs the most, usually potassium or magnesium when they read low. Hold nitrogen for the crop stage; it is managed in-season, not dumped at planting.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=aa9fTVCWR90",
+            caption: "Recordkeeping strategies for defensible fertility decisions.",
+          },
+          {
             type: "list",
             items: [
               "Pass one: correct pH before anything else.",
@@ -1733,6 +1886,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "A plan written but not logged is a guess. After each application, record the product, rate, and date. The record is what makes next season's test comparable — and your decisions defensible when anyone asks why you did what you did.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=LP2K7tVXzYg",
+            caption: "The application log that makes your decisions defensible.",
           },
           {
             type: "code",
@@ -1799,6 +1957,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Most crop damage is discovered late, because most of us scout like it is an emergency response instead of a routine. A weekly loop — walk, count, log, decide — shows you the problem while it is still cheap to fix, and gives you the numbers to prove the fix was necessary.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=lIzh9ua1iVk",
+            caption: "IPM is a routine, not a response — the foundations.",
+          },
+          {
             type: "list",
             items: [
               "Response scouting finds problems late and expensive.",
@@ -1853,6 +2016,11 @@ const seedCatalog: SeedCourse[] = [
             text: "Walk a fixed pattern — the same transect or W-shape every week, so sightings are comparable. Sample the right spots: field edges, low areas, and the patches that were hot last season. Count, don't guess — record counts per plant or per trap, never 'a lot'.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=mY80cEx15H0",
+            caption: "Scouting as the foundation of your weekly IPM loop.",
+          },
+          {
             type: "code",
             prompt: true,
             text: "scout run --field-04 --week-12\n[ok] aphids     4 / plant   threshold 10\n[ok] mildew     trace      threshold 5% leaf\n[warn] armyworm   6 / trap    threshold 8\n[info] record     logged",
@@ -1902,6 +2070,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "Pests arrive at edges first. Sample the perimeter and the low, sheltered corners where humidity and pest pressure build, then sample the interior for comparison. The same number of stops, the same stops, every week.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=F_MAHfhBf60",
+            caption: "Where to look and how to sample for pests.",
           },
           {
             type: "list",
@@ -1958,6 +2131,11 @@ const seedCatalog: SeedCourse[] = [
             text: "'A lot' is not data. Count per plant or per trap, record the number, and let the threshold decide. A count that surprises you is either a real problem or a method change — the log tells you which.",
           },
           {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=vPjViVjHAgA",
+            caption: "Scouting and management that reduce pesticide dependence.",
+          },
+          {
             type: "note",
             tone: "info",
             text: "If a count jumps, re-check your method before you re-check your sprayer.",
@@ -2007,6 +2185,11 @@ const seedCatalog: SeedCourse[] = [
           {
             type: "paragraph",
             text: "A pest is not a problem until it crosses the economic threshold — the population where the cost of treatment equals the value of the damage it prevents. Below it: do nothing but keep counting. Above it: act within the week.",
+          },
+          {
+            type: "video",
+            url: "https://www.youtube.com/watch?v=stX3_9ou91c",
+            caption: "Economic injury levels and thresholds, explained by an entomologist.",
           },
           {
             type: "note",

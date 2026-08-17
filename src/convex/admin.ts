@@ -2,6 +2,87 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
+function displayName(user: {
+  name?: string | undefined;
+  email?: string | undefined;
+}): string {
+  return (
+    user?.name?.trim() ||
+    (user?.email ? user.email.split("@")[0] : "Student") ||
+    "Student"
+  );
+}
+
+/**
+ * Per-session rosters for the admin console: every session with its booked
+ * students (attendance state included) and its waitlist, in queue order.
+ */
+export const sessionRosters = query({
+  args: {},
+  handler: async (ctx) => {
+    const callerId = await getAuthUserId(ctx);
+    if (!callerId) {
+      throw new Error("Not signed in.");
+    }
+    const caller = await ctx.db.get(callerId);
+    if (caller?.role !== "admin") {
+      throw new Error("Administrator access required.");
+    }
+    const sessions = await ctx.db.query("sessions").order("desc").collect();
+    return Promise.all(
+      sessions.map(async (session) => {
+        const course = await ctx.db.get(session.courseId);
+        const bookings = await ctx.db
+          .query("bookings")
+          .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+          .collect();
+        const active = bookings.filter((b) => b.status !== "cancelled");
+        const roster = await Promise.all(
+          active.map(async (booking) => {
+            const user = await ctx.db.get(booking.userId);
+            return {
+              bookingId: booking._id,
+              name: displayName(user ?? {}),
+              email: user?.email ?? null,
+              status: booking.status,
+              paymentStatus: booking.paymentStatus,
+              attendedAt: booking.attendedAt ?? null,
+              bookedAt: booking.createdAt,
+            };
+          }),
+        );
+        roster.sort((a, b) => a.bookedAt - b.bookedAt);
+        const waitlist = await ctx.db
+          .query("waitlist")
+          .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+          .collect();
+        const queue = [...waitlist].sort((a, b) => a.createdAt - b.createdAt);
+        const waitlistJoined = await Promise.all(
+          queue.map(async (entry) => {
+            const user = await ctx.db.get(entry.userId);
+            return {
+              waitlistId: entry._id,
+              name: displayName(user ?? {}),
+              email: user?.email ?? null,
+              joinedAt: entry.createdAt,
+            };
+          }),
+        );
+        return {
+          sessionId: session._id,
+          courseTitle: course?.title ?? "Course removed",
+          startsAt: session.startsAt,
+          durationMinutes: session.durationMinutes,
+          capacity: session.capacity,
+          venue: session.venue ?? null,
+          roster,
+          waitlist: waitlistJoined,
+        };
+      }),
+    );
+  },
+});
+
 /**
  * Sessions that still need a reminder email, joined with course info.
  * Covers both the 24-hour and 1-hour windows so one cron pass handles both.

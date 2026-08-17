@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { ContentBlock } from "./schema";
+import { POINTS, recordActivity } from "./gamification";
 
 /** The signed-in student's progress entries, joined with course info. */
 export const myProgress = query({
@@ -79,23 +80,39 @@ export const setStatus = mutation({
         q.eq("userId", userId).eq("courseId", courseId),
       )
       .first();
+    // Completing a course for the first time earns points and a badge.
+    const firstCompletion =
+      status === "completed" && existing?.status !== "completed";
     if (existing) {
       if (status === null) {
         await ctx.db.delete(existing._id);
         return existing._id;
       }
       await ctx.db.patch(existing._id, { status, updatedAt: Date.now() });
+      if (firstCompletion) {
+        void recordActivity(ctx, userId, {
+          points: POINTS.courseCompleted,
+          courseCompleted: true,
+        });
+      }
       return existing._id;
     }
     if (status === null) {
       return null;
     }
-    return ctx.db.insert("progress", {
+    const inserted = await ctx.db.insert("progress", {
       userId,
       courseId,
       status,
       updatedAt: Date.now(),
     });
+    if (firstCompletion) {
+      void recordActivity(ctx, userId, {
+        points: POINTS.courseCompleted,
+        courseCompleted: true,
+      });
+    }
+    return inserted;
   },
 });
 

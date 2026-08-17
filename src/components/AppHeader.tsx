@@ -76,6 +76,14 @@ export function AppHeader({ path }: { path?: string }) {
           )}
           {isAuthenticated && (
             <Link
+              to="/study"
+              className="transition-colors hover:text-foreground"
+            >
+              ./study-plan
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
               to="/settings"
               className="transition-colors hover:text-foreground"
             >

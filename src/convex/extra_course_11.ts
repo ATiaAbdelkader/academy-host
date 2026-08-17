@@ -31,6 +31,11 @@ export const extraCourse11: ExtraCourse = {
           text: "A greenhouse is a machine for making the season longer and the weather smaller. Structure, covering, vents, heating and irrigation work as one system — and the operator is the control loop. Understand the system, and every module after this one is a dial you can turn.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=peKuQovaL2E",
+          caption: "Why greenhouse growers automate climate — JM Fortier.",
+        },
+        {
           type: "list",
           items: [
             "Protected cropping extends the growing season.",
@@ -86,6 +91,11 @@ export const extraCourse11: ExtraCourse = {
           text: "Plants transpire, and transpiration fills the air with water. Temperature and humidity move together: heat the air and humidity drops, vent and it drops further. Keep the two in balance — hot and humid is the fastest route to disease under cover.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=mjuNOhciJ1Q",
+          caption: "Greenhouse climate controls: temperature and humidity.",
+        },
+        {
           type: "note",
           tone: "warn",
           text: "Hot plus humid is the disease recipe. If condensation forms on the covering at dawn, yesterday's ventilation was not enough.",
@@ -130,6 +140,11 @@ export const extraCourse11: ExtraCourse = {
         {
           type: "paragraph",
           text: "Under cover, every drop is scheduled. Drip lines deliver water and nutrients together — fertigation — and the crop reads the EC and pH of that mix all day long. Measure EC and pH of the feed at least daily, and flush the lines when salts climb.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=9515Gge54qg",
+          caption: "Automating the environment — the control loop behind watering and feeding.",
         },
         {
           type: "code",
@@ -181,6 +196,11 @@ export const extraCourse11: ExtraCourse = {
         {
           type: "paragraph",
           text: "Light drives everything: photosynthesis, temperature, and what the crop is willing to flower or fruit. Plan the season around the light curve, not the calendar — sow for the light that will arrive, and shade or screen when summer light tops what the crop can use.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=y_INtqeIRtc",
+          caption: "Walking through a full greenhouse climate setup.",
         },
         {
           type: "list",
@@ -238,6 +258,11 @@ export const extraCourse11: ExtraCourse = {
           text: "Under cover, a pest population doubles faster than outside — warmth and no rain give it a head start. Walk the crop twice a week, check the undersides of leaves, and act on the first hotspot. Integrated pest management means beneficials first, sprays only when thresholds say so.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=lIzh9ua1iVk",
+          caption: "IPM — how integrated pest management works under cover.",
+        },
+        {
           type: "list",
           items: [
             "Warmth and shelter let pests multiply faster under cover.",
@@ -291,6 +316,11 @@ export const extraCourse11: ExtraCourse = {
         {
           type: "paragraph",
           text: "The structure is the climate machine's housing, and it needs a routine. Clean the covering for light, check vents and fans, calibrate sensors, and fix small leaks before they become big ones. A well-maintained house is cheaper to run and easier to control.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=NtnV_gviDfY",
+          caption: "Know your structures: the components of a smart greenhouse.",
         },
         {
           type: "note",

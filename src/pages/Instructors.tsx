@@ -2,12 +2,22 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
-import { useQuery } from "convex/react";
-import { BookOpen, Clock3, GraduationCap, UserRound } from "lucide-react";
+import { useQuery_experimental } from "convex/react";
+import { BookOpen, Clock3, GraduationCap, TriangleAlert, UserRound } from "lucide-react";
 import { Link } from "react-router";
 
 export default function Instructors() {
-  const instructors = useQuery(api.courses.instructors);
+  // Non-throwing variant: a failed query renders an error state instead of
+  // taking the whole app down through the error boundary.
+  const query = useQuery_experimental({
+    query: api.courses.instructors,
+    args: {},
+    throwOnError: false,
+  });
+  const instructors =
+    query.status === "success" ? query.data : undefined;
+  const queryError =
+    query.status === "error" ? (query.error as Error).message : null;
 
   const totalCourses =
     instructors?.reduce((sum, i) => sum + i.courseCount, 0) ?? 0;
@@ -34,7 +44,18 @@ export default function Instructors() {
           <span className="inline-block h-4 w-2 bg-foreground cursor-blink" />
         </div>
 
-        {instructors === undefined && (
+        {queryError && (
+          <div className="mt-4 border border-term-amber/40 bg-term-amber/[0.07] px-4 py-8 text-center text-sm">
+            <TriangleAlert className="mx-auto size-5 text-term-amber" />
+            <p className="mt-2">
+              <span className="text-term-amber">[warn]</span> could not load
+              the instructor directory.
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{queryError}</p>
+          </div>
+        )}
+
+        {instructors === undefined && !queryError && (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="border border-border bg-card p-5">

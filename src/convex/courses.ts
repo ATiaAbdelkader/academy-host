@@ -9,6 +9,9 @@ import {
 import { extraCourse10 } from "./extra_course_10";
 import { extraCourse11 } from "./extra_course_11";
 import { extraCourse12 } from "./extra_course_12";
+import { extraCourse13 } from "./extra_course_13";
+import { extraCourse14 } from "./extra_course_14";
+import { extraCourse15 } from "./extra_course_15";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -135,6 +138,9 @@ const seedCatalog: SeedCourse[] = [
   extraCourse10,
   extraCourse11,
   extraCourse12,
+  extraCourse13,
+  extraCourse14,
+  extraCourse15,
   {
     category: "Foundations",
     title: "Welcome to AgriSkills Academy",

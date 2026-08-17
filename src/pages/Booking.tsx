@@ -153,6 +153,15 @@ export default function Booking() {
     }
   };
 
+  // Bundle flow: a coupon code arrives as ?coupon=CODE from the bundle page;
+  // apply it once the booking is loaded (unless one is already applied).
+  const couponParam = searchParams.get("coupon");
+  useEffect(() => {
+    if (!booking || !couponParam || booking.couponCode) return;
+    void handleApplyCoupon(couponParam);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booking, couponParam]);
+
   const handleReschedule = async (sessionId: Id<"sessions">) => {
     if (!booking) return;
     setReschedulingId(sessionId);

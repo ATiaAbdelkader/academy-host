@@ -2,6 +2,8 @@ import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
 import { AttendanceByCourse } from "@/components/AttendanceByCourse";
+import { MetricsExports } from "@/components/admin/MetricsExports";
+import { StudentProfileDialog } from "@/components/admin/StudentProfileDialog";
 import { ContentEditor } from "@/components/ContentEditor";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +43,7 @@ import {
   ShieldCheck,
   Star,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
@@ -74,6 +77,7 @@ export default function Admin() {
   const claimFirstAdmin = useMutation(api.users.claimFirstAdmin);
   const claimed = useRef(false);
   const [claimResult, setClaimResult] = useState<boolean | null>(null);
+  const [profileUserId, setProfileUserId] = useState<Id<"users"> | null>(null);
 
   useEffect(() => {
     if (user && !user.role && !claimed.current) {
@@ -152,10 +156,10 @@ export default function Admin() {
             <SessionsTab />
           </TabsContent>
           <TabsContent value="roster" className="mt-6">
-            <RosterTab />
+            <RosterTab onOpenStudent={setProfileUserId} />
           </TabsContent>
           <TabsContent value="bookings" className="mt-6">
-            <BookingsTab />
+            <BookingsTab onOpenStudent={setProfileUserId} />
           </TabsContent>
           <TabsContent value="comments" className="mt-6">
             <CommentsTab />
@@ -171,6 +175,11 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <StudentProfileDialog
+        userId={profileUserId}
+        onClose={() => setProfileUserId(null)}
+      />
     </main>
   );
 }
@@ -575,7 +584,11 @@ function CoursesTab() {
 // Roster — attendance & waitlist per session
 // ---------------------------------------------------------------------------
 
-function RosterTab() {
+function RosterTab({
+  onOpenStudent,
+}: {
+  onOpenStudent: (userId: Id<"users">) => void;
+}) {
   const rosters = useQuery(api.admin.sessionRosters);
   const markAttended = useMutation(api.bookings.markAttended);
   const [expanded, setExpanded] = useState<Id<"sessions"> | null>(null);
@@ -629,6 +642,7 @@ function RosterTab() {
             }
             busy={busy}
             onAttended={handleAttended}
+            onOpenStudent={onOpenStudent}
           />
         ))}
       </div>
@@ -654,6 +668,7 @@ function RosterTab() {
             }
             busy={busy}
             onAttended={handleAttended}
+            onOpenStudent={onOpenStudent}
           />
         ))}
       </div>
@@ -667,6 +682,7 @@ function RosterRow({
   onToggle,
   busy,
   onAttended,
+  onOpenStudent,
 }: {
   roster: {
     sessionId: Id<"sessions">;
@@ -677,6 +693,7 @@ function RosterRow({
     venue: string | null;
     roster: Array<{
       bookingId: Id<"bookings">;
+      userId: Id<"users"> | null;
       name: string;
       email: string | null;
       status: string;
@@ -694,6 +711,7 @@ function RosterRow({
   onToggle: () => void;
   busy: Id<"bookings"> | null;
   onAttended: (bookingId: Id<"bookings">, attended: boolean) => void;
+  onOpenStudent: (userId: Id<"users">) => void;
 }) {
   const attendedCount = roster.roster.filter((b) => b.attendedAt).length;
   const past = roster.startsAt < Date.now();
@@ -755,6 +773,17 @@ function RosterRow({
                     {entry.paymentStatus === "paid" ? " · paid" : ""}
                   </span>
                 </span>
+                {entry.userId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 px-2 text-[11px]"
+                    onClick={() => onOpenStudent(entry.userId!)}
+                  >
+                    <UserRound className="size-3" />
+                    profile
+                  </Button>
+                )}
                 {past && (
                   <Button
                     variant={
@@ -1019,7 +1048,11 @@ function SessionsTab() {
 // Bookings
 // ---------------------------------------------------------------------------
 
-function BookingsTab() {
+function BookingsTab({
+  onOpenStudent,
+}: {
+  onOpenStudent: (userId: Id<"users">) => void;
+}) {
   const bookings = useQuery(api.bookings.adminListBookings);
   const setBookingStatus = useMutation(api.bookings.setBookingStatus);
   const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
@@ -1205,6 +1238,15 @@ function BookingsTab() {
             )}
           </span>
           <span className="flex w-72 justify-end gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 gap-1 px-2 text-[11px]"
+              onClick={() => onOpenStudent(booking.userId)}
+            >
+              <UserRound className="size-3" />
+              profile
+            </Button>
             {booking.status === "confirmed" && (
               <Button
                 variant="outline"
@@ -1662,6 +1704,7 @@ function MetricsTab() {
   return (
     <div className="space-y-6">
       <AttendanceByCourse stats={stats} />
+      <MetricsExports />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="border border-border bg-card px-4 py-4">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">

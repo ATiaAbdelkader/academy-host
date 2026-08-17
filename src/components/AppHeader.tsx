@@ -66,6 +66,12 @@ export function AppHeader({ path }: { path?: string }) {
           >
             ./instructors
           </Link>
+          <Link
+            to="/bundles"
+            className="transition-colors hover:text-foreground"
+          >
+            ./bundles
+          </Link>
           {isAuthenticated && (
             <Link
               to="/dashboard"

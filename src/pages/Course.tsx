@@ -1,5 +1,5 @@
 import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AiAssistant, AssistantToggle } from "@/components/AiAssistant";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatSession } from "@/lib/format";
+import {
+  getOfflineCourse,
+  isSavedOffline,
+  removeOfflineCourse,
+  saveCourseForOffline,
+} from "@/lib/offline";
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
   ArrowLeft,
@@ -16,17 +22,20 @@ import {
   Check,
   CheckCircle2,
   Clock3,
+  Download,
   Flag,
   Loader2,
   MessageSquare,
   Lock,
   Star,
+  Trash2,
   UserRound,
   Users,
+  WifiOff,
   X,
 } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
 import { toast } from "sonner";
 
@@ -460,9 +469,18 @@ function BlockView({
 export default function Course() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isAuthenticated } = useAuth();
 
-  const course = useQuery(api.courses.getBySlug, { slug: slug ?? "" });
+  const liveCourse = useQuery(api.courses.getBySlug, { slug: slug ?? "" });
+  const [offlineCourse, setOfflineCourse] = useState<Doc<"courses"> | null>(
+    null,
+  );
+  const [isOffline, setIsOffline] = useState(
+    () => typeof window !== "undefined" && !window.navigator.onLine,
+  );
+  const [savedOffline, setSavedOffline] = useState(false);
+  const course = liveCourse ?? offlineCourse;
   const sessions = useQuery(
     api.bookings.listSessionsForCourse,
     course ? { courseId: course._id } : "skip",
@@ -519,6 +537,52 @@ export default function Course() {
   const [postingReview, setPostingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
+
+  // Offline reading: track connectivity and fall back to the saved copy.
+  useEffect(() => {
+    const goOnline = () => setIsOffline(false);
+    const goOffline = () => setIsOffline(true);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    setSavedOffline(slug ? isSavedOffline(slug) : false);
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug || !isOffline || liveCourse !== undefined) return;
+    const cached = getOfflineCourse(slug);
+    if (cached) {
+      setOfflineCourse(cached as Doc<"courses">);
+    }
+  }, [slug, isOffline, liveCourse]);
+
+  const handleSaveOffline = () => {
+    if (!slug || !liveCourse) return;
+    saveCourseForOffline(slug, liveCourse);
+    setSavedOffline(true);
+    toast.success("Course saved for offline reading.");
+  };
+
+  const handleRemoveOffline = () => {
+    if (!slug) return;
+    removeOfflineCourse(slug);
+    setSavedOffline(false);
+    toast.success("Offline copy removed.");
+  };
+
+  // Bundle coupons arrive as ?coupon=CODE; carry them into the booking page.
+  useEffect(() => {
+    const coupon = searchParams.get("coupon");
+    if (coupon) {
+      window.sessionStorage.setItem("agriskills:pending-coupon", coupon);
+    }
+  }, [searchParams]);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
@@ -596,7 +660,15 @@ export default function Course() {
           origin: window.location.origin,
         }).catch(() => {});
       }
-      navigate(`/booking/${bookingId}`);
+      const pendingCoupon = window.sessionStorage.getItem(
+        "agriskills:pending-coupon",
+      );
+      window.sessionStorage.removeItem("agriskills:pending-coupon");
+      navigate(
+        pendingCoupon
+          ? `/booking/${bookingId}?coupon=${encodeURIComponent(pendingCoupon)}`
+          : `/booking/${bookingId}`,
+      );
     } catch (error) {
       setBookingError(
         error instanceof Error ? error.message : "Could not book this session.",
@@ -727,6 +799,21 @@ export default function Course() {
 
         {course && (
           <>
+            {isOffline && (
+              <div className="mt-6 flex items-start gap-3 border border-term-amber/40 border-l-2 border-l-term-amber bg-term-amber/[0.07] px-4 py-3 text-sm">
+                <WifiOff className="mt-0.5 size-4 shrink-0 text-term-amber" />
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-term-amber">
+                    offline mode
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-foreground/85">
+                    You're viewing the saved copy of this lesson. Text and
+                    quizzes read fine without a connection — videos and quiz
+                    submissions need to come back online.
+                  </p>
+                </div>
+              </div>
+            )}
             {unavailable && (
               <div className="mt-6 border border-term-amber/40 border-l-2 border-l-term-amber bg-term-amber/[0.07] px-4 py-3 text-sm">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-term-amber">
@@ -744,11 +831,34 @@ export default function Course() {
             <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_22rem]">
               {/* ── Lesson window ────────────────────────────────── */}
               <div className="border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_10%,transparent)]">
-                <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+                <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
                   <span className="truncate text-xs text-muted-foreground">
                     cat courses/{course.slug}.md
                   </span>
-                  <WindowDots />
+                  <span className="flex shrink-0 items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-6 gap-1 px-2 text-[10px]"
+                      onClick={
+                        savedOffline ? handleRemoveOffline : handleSaveOffline
+                      }
+                    >
+                      {savedOffline ? (
+                        <>
+                          <Trash2 className="size-3" />
+                          remove offline
+                        </>
+                      ) : (
+                        <>
+                          <Download className="size-3 text-term-green" />
+                          save offline
+                        </>
+                      )}
+                    </Button>
+                    <WindowDots />
+                  </span>
                 </div>
 
                 <div className="px-4 py-6 sm:px-8 sm:py-8">

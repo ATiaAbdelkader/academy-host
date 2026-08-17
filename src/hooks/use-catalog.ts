@@ -11,14 +11,16 @@ import { useEffect, useRef } from "react";
 export function useCatalog() {
   const courses = useQuery(api.courses.list);
   const seed = useMutation(api.courses.seed);
+  const seedBundles = useMutation(api.bundles.seed);
   const attempted = useRef(false);
 
   useEffect(() => {
     if (courses !== undefined && !attempted.current) {
       attempted.current = true;
       void seed();
+      void seedBundles();
     }
-  }, [courses, seed]);
+  }, [courses, seed, seedBundles]);
 
   return courses;
 }

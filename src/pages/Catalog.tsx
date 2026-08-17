@@ -1,12 +1,20 @@
 import { api } from "@/convex/_generated/api";
+import { AiAssistant, AssistantToggle } from "@/components/AiAssistant";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
+import { listOfflineCourses, type OfflineCourse } from "@/lib/offline";
 import { useQuery } from "convex/react";
-import { ChevronRight, Search, Star, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  ChevronRight,
+  Download,
+  Search,
+  Star,
+  UserRound,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
 export default function Catalog() {
@@ -19,6 +27,12 @@ export default function Catalog() {
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [offlineCourses, setOfflineCourses] = useState<OfflineCourse[]>([]);
+
+  useEffect(() => {
+    setOfflineCourses(listOfflineCourses());
+  }, []);
 
   const categories = useMemo(
     () =>
@@ -74,6 +88,41 @@ export default function Catalog() {
           services. Open a course to read the material, see the session
           schedule, and book a seat.
         </p>
+
+        {/* ── Ask the academy ───────────────────────────────────── */}
+        <div className="mt-8 flex items-center gap-2">
+          <AssistantToggle
+            open={assistantOpen}
+            onToggle={() => setAssistantOpen((open) => !open)}
+          />
+          <span className="text-[11px] text-muted-foreground">
+            the assistant knows the whole catalog — ask which course fits your
+            goal
+          </span>
+        </div>
+        {assistantOpen && (
+          <div className="mt-3 max-w-xl">
+            <AiAssistant />
+          </div>
+        )}
+
+        {offlineCourses.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border border-border bg-card px-4 py-2.5 text-xs">
+            <span className="flex items-center gap-1.5 text-[11px] text-term-green">
+              <Download className="size-3.5" />
+              [ok] saved offline ({offlineCourses.length})
+            </span>
+            {offlineCourses.map((entry) => (
+              <Link
+                key={entry.slug}
+                to={`/courses/${entry.slug}`}
+                className="truncate text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {String((entry.course as { title?: string }).title ?? entry.slug)}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* ── Controls ──────────────────────────────────────────── */}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -269,6 +269,23 @@ const schema = defineSchema(
       courseId: v.optional(v.id("courses")),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    // Curated course packs sold at a bundled price. Enrollment happens through
+    // the normal booking flow: each bundle carries its own coupon code, and
+    // booking any included course with that code applies the bundle discount.
+    bundles: defineTable({
+      title: v.string(),
+      slug: v.string(), // url-safe identifier for /bundles/:slug
+      description: v.string(),
+      priceCents: v.number(), // bundle price (what the pack costs together)
+      regularCents: v.number(), // sum of included courses booked separately
+      courseSlugs: v.array(v.string()), // included courses, in display order
+      couponCode: v.string(), // coupon that unlocks the bundle discount
+      published: v.boolean(),
+      order: v.number(),
+    })
+      .index("by_slug", ["slug"])
+      .index("by_order", ["order"]),
   },
   {
     schemaValidation: false,

@@ -13,6 +13,8 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Catalog = lazy(() => import("./pages/Catalog.tsx"));
+const Bundles = lazy(() => import("./pages/Bundles.tsx"));
+const Verify = lazy(() => import("./pages/Verify.tsx"));
 const Instructors = lazy(() => import("./pages/Instructors.tsx"));
 const Course = lazy(() => import("./pages/Course.tsx"));
 const Booking = lazy(() => import("./pages/Booking.tsx"));
@@ -135,6 +137,9 @@ createRoot(document.getElementById("root")!).render(
                 element={<AuthPage redirectAfterAuth="/courses" />}
               />
               <Route path="/courses" element={<Catalog />} />
+              <Route path="/bundles" element={<Bundles />} />
+              <Route path="/bundles/:slug" element={<Bundles />} />
+              <Route path="/verify" element={<Verify />} />
               <Route path="/instructors" element={<Instructors />} />
               <Route path="/courses/:slug" element={<Course />} />
               <Route

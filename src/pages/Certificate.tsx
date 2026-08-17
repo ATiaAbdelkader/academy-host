@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
-import { Award, Loader2, Printer } from "lucide-react";
+import { Award, BadgeCheck, Loader2, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
@@ -83,18 +83,26 @@ export default function Certificate() {
 
         {!loading && eligible && course && (
           <>
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs text-term-green">
                 [ok] certificate issued — printable below
               </p>
-              <Button
-                onClick={() => window.print()}
-                size="sm"
-                className="gap-1.5 text-xs print:hidden"
-              >
-                <Printer className="size-3.5" />
-                print / save pdf
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs print:hidden">
+                  <Link to={`/verify?code=${encodeURIComponent(certId)}`}>
+                    <BadgeCheck className="size-3.5" />
+                    verify online
+                  </Link>
+                </Button>
+                <Button
+                  onClick={() => window.print()}
+                  size="sm"
+                  className="gap-1.5 text-xs print:hidden"
+                >
+                  <Printer className="size-3.5" />
+                  print / save pdf
+                </Button>
+              </div>
             </div>
 
             <style>{`

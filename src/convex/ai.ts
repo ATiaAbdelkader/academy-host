@@ -71,7 +71,7 @@ export const ask = action({
       };
     }
 
-    // Course context: what the assistant knows about the current lesson.
+    // Context: what the assistant knows about the student's question.
     let courseContext = "";
     if (courseId) {
       const course = await ctx.runQuery(api.courses.getById, {
@@ -91,6 +91,24 @@ export const ask = action({
           .filter((line): line is string => line !== null)
           .join("\n");
       }
+    } else {
+      // Global mode: the full catalog so the assistant can compare courses,
+      // recommend a track, or point at the right module for a topic.
+      const catalog = await ctx.runQuery(api.courses.list).catch(() => []);
+      const visible = catalog.filter((c) => c.published);
+      courseContext = visible.length
+        ? `The academy catalog (${
+            visible.length
+          } courses; price in USD, duration in minutes):\n` +
+          visible
+            .map(
+              (c) =>
+                `  - ${c.title} [${c.category}] ${c.durationMinutes}m ${
+                  c.priceCents === 0 ? "free" : `$${(c.priceCents / 100).toFixed(2)}`
+                } — ${c.description}`,
+            )
+            .join("\n")
+        : "";
     }
 
     const messages: ChatMessage[] = [

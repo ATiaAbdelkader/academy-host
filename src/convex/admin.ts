@@ -42,6 +42,7 @@ export const sessionRosters = query({
             const user = await ctx.db.get(booking.userId);
             return {
               bookingId: booking._id,
+              userId: user?._id ?? null,
               name: displayName(user ?? {}),
               email: user?.email ?? null,
               status: booking.status,
@@ -198,12 +199,34 @@ export const studentHistory = query({
       }),
     );
 
+    const quizAttempts = await ctx.db
+      .query("quizAttempts")
+      .withIndex("by_user_course", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+    const joinedAttempts = await Promise.all(
+      quizAttempts.map(async (attempt) => {
+        const course = await ctx.db.get(attempt.courseId);
+        return {
+          ...attempt,
+          courseTitle: course?.title ?? "Course removed",
+        };
+      }),
+    );
+
+    const stats = await ctx.db
+      .query("userStats")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
     return {
       user,
       bookings: joinedBookings,
       progress: joinedProgress,
       reviews: joinedReviews,
       waitlists: joinedWaitlists,
+      quizAttempts: joinedAttempts,
+      stats: stats ?? null,
     };
   },
 });

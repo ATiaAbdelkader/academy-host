@@ -31,6 +31,7 @@ export default function Dashboard() {
   const waitlists = useQuery(api.waitlist.myWaitlists);
   const myStats = useQuery(api.gamification.myStats);
   const leaderboard = useQuery(api.gamification.leaderboard);
+  const insights = useQuery(api.insights.myQuizInsights);
   const progress = progressQuery ?? [];
   const courses = useCatalog();
   const cancelBooking = useMutation(api.bookings.cancelBooking);
@@ -39,6 +40,7 @@ export default function Dashboard() {
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [reviewCourse, setReviewCourse] = useState<string | null>(null);
 
   const isAdmin = user?.role === "admin";
 
@@ -395,6 +397,130 @@ export default function Dashboard() {
         </div>
 
         {/* ── Bookings ───────────────────────────────────────────── */}
+        {/* ── Learner insights ──────────────────────────────────── */}
+        <div className="mt-8 flex items-center gap-2 text-sm">
+          <span className="text-term-green">$</span>
+          <span>cat insights.log</span>
+          <span className="inline-block h-4 w-2 bg-foreground cursor-blink" />
+        </div>
+
+        <div className="mt-3 border border-border bg-card">
+          {insights === undefined && (
+            <div className="space-y-2 p-4">
+              <div className="h-4 animate-pulse bg-muted" />
+              <div className="h-4 animate-pulse bg-muted" />
+            </div>
+          )}
+          {insights !== undefined && insights !== null && insights.length === 0 && (
+            <div className="px-4 py-8 text-center text-xs text-muted-foreground">
+              <p>
+                <span className="text-term-green">[ok]</span> no quiz data yet
+                — take a module quiz and your review targets show up here.
+              </p>
+            </div>
+          )}
+          {insights !== undefined && insights !== null && insights.length > 0 && (
+            <div>
+              <div className="grid grid-cols-[1fr_4rem_6rem_auto] items-center gap-3 border-b border-border bg-muted px-4 py-2 text-[11px] uppercase tracking-wider text-muted-foreground sm:grid-cols-[1fr_4rem_6rem_14rem_auto]">
+                <span>course</span>
+                <span className="text-right">best</span>
+                <span className="text-right">attempts</span>
+                <span className="hidden text-right sm:block">last 5 scores</span>
+                <span className="w-24 text-right">review</span>
+              </div>
+              {insights.map((row) => (
+                <div
+                  key={row.courseId}
+                  className="border-b border-border last:border-b-0"
+                >
+                  <div className="grid grid-cols-[1fr_4rem_6rem_auto] items-center gap-3 px-4 py-2.5 sm:grid-cols-[1fr_4rem_6rem_14rem_auto]">
+                    <Link
+                      to={`/courses/${row.courseSlug}`}
+                      className="min-w-0 truncate text-sm font-medium underline-offset-4 hover:underline"
+                    >
+                      {row.courseTitle}
+                    </Link>
+                    <span
+                      className={`text-right text-sm font-semibold ${
+                        row.bestScore >= 70
+                          ? "text-term-green"
+                          : "text-term-amber"
+                      }`}
+                    >
+                      {row.bestScore}%
+                    </span>
+                    <span className="text-right text-xs text-muted-foreground">
+                      {row.attempts}
+                    </span>
+                    <span className="hidden items-center justify-end gap-1 sm:flex">
+                      {row.lastScores.map((score, index) => (
+                        <span
+                          key={`${score.createdAt}-${index}`}
+                          title={`${score.score}% ${
+                            score.passed ? "passed" : "failed"
+                          }`}
+                          className={`flex h-6 w-6 items-center justify-center border font-mono text-[10px] ${
+                            score.passed
+                              ? "border-term-green/40 bg-term-green/10 text-term-green"
+                              : "border-term-amber/40 bg-term-amber/10 text-term-amber"
+                          }`}
+                        >
+                          {score.score}
+                        </span>
+                      ))}
+                    </span>
+                    <span className="flex w-24 justify-end">
+                      {row.weakTopics.length > 0 ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-[11px]"
+                          onClick={() => setReviewCourse(row.courseId)}
+                        >
+                          {reviewCourse === row.courseId
+                            ? "hide topics"
+                            : `${row.weakTopics.length} to review`}
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-term-green">
+                          [ok] none
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  {reviewCourse === row.courseId && row.weakTopics.length > 0 && (
+                    <div className="space-y-1.5 border-t border-border bg-muted/30 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        review these — questions you've missed
+                      </p>
+                      {row.weakTopics.map((topic, index) => (
+                        <div
+                          key={`${topic.question}-${index}`}
+                          className="flex items-start justify-between gap-3 border border-border bg-card px-3 py-2 text-xs"
+                        >
+                          <span className="min-w-0">
+                            <span className="block font-medium">
+                              {topic.question}
+                            </span>
+                            <span className="mt-0.5 block text-[10px] text-muted-foreground">
+                              quiz: {topic.moduleTitle}
+                            </span>
+                          </span>
+                          <span className="shrink-0 font-mono text-[10px] text-term-amber">
+                            missed {topic.timesWrong}{" "}
+                            {topic.timesWrong === 1 ? "time" : "times"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="mt-8 flex items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-term-green">$</span>

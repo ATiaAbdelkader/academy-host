@@ -34,7 +34,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
 import { toast } from "sonner";
@@ -237,6 +237,9 @@ function QuizBlock({
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array.from({ length: block.questions.length }, () => null),
   );
+  const [textAnswers, setTextAnswers] = useState<string[]>(() =>
+    Array.from({ length: block.questions.length }, () => ""),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
@@ -245,11 +248,18 @@ function QuizBlock({
     percent: number;
     passed: boolean;
     passPercent: number;
+    pendingReview?: boolean;
   } | null>(null);
 
   const attempts = (results ?? []).filter((a) => a.quizIndex === index);
   const passed = attempts.some((a) => a.passed);
-  const answered = answers.every((a) => a !== null);
+  const awaitingReview = attempts.some((a) => a.pendingReview);
+  const latestOpenGrades = attempts[0]?.openGrades ?? null;
+  const answered = block.questions.every((question, qi) =>
+    question.open
+      ? textAnswers[qi].trim().length > 0
+      : answers[qi] !== null,
+  );
 
   const handleSubmit = async () => {
     if (!answered || submitting) return;
@@ -260,6 +270,7 @@ function QuizBlock({
         courseId,
         quizIndex: index,
         answers: answers.map((a) => a ?? 0),
+        textAnswers,
       });
       setLastResult(result);
     } catch (e) {
@@ -295,9 +306,21 @@ function QuizBlock({
             may retake anytime
           </p>
         )}
+        {awaitingReview && !passed && (
+          <p className="border border-term-amber/40 border-l-2 border-l-term-amber bg-term-amber/[0.07] px-3 py-2 text-xs text-term-amber">
+            [warn] submitted — an instructor is reviewing your written answers.
+            The next module unlocks once the review is graded.
+          </p>
+        )}
 
         {block.questions.map((question, qi) => {
-          const review = lastResult ? answers[qi] === question.answerIndex : null;
+          const review = question.open
+            ? latestOpenGrades && latestOpenGrades[qi] !== null
+              ? latestOpenGrades[qi]
+              : null
+            : lastResult
+              ? answers[qi] === question.answerIndex
+              : null;
           return (
             <div key={qi} className="space-y-2">
               <p className="text-sm font-medium">
@@ -305,56 +328,86 @@ function QuizBlock({
                   Q{qi + 1}
                 </span>
                 {question.question}
+                {question.open && (
+                  <span className="ml-2 border border-term-amber/40 bg-term-amber/10 px-1 py-0.5 text-[9px] font-medium uppercase tracking-wider text-term-amber">
+                    written answer
+                  </span>
+                )}
               </p>
-              <RadioGroup
-                value={
-                  answers[qi] != null ? String(answers[qi]) : undefined
-                }
-                onValueChange={(value) =>
-                  setAnswers((prev) =>
-                    prev.map((a, i) => (i === qi ? Number(value) : a)),
-                  )
-                }
-                className="gap-1.5"
-              >
-                {question.options.map((option, oi) => (
-                  <div key={oi} className="flex items-center gap-2 text-sm">
-                    <RadioGroupItem
-                      id={`quiz-${index}-q${qi}-o${oi}`}
-                      value={String(oi)}
-                    />
-                    <label
-                      htmlFor={`quiz-${index}-q${qi}-o${oi}`}
-                      className={`flex items-center gap-1.5 ${
-                        review === null
-                          ? "text-foreground/85"
-                          : oi === question.answerIndex
-                            ? "text-term-green"
-                            : oi === answers[qi]
-                              ? "text-term-amber"
-                              : "text-muted-foreground/60"
-                      }`}
-                    >
-                      {review !== null && oi === question.answerIndex && (
-                        <Check className="size-3.5" />
-                      )}
-                      {review !== null &&
-                        oi === answers[qi] &&
-                        oi !== question.answerIndex && (
-                          <X className="size-3.5" />
+              {question.open ? (
+                <Textarea
+                  value={textAnswers[qi]}
+                  onChange={(e) =>
+                    setTextAnswers((prev) =>
+                      prev.map((t, i) => (i === qi ? e.target.value : t)),
+                    )
+                  }
+                  rows={3}
+                  placeholder="Write your answer — an instructor will review it."
+                  className="resize-y text-sm"
+                />
+              ) : (
+                <RadioGroup
+                  value={
+                    answers[qi] != null ? String(answers[qi]) : undefined
+                  }
+                  onValueChange={(value) =>
+                    setAnswers((prev) =>
+                      prev.map((a, i) => (i === qi ? Number(value) : a)),
+                    )
+                  }
+                  className="gap-1.5"
+                >
+                  {question.options.map((option, oi) => (
+                    <div key={oi} className="flex items-center gap-2 text-sm">
+                      <RadioGroupItem
+                        id={`quiz-${index}-q${qi}-o${oi}`}
+                        value={String(oi)}
+                      />
+                      <label
+                        htmlFor={`quiz-${index}-q${qi}-o${oi}`}
+                        className={`flex items-center gap-1.5 ${
+                          review === null
+                            ? "text-foreground/85"
+                            : oi === question.answerIndex
+                              ? "text-term-green"
+                              : oi === answers[qi]
+                                ? "text-term-amber"
+                                : "text-muted-foreground/60"
+                        }`}
+                      >
+                        {review !== null && oi === question.answerIndex && (
+                          <Check className="size-3.5" />
                         )}
-                      {option}
-                    </label>
-                  </div>
-                ))}
-              </RadioGroup>
+                        {review !== null &&
+                          oi === answers[qi] &&
+                          oi !== question.answerIndex && (
+                            <X className="size-3.5" />
+                          )}
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+              {question.open && review === null && (
+                <p className="text-[11px] text-muted-foreground">
+                  awaiting instructor review
+                </p>
+              )}
               {review !== null && (
                 <p
                   className={`text-[11px] ${
                     review ? "text-term-green" : "text-term-amber"
                   }`}
                 >
-                  {review ? "correct" : "incorrect"}
+                  {question.open
+                    ? review
+                      ? "instructor graded: correct"
+                      : "instructor graded: revisit this topic"
+                    : review
+                      ? "correct"
+                      : "incorrect"}
                 </p>
               )}
             </div>
@@ -397,13 +450,9 @@ function QuizBlock({
                   lastResult.passed ? "text-term-green" : "text-term-amber"
                 }`}
               >
-                {lastResult.percent}% — {lastResult.correct}/{
-                  lastResult.total
-                }{" "}
-                correct ·{" "}
-                {lastResult.passed
-                  ? "passed"
-                  : `need ${lastResult.passPercent}%`}
+                {lastResult.pendingReview
+                  ? `${lastResult.percent}% auto-graded — written answers awaiting instructor review`
+                  : `${lastResult.percent}% — ${lastResult.correct}/${lastResult.total} correct · ${lastResult.passed ? "passed" : `need ${lastResult.passPercent}%`}`}
               </span>
             )}
           </div>
@@ -507,6 +556,7 @@ export default function Course() {
   const postComment = useMutation(api.comments.post);
   const postReview = useMutation(api.reviews.post);
   const setProgress = useMutation(api.progress.setStatus);
+  const recordModule = useMutation(api.progress.recordModule);
   const joinWaitlist = useMutation(api.waitlist.join);
   const leaveWaitlist = useMutation(api.waitlist.leave);
   const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
@@ -583,6 +633,52 @@ export default function Course() {
       window.sessionStorage.setItem("agriskills:pending-coupon", coupon);
     }
   }, [searchParams]);
+
+  // Resume learning: watch which module sections the student actually reads
+  // and bookmark the furthest one (drives the dashboard resume card and the
+  // admin drop-off report).
+  const moduleRefs = useRef<(HTMLElement | null)[]>([]);
+  useEffect(() => {
+    if (!isAuthenticated || !course) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          const mi = Number(el.dataset.moduleIndex);
+          if (Number.isInteger(mi) && course) {
+            void recordModule({ courseId: course._id, moduleIndex: mi }).catch(
+              () => {},
+            );
+          }
+        }
+      },
+      { rootMargin: "0px 0px -35% 0px", threshold: 0.35 },
+    );
+    moduleRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [
+    isAuthenticated,
+    course,
+    course?.modules?.length ?? (course ? 1 : 0),
+    recordModule,
+  ]);
+
+  // ?module=N (from the dashboard resume card) jumps straight to that module.
+  const resumeModule = searchParams.get("module");
+  useEffect(() => {
+    if (resumeModule === null || !course) return;
+    const mi = Number(resumeModule);
+    if (!Number.isInteger(mi)) return;
+    const el = moduleRefs.current[mi];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      void recordModule({ courseId: course._id, moduleIndex: mi }).catch(
+        () => {},
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeModule, course]);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
@@ -966,7 +1062,14 @@ export default function Course() {
                   <div className="mt-8 space-y-6">
                     {modules.map((m, mi) =>
                       moduleUnlocked(mi) ? (
-                        <section key={mi} className="border border-border bg-muted/20">
+                        <section
+                          key={mi}
+                          ref={(el) => {
+                            moduleRefs.current[mi] = el;
+                          }}
+                          data-module-index={mi}
+                          className="scroll-mt-16 border border-border bg-muted/20"
+                        >
                           <header className="flex items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2.5">
                             <span className="flex items-baseline gap-2 text-xs font-semibold">
                               <span className="shrink-0 text-term-green">

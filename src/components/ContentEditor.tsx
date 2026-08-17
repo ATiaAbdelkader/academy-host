@@ -21,8 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useMutation } from "convex/react";
-import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
+import { useAction, useMutation } from "convex/react";
+import { ArrowDown, ArrowUp, Loader2, Plus, Trash2, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -522,6 +522,8 @@ export function ContentEditor({
   );
   const [addType, setAddType] = useState<ContentBlock["type"]>("paragraph");
   const [saving, setSaving] = useState(false);
+  const [drafting, setDrafting] = useState(false);
+  const aiDraftOutline = useAction(api.ai.draftOutline);
 
   const updateModule = (index: number, module: CourseModule) => {
     setModules((prev) => prev.map((m, i) => (i === index ? module : m)));
@@ -546,6 +548,41 @@ export function ContentEditor({
       ...prev,
       { title: "", content: [blankBlock("paragraph")] },
     ]);
+  };
+
+  /** Draft module titles with AI; fills empty titles and appends new modules. */
+  const handleDraftOutline = async () => {
+    setDrafting(true);
+    try {
+      const res = await aiDraftOutline({
+        title: course?.title ?? "",
+        description: course?.description ?? "",
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setModules((prev) => {
+        const next = [...prev];
+        res.titles.forEach((title, i) => {
+          if (i < next.length) {
+            next[i] = { ...next[i], title };
+          } else {
+            next.push({ title, content: [blankBlock("paragraph")] });
+          }
+        });
+        return next;
+      });
+      toast.success(
+        `Drafted ${res.titles.length} module titles — tweak them, then save.`,
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Could not draft outline.",
+      );
+    } finally {
+      setDrafting(false);
+    }
   };
 
   const updateBlock = (
@@ -644,11 +681,32 @@ export function ContentEditor({
         </DialogHeader>
 
         <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] text-muted-foreground">
+              modules ({modules.length})
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDraftOutline}
+              disabled={drafting}
+              className="gap-1.5 text-xs"
+            >
+              {drafting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Wand2 className="size-3.5 text-term-green" />
+              )}
+              {drafting ? "drafting…" : "draft outline with ai"}
+            </Button>
+          </div>
+
           {modules.length === 0 && (
             <div className="border border-border bg-muted/50 px-4 py-8 text-center text-xs text-muted-foreground">
               <p>
                 <span className="text-term-amber">[warn]</span> no modules yet —
-                add one below.
+                add one below or let AI draft a six-module outline.
               </p>
             </div>
           )}

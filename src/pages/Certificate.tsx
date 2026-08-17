@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { Award, BadgeCheck, Loader2, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
+import { certificateExpiry, formatShortDate } from "@/lib/format";
 
 export default function Certificate() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -24,6 +25,7 @@ export default function Certificate() {
   const loading = progress === undefined || courses === undefined;
   const eligible = entry?.status === "completed";
   const completedAt = entry?.updatedAt;
+  const expiry = completedAt ? certificateExpiry(completedAt) : undefined;
   const certId =
     courseId && user
       ? `AGS-${courseId.slice(-4).toUpperCase()}-${user._id
@@ -172,14 +174,13 @@ export default function Certificate() {
                       completed
                     </p>
                     <p className="mt-1 text-sm font-medium">
-                      {completedAt
-                        ? new Date(completedAt).toLocaleDateString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : "—"}
+                      {completedAt ? formatShortDate(completedAt) : "—"}
                     </p>
+                    {expiry && (
+                      <p className="text-[10px] text-muted-foreground">
+                        valid through {formatShortDate(expiry.expiresAt)}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -217,6 +218,9 @@ export default function Certificate() {
 
                 <p className="mt-10 font-mono text-[10px] text-muted-foreground">
                   issued by AgriSkills Academy · {new Date().getFullYear()}
+                  {expiry
+                    ? ` · valid through ${formatShortDate(expiry.expiresAt)}`
+                    : ""}
                 </p>
               </div>
             </div>
@@ -226,6 +230,19 @@ export default function Certificate() {
               <span className="text-term-green">[ok]</span> this certificate is
               tied to your account and the course completion date above.
             </p>
+            {expiry?.expired && (
+              <p className="mt-3 border border-term-amber/40 bg-term-amber/[0.07] px-4 py-3 text-center text-xs text-term-amber print:hidden">
+                [warn] this certificate lapsed {formatShortDate(expiry.expiresAt)} —
+                AgriSkills certificates are valid for 24 months. Retake the
+                course to refresh it:{" "}
+                <Link
+                  to={`/courses/${course?.slug ?? ""}`}
+                  className="font-medium underline underline-offset-2"
+                >
+                  review course
+                </Link>
+              </p>
+            )}
           </>
         )}
       </div>

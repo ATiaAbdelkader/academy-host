@@ -29,6 +29,50 @@ export const myProgress = query({
   },
 });
 
+/**
+ * Record that the student reached a module (furthest module wins). Creates a
+ * "started" progress row when none exists, so it doubles as the resume
+ * bookmark and the admin drop-off signal.
+ */
+export const recordModule = mutation({
+  args: {
+    courseId: v.id("courses"),
+    moduleIndex: v.number(),
+  },
+  handler: async (ctx, { courseId, moduleIndex }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Sign in to track progress.");
+    }
+    const existing = await ctx.db
+      .query("progress")
+      .withIndex("by_user_course", (q) =>
+        q.eq("userId", userId).eq("courseId", courseId),
+      )
+      .first();
+    const now = Date.now();
+    if (!existing) {
+      await ctx.db.insert("progress", {
+        userId,
+        courseId,
+        status: "started",
+        lastModuleIndex: moduleIndex,
+        updatedAt: now,
+      });
+      return { created: true as const, moduleIndex };
+    }
+    const furthest = Math.max(existing.lastModuleIndex ?? 0, moduleIndex);
+    if (existing.lastModuleIndex !== furthest) {
+      await ctx.db.patch(existing._id, {
+        status: existing.status === "completed" ? "completed" : "started",
+        lastModuleIndex: furthest,
+        updatedAt: now,
+      });
+    }
+    return { created: false as const, moduleIndex: furthest };
+  },
+});
+
 /** Set (or clear) the student's status for one course. */
 export const setStatus = mutation({
   args: {

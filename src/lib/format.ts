@@ -36,6 +36,32 @@ export function formatSession(epochMs: number): string {
   return `${formatDate(epochMs)} · ${formatTime(epochMs)}`;
 }
 
+/** Certificates are valid for 24 months from the completion date. */
+export const CERTIFICATE_VALIDITY_MS = 24 * 30 * 24 * 60 * 60 * 1000;
+
+/** "Aug 20, 2026" — short, no weekday, for certificate validity lines. */
+export function formatShortDate(epochMs: number): string {
+  return new Date(epochMs).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+/**
+ * Certificate expiry info: expires 24 months after completion. Returns the
+ * expiry timestamp and whether it has already lapsed (and days remaining,
+ * negative when expired).
+ */
+export function certificateExpiry(completedAtMs: number, now = Date.now()) {
+  const expiresAt = completedAtMs + CERTIFICATE_VALIDITY_MS;
+  return {
+    expiresAt,
+    expired: expiresAt <= now,
+    daysLeft: Math.ceil((expiresAt - now) / (24 * 60 * 60 * 1000)),
+  };
+}
+
 /** "Aug 20, 2026, 9:00 AM" for datetime-local inputs */
 export function toLocalInputValue(epochMs: number): string {
   const d = new Date(epochMs);

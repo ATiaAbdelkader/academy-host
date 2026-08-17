@@ -17,6 +17,7 @@ export default function Verify() {
     api.certificates.verify,
     submitted ? { code: submitted } : "skip",
   );
+  const expired = result?.valid ? result.expiresAt <= Date.now() : false;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -120,6 +121,23 @@ export default function Verify() {
                   })}
                 </p>
               </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  valid through
+                </p>
+                <p className="mt-1 text-sm font-medium">
+                  {new Date(result.expiresAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+                {expired && (
+                  <p className="mt-0.5 text-[10px] font-medium text-term-amber">
+                    [warn] expired
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-border/60 bg-muted/40 px-5 py-2.5">
               <span className="flex items-center gap-1.5 text-[11px] text-term-green">
@@ -130,6 +148,18 @@ export default function Verify() {
                 {result.category} track
               </span>
             </div>
+            {expired && (
+              <p className="border-t border-border/60 px-5 py-3 text-[11px] text-term-amber">
+                [warn] this certificate lapsed{" "}
+                {new Date(result.expiresAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+                . AgriSkills certificates are valid for 24 months from
+                completion — ask the holder to refresh the course.
+              </p>
+            )}
           </div>
         )}
       </div>

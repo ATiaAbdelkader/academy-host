@@ -34,6 +34,22 @@ export default function Dashboard() {
   const insights = useQuery(api.insights.myQuizInsights);
   const progress = progressQuery ?? [];
   const courses = useCatalog();
+  const resumeEntries = (progress ?? [])
+    .filter((p) => p.status !== "completed" && p.lastModuleIndex != null)
+    .map((p) => {
+      const course = (courses ?? []).find((c) => c._id === p.courseId);
+      return {
+        courseId: p.courseId,
+        courseSlug: course?.slug ?? p.courseSlug,
+        courseTitle: course?.title ?? p.courseTitle,
+        moduleIndex: p.lastModuleIndex ?? 0,
+        moduleTitle: course?.modules?.[p.lastModuleIndex ?? 0]?.title ?? "",
+        moduleCount: course?.modules?.length ?? 0,
+      };
+    })
+    .filter((entry) => entry.moduleCount > 0)
+    .sort((a, b) => b.moduleIndex - a.moduleIndex)
+    .slice(0, 3);
   const cancelBooking = useMutation(api.bookings.cancelBooking);
   const leaveWaitlist = useMutation(api.waitlist.leave);
   const sendWaitlistOffer = useAction(api.notifications.sendWaitlistOffer);
@@ -243,6 +259,42 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* ── Resume learning ──────────────────────────────────── */}
+        {resumeEntries.length > 0 && (
+          <>
+            <div className="mt-8 flex items-center gap-2 text-sm">
+              <span className="text-term-green">$</span>
+              <span>ls resume/</span>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {resumeEntries.map((entry) => (
+                <Link
+                  key={entry.courseId}
+                  to={`/courses/${entry.courseSlug}?module=${entry.moduleIndex}`}
+                  className="group border border-border bg-card transition-colors hover:border-term-green/50"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2">
+                    <span className="truncate text-xs font-semibold">
+                      {entry.courseTitle}
+                    </span>
+                    <span className="shrink-0 text-[10px] text-muted-foreground">
+                      module {entry.moduleIndex + 1}/{entry.moduleCount}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-4 py-3">
+                    <span className="min-w-0 truncate text-xs text-muted-foreground">
+                      next: {entry.moduleTitle || "keep reading"}
+                    </span>
+                    <span className="shrink-0 text-[11px] text-term-green transition-transform group-hover:translate-x-0.5">
+                      resume {">"}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* ── Gamification ──────────────────────────────────────── */}
         <div className="mt-8 flex items-center gap-2 text-sm">

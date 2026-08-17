@@ -40,6 +40,9 @@ export const verify = query({
         courseTitle: course?.title ?? "Course removed",
         category: course?.category ?? "",
         completedAt: entry.updatedAt,
+        // Certificates stay valid for 24 months from completion; the verify
+        // page shows the expiry date so employers can check freshness.
+        expiresAt: entry.updatedAt + 24 * 30 * 24 * 60 * 60 * 1000,
       };
     }
     return null;

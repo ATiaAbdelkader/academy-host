@@ -213,3 +213,108 @@ export const ask = action({
     return { ok: true as const, answer };
   },
 });
+
+/**
+ * Draft a module outline for a new course (used by the admin content editor).
+ * Returns a JSON array of module titles; never throws — returns a typed error.
+ */
+export const draftOutline = action({
+  args: {
+    title: v.string(),
+    description: v.optional(v.string()),
+    moduleCount: v.optional(v.number()),
+  },
+  handler: async (ctx, { title, description, moduleCount }) => {
+    const vlyKey = process.env.VLY_INTEGRATION_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!vlyKey && !openaiKey) {
+      return {
+        ok: false as const,
+        error:
+          "AI is not configured — add an OPENAI_API_KEY in the project's Keys tab.",
+      };
+    }
+    const count = Math.min(Math.max(moduleCount ?? 6, 3), 10);
+    const prompt = [
+      "You are a curriculum designer for AgriSkills Academy, an agriculture training academy.",
+      `Draft a ${count}-module outline for a training course.`,
+      `Course title: ${title}`,
+      description ? `Course description: ${description}` : "",
+      `Return ONLY a JSON array of exactly ${count} strings, each a short module title (under 10 words). No markdown, no numbering, no extra text.`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    try {
+      const messages: ChatMessage[] = [{ role: "system", content: prompt }];
+      const model = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+      let content = "";
+      if (vlyKey) {
+        const completion = await vly.ai.completion({
+          model,
+          messages,
+          temperature: 0.5,
+          maxTokens: 400,
+        });
+        if (!completion.success || !completion.data) {
+          return {
+            ok: false as const,
+            error: completion.error ?? "AI outline failed. Try again.",
+          };
+        }
+        content = completion.data.choices?.[0]?.message?.content ?? "";
+      } else {
+        const baseUrl = (process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openaiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            max_tokens: 400,
+            temperature: 0.5,
+          }),
+          signal: AbortSignal.timeout(30000),
+        });
+        if (!response.ok) {
+          return {
+            ok: false as const,
+            error: `The assistant API returned ${response.status}.`,
+          };
+        }
+        const data = (await response.json()) as {
+          choices?: { message?: { content?: string } }[];
+        };
+        content = data.choices?.[0]?.message?.content ?? "";
+      }
+      const json = content.match(/\[[\s\S]*\]/)?.[0];
+      if (!json) {
+        return {
+          ok: false as const,
+          error: "The assistant didn't return a valid outline. Try again.",
+        };
+      }
+      const titles = (JSON.parse(json) as unknown[])
+        .map((t) => String(t).trim())
+        .filter(Boolean)
+        .slice(0, count);
+      if (titles.length === 0) {
+        return {
+          ok: false as const,
+          error: "The assistant returned an empty outline.",
+        };
+      }
+      return { ok: true as const, titles };
+    } catch (error) {
+      return {
+        ok: false as const,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not reach the AI. Try again shortly.",
+      };
+    }
+  },
+});

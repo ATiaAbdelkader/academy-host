@@ -3,6 +3,7 @@ import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
 import { AttendanceByCourse } from "@/components/AttendanceByCourse";
 import { MetricsExports } from "@/components/admin/MetricsExports";
+import { ModuleDropOff } from "@/components/admin/ModuleDropOff";
 import { StudentProfileDialog } from "@/components/admin/StudentProfileDialog";
 import { ContentEditor } from "@/components/ContentEditor";
 import { Button } from "@/components/ui/button";
@@ -1704,6 +1705,7 @@ function MetricsTab() {
   return (
     <div className="space-y-6">
       <AttendanceByCourse stats={stats} />
+      <ModuleDropOff />
       <MetricsExports />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="border border-border bg-card px-4 py-4">

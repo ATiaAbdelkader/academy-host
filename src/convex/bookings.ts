@@ -869,6 +869,35 @@ export const adminStats = query({
       }))
       .sort((a, b) => b.confirmed - a.confirmed)
       .slice(0, 8);
+    // Module drop-off: for each course, how many students reached at least
+    // module N (furthest module reached per student, tracked by the reader on
+    // the course page). The first module where the count falls is where
+    // students quit.
+    const progress = await ctx.db.query("progress").collect();
+    const moduleDropOff = courses
+      .map((course) => {
+        const moduleCount = course.modules?.length ?? 0;
+        if (moduleCount === 0) return null;
+        const students = progress.filter(
+          (p) => p.courseId === course._id && p.lastModuleIndex != null,
+        );
+        if (students.length === 0) return null;
+        const reached = Array.from({ length: moduleCount }, (_, mi) => ({
+          moduleIndex: mi,
+          title: course.modules?.[mi]?.title ?? `Module ${mi + 1}`,
+          students: students.filter((p) => (p.lastModuleIndex ?? 0) >= mi)
+            .length,
+        }));
+        return {
+          courseId: course._id,
+          title: course.title,
+          totalStudents: students.length,
+          reached,
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null)
+      .sort((a, b) => b.totalStudents - a.totalStudents);
+
     const reviews = await ctx.db.query("reviews").collect();
     const coupons = await ctx.db.query("coupons").collect();
 
@@ -885,6 +914,7 @@ export const adminStats = query({
       onSiteValueCents,
       revenueByCourse,
       attendanceByCourse: attendanceByCourseList,
+      moduleDropOff,
       reviewsCount: reviews.length,
       couponsCount: coupons.length,
     };

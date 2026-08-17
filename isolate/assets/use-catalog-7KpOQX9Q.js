@@ -1,1 +1,0 @@
-import{a as u,b as r,f as a}from"./index-DXgSW88-.js";import{r as o}from"./react-vendor-KgAAZzzj.js";function i(){const e=u(r.courses.list),s=a(r.courses.seed),t=o.useRef(!1);return o.useEffect(()=>{e!==void 0&&!t.current&&(t.current=!0,s())},[e,s]),e}export{i as u};

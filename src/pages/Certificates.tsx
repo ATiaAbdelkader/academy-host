@@ -3,8 +3,9 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
-import { Award, Download, Eye, Loader2, Lock } from "lucide-react";
+import { Award, Download, Eye, Loader2, Lock, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
+import { certificateExpiry, formatShortDate } from "@/lib/format";
 
 function certIdOf(courseId: string, userId: string): string {
   return `AGS-${courseId.slice(-4).toUpperCase()}-${userId
@@ -90,7 +91,9 @@ export default function Certificates() {
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {earned.map(({ progress: entry, course }) => (
+              {earned.map(({ progress: entry, course }) => {
+                const expiry = certificateExpiry(entry.updatedAt);
+                return (
                 <div
                   key={entry.courseId}
                   className="flex flex-col border border-border bg-card"
@@ -117,16 +120,7 @@ export default function Certificates() {
                           completed
                         </p>
                         <p className="mt-1 font-medium">
-                          {entry.updatedAt
-                            ? new Date(entry.updatedAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                },
-                              )
-                            : "—"}
+                          {entry.updatedAt ? formatShortDate(entry.updatedAt) : "—"}
                         </p>
                       </div>
                       <div>
@@ -140,6 +134,18 @@ export default function Certificates() {
                         </p>
                       </div>
                     </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      valid through{" "}
+                      <span className="font-medium text-foreground">
+                        {formatShortDate(expiry.expiresAt)}
+                      </span>
+                    </p>
+                    {expiry.expired && (
+                      <p className="border border-term-amber/40 bg-term-amber/[0.07] px-2.5 py-1.5 text-[11px] text-term-amber">
+                        [warn] expired — certificates are valid for 24 months.
+                        Retake the course to refresh this one.
+                      </p>
+                    )}
                     <p className="text-[11px] text-muted-foreground">
                       issued to{" "}
                       <span className="font-medium text-foreground">
@@ -169,9 +175,23 @@ export default function Certificates() {
                         </Link>
                       </Button>
                     </div>
+                    {expiry.expired && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-1.5 border-term-amber/40 text-term-amber hover:text-term-amber text-xs"
+                      >
+                        <Link to={`/courses/${course.slug}`}>
+                          <RefreshCcw className="size-3.5" />
+                          refresh certificate
+                        </Link>
+                      </Button>
+                    )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

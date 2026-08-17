@@ -47,6 +47,8 @@ export const contentBlockValidator = v.union(
         question: v.string(),
         options: v.array(v.string()),
         answerIndex: v.number(), // index of the correct option
+        open: v.optional(v.boolean()), // true = short-answer, graded by an instructor
+        modelAnswer: v.optional(v.string()), // reference answer shown to the grader
       }),
     ),
   }),
@@ -162,6 +164,7 @@ const schema = defineSchema(
       courseId: v.id("courses"),
       status: v.union(v.literal("started"), v.literal("completed")),
       note: v.optional(v.string()), // private study notes for this course
+      lastModuleIndex: v.optional(v.number()), // furthest module reached (resume + drop-off)
       updatedAt: v.number(),
     }).index("by_user_course", ["userId", "courseId"]),
 
@@ -194,6 +197,9 @@ const schema = defineSchema(
       total: v.number(),
       passed: v.boolean(),
       answers: v.optional(v.array(v.number())), // chosen option per question
+      textAnswers: v.optional(v.array(v.string())), // open-question answers (aligned to questions)
+      openGrades: v.optional(v.array(v.union(v.boolean(), v.null()))), // instructor verdict per open question, null = not graded yet
+      pendingReview: v.optional(v.boolean()), // true while open answers await grading
       createdAt: v.number(),
     }).index("by_user_course", ["userId", "courseId"]),
 

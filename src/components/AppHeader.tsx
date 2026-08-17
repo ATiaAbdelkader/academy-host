@@ -84,6 +84,14 @@ export function AppHeader({ path }: { path?: string }) {
           )}
           {isAuthenticated && (
             <Link
+              to="/certificates"
+              className="transition-colors hover:text-foreground"
+            >
+              ./certificates
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
               to="/settings"
               className="transition-colors hover:text-foreground"
             >

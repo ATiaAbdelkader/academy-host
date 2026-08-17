@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
 import { Award, Loader2, Printer } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { useEffect, useRef } from "react";
+import { Link, useParams, useSearchParams } from "react-router";
 
 export default function Certificate() {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const progress = useQuery(api.progress.myProgress);
   const courses = useQuery(api.courses.list);
@@ -31,6 +33,17 @@ export default function Certificate() {
   const studentName =
     user?.name?.trim() || (user?.email ? user.email.split("@")[0] : "Student");
   const moduleCount = course?.modules?.length ?? (course ? 1 : 0);
+
+  // One-click "save pdf" from the certificates gallery: ?print=1 opens the
+  // print dialog automatically once the certificate has painted.
+  const autoPrint = searchParams.get("print") === "1";
+  const printedRef = useRef(false);
+  useEffect(() => {
+    if (!autoPrint || !eligible || !course || printedRef.current) return;
+    printedRef.current = true;
+    const timer = window.setTimeout(() => window.print(), 150);
+    return () => window.clearTimeout(timer);
+  }, [autoPrint, eligible, course]);
 
   return (
     <main className="min-h-screen bg-background text-foreground">

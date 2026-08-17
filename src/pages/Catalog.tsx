@@ -34,10 +34,23 @@ export default function Catalog() {
     return published.filter((c) => {
       if (category && c.category !== category) return false;
       if (!q) return true;
+      // Search inside the course too: module titles and module quiz names,
+      // so a topic like "nozzles" or "value chain" surfaces its course.
+      const topics = (c.modules ?? [])
+        .flatMap((m) => [
+          m.title,
+          ...m.content
+            .filter((b) => b.type === "quiz")
+            .map((b) => (b.type === "quiz" ? b.title : "")),
+        ])
+        .filter(Boolean)
+        .join(" ");
       return (
         c.title.toLowerCase().includes(q) ||
         c.description.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q)
+        c.category.toLowerCase().includes(q) ||
+        (c.instructor ?? "").toLowerCase().includes(q) ||
+        topics.toLowerCase().includes(q)
       );
     });
   }, [published, query, category]);
@@ -69,7 +82,7 @@ export default function Catalog() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="find course…"
+              placeholder="find course or topic…"
               className="pl-9"
             />
           </div>
@@ -140,7 +153,8 @@ export default function Catalog() {
             <div className="px-4 py-10 text-center text-sm text-muted-foreground">
               <p>
                 <span className="text-term-amber">[warn]</span> no courses
-                match — try a different search or clear the filters.
+                match — try a different search or clear the filters. Search
+                also covers module topics and instructors.
               </p>
             </div>
           )}

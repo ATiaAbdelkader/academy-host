@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
+import { AttendanceByCourse } from "@/components/AttendanceByCourse";
 import { ContentEditor } from "@/components/ContentEditor";
 import { Button } from "@/components/ui/button";
 import {
@@ -1660,6 +1661,7 @@ function MetricsTab() {
 
   return (
     <div className="space-y-6">
+      <AttendanceByCourse stats={stats} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="border border-border bg-card px-4 py-4">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">

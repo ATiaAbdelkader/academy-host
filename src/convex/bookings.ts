@@ -783,7 +783,16 @@ export const adminStats = query({
     let couponSavingsCents = 0;
     const perCourse = new Map<
       string,
-      { title: string; revenueCents: number; count: number }
+      {
+        title: string;
+        revenueCents: number;
+        count: number;
+      }
+    >();
+    // Per-course attendance: confirmed seats vs. marked attended.
+    const attendanceByCourse = new Map<
+      string,
+      { title: string; confirmed: number; attended: number }
     >();
 
     for (const booking of bookings) {
@@ -827,11 +836,39 @@ export const adminStats = query({
         entry.count += 1;
       }
       perCourse.set(booking.courseId, entry);
+
+      if (booking.status === "confirmed") {
+        const att =
+          attendanceByCourse.get(booking.courseId) ??
+          ({
+            title: courseById.get(booking.courseId)?.title ?? "Course removed",
+            confirmed: 0,
+            attended: 0,
+          } satisfies {
+            title: string;
+            confirmed: number;
+            attended: number;
+          });
+        att.confirmed += 1;
+        if (booking.attendedAt) {
+          att.attended += 1;
+        }
+        attendanceByCourse.set(booking.courseId, att);
+      }
     }
 
     const revenueByCourse = Array.from(perCourse.values())
       .sort((a, b) => b.revenueCents - a.revenueCents)
       .slice(0, 6);
+    const attendanceByCourseList = Array.from(attendanceByCourse.values())
+      .map((row) => ({
+        ...row,
+        rate: row.confirmed > 0
+          ? Math.round((row.attended / row.confirmed) * 100)
+          : 0,
+      }))
+      .sort((a, b) => b.confirmed - a.confirmed)
+      .slice(0, 8);
     const reviews = await ctx.db.query("reviews").collect();
     const coupons = await ctx.db.query("coupons").collect();
 
@@ -847,6 +884,7 @@ export const adminStats = query({
       paidRevenueCents,
       onSiteValueCents,
       revenueByCourse,
+      attendanceByCourse: attendanceByCourseList,
       reviewsCount: reviews.length,
       couponsCount: coupons.length,
     };

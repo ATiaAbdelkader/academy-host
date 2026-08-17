@@ -184,9 +184,9 @@ export default function Dashboard() {
                 size="sm"
                 className="gap-1.5 text-xs"
               >
-                <Link to="/courses">
+                <Link to="/certificates">
                   <CheckCircle2 className="size-3.5" />
-                  completed
+                  certificates
                 </Link>
               </Button>
             </div>

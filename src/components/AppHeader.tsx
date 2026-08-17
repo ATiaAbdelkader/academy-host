@@ -60,6 +60,12 @@ export function AppHeader({ path }: { path?: string }) {
           >
             ./catalog
           </Link>
+          <Link
+            to="/instructors"
+            className="transition-colors hover:text-foreground"
+          >
+            ./instructors
+          </Link>
           {isAuthenticated && (
             <Link
               to="/dashboard"

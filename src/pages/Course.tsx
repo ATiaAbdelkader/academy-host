@@ -497,6 +497,11 @@ export default function Course() {
   ).length;
   const allQuizzesPassed =
     quizBlocks.length === 0 || quizzesPassed === quizBlocks.length;
+  const modulesPassed = modules.filter((_, mi) => moduleComplete(mi)).length;
+  const modulesBar =
+    modules.length === 0
+      ? ""
+      : `${Math.round((modulesPassed / modules.length) * 100)}% [${modulesPassed}/${modules.length} modules]`;
 
   useEffect(() => {
     setNotesDraft(progressEntry?.note ?? "");
@@ -748,13 +753,51 @@ export default function Course() {
                     <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
                       <UserRound className="size-3.5 text-term-green" />
                       instructor:
-                      <span className="font-medium text-foreground/80">
+                      <Link
+                        to="/instructors"
+                        className="font-medium text-foreground/80 underline-offset-4 hover:text-term-green hover:underline"
+                      >
                         {course.instructor}
-                      </span>
+                      </Link>
                       {course.instructorTitle ? (
                         <span>· {course.instructorTitle}</span>
                       ) : null}
                     </p>
+                  )}
+
+                  {isAuthenticated && modules.length > 0 && (
+                    <div className="mt-6 border border-border bg-muted/30">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
+                        <span className="text-[11px] font-semibold text-muted-foreground">
+                          course progress
+                        </span>
+                        <span
+                          className={`text-[11px] font-medium ${
+                            allQuizzesPassed
+                              ? "text-term-green"
+                              : "text-term-amber"
+                          }`}
+                        >
+                          {modulesBar}
+                        </span>
+                      </div>
+                      <div className="h-2 bg-muted">
+                        <div
+                          className={`h-full transition-all ${
+                            allQuizzesPassed
+                              ? "bg-term-green"
+                              : "bg-term-amber"
+                          }`}
+                          style={{
+                            width: `${Math.round(
+                              (modules.length
+                                ? modulesPassed / modules.length
+                                : 0) * 100,
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
                   )}
 
                   <div className="mt-8 space-y-6">

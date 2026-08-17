@@ -60,6 +60,12 @@ export default function Landing() {
             >
               ./catalog
             </Link>
+            <Link
+              to="/instructors"
+              className="transition-colors hover:text-foreground"
+            >
+              ./instructors
+            </Link>
             <a href="#how" className="transition-colors hover:text-foreground">
               ./how-it-works
             </a>

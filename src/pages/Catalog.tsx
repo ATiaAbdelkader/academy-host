@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
 import { useQuery } from "convex/react";
-import { ChevronRight, Search, Star } from "lucide-react";
+import { ChevronRight, Search, Star, UserRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -167,6 +167,12 @@ export default function Catalog() {
                   <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                     {course.description}
                   </span>
+                  {course.instructor && (
+                    <span className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground/70">
+                      <UserRound className="size-2.5 text-term-green" />
+                      by {course.instructor}
+                    </span>
+                  )}
                   {summary && (
                     <span className="mt-0.5 flex items-center gap-1 text-[11px] text-term-amber">
                       <Star className="size-3 fill-term-amber text-term-amber" />

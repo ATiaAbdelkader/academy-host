@@ -40,6 +40,74 @@ export const getBySlug = query({
   },
 });
 
+/**
+ * Instructor directory built from the published catalog. Groups courses by
+ * instructor name and attaches each instructor's credential title (the title
+ * most courses attribute to them), so the public /instructors page can render
+ * profiles without a separate table.
+ */
+export const instructors = query({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db
+      .query("courses")
+      .withIndex("by_order")
+      .order("asc")
+      .collect();
+    const published = courses.filter((c) => c.published);
+
+    const byName = new Map<
+      string,
+      {
+        title: string;
+        courses: Array<{
+          courseId: string;
+          slug: string;
+          title: string;
+          category: string;
+          durationMinutes: number;
+          priceCents: number;
+        }>;
+      }
+    >();
+
+    for (const course of published) {
+      const name = course.instructor?.trim();
+      if (!name) continue;
+      const entry = byName.get(name) ?? { title: "", courses: [] };
+      // Prefer the credential title most courses carry for this instructor.
+      if (course.instructorTitle && !entry.title) {
+        entry.title = course.instructorTitle;
+      }
+      entry.courses.push({
+        courseId: course._id,
+        slug: course.slug,
+        title: course.title,
+        category: course.category,
+        durationMinutes: course.durationMinutes,
+        priceCents: course.priceCents,
+      });
+      byName.set(name, entry);
+    }
+
+    return Array.from(byName.entries())
+      .map(([name, entry]) => ({
+        name,
+        title: entry.title,
+        courseCount: entry.courses.length,
+        categories: Array.from(
+          new Set(entry.courses.map((c) => c.category)),
+        ),
+        courses: entry.courses.sort(
+          (a, b) =>
+            a.category.localeCompare(b.category) ||
+            a.title.localeCompare(b.title),
+        ),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Seed catalog — customer training for AgriSkills Academy. Every course is a
 // sequence of modules; each module ends with a quiz whose pass unlocks the

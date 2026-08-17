@@ -31,6 +31,11 @@ export const extraCourse14: ExtraCourse = {
           text: "A business plan is a document; the Business Model Canvas is a thinking tool. Nine blocks on one page force you to answer who you serve, what you give them, how you reach them, and how the money flows — before you write a single detailed plan. For an agri project, it turns a good idea into a testable model.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=QoAOzMTLP5s",
+          caption: "The Business Model Canvas explained in two minutes — Strategyzer.",
+        },
+        {
           type: "list",
           items: [
             "One page — everyone can see the whole model at once.",
@@ -86,6 +91,11 @@ export const extraCourse14: ExtraCourse = {
           text: "Who actually pays, and why would they switch to you? Customer segments are distinct groups with different needs — a processor buying volume is not the same customer as a supermarket shelf or a family at the market. The value proposition is the concrete reason each segment chooses you: fresher, cheaper, more reliable, traceable, or available when others are not.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=I8nwNcCfyig",
+          caption: "Introduction to the Business Model Canvas.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "canvas --block customers --project avocado-grove\n[ok] segment A   exporter — needs volume + traceability\n[ok] segment B   local hotels — needs weekly delivery\n[ok] segment C   market stall — needs small lots, credit\n[warn] pick one primary segment for season one",
@@ -137,6 +147,11 @@ export const extraCourse14: ExtraCourse = {
           text: "Channels are how you reach and deliver to each segment — direct at a market stall, through a cooperative, or via a contract with a processor. Relationships are how you keep them: a standing weekly order, a membership, a loyalty price, or simply reliable delivery. The cheapest channel is not always the best one; the best channel is the one your segment already uses.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=CakUeC1sCSs",
+          caption: "The nine blocks explained with real business examples.",
+        },
+        {
           type: "note",
           tone: "info",
           text: "Sell where your customer already buys. Building a new market from zero is a project of its own — and it should be on the canvas, not assumed.",
@@ -186,6 +201,11 @@ export const extraCourse14: ExtraCourse = {
         {
           type: "paragraph",
           text: "The money side has two blocks. Revenue streams are every way money comes in: product sales, premiums for quality or timing, fees for services, or leases of equipment. Cost structure is what it takes to deliver: inputs, labour, fuel, storage, and overhead. The model only works when the streams cover the costs — and the canvas makes that arithmetic visible.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=AChUEMWAeh8",
+          caption: "How revenue streams and costs show up on a real canvas (Uber).",
         },
         {
           type: "list",
@@ -243,6 +263,11 @@ export const extraCourse14: ExtraCourse = {
           text: "What must you own or control — land, water rights, cold storage, licences, skilled labour — and what must you do repeatedly, like planting, harvesting, cooling, and delivering? Partners supply what you should not build yourself: a packhouse, a transporter, an agronomist, or a lender. The canvas asks what you truly need versus what you can rent, buy, or borrow.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=wlKP-BaC0jA",
+          caption: "Visualizing your business model with the canvas.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "canvas --block resources --project avocado-grove\n[ok] key resources   land, drip irrigation, cold room\n[ok] key activities  orchard care, harvest, cooling, dispatch\n[ok] key partners    packhouse, trucking co-op, agronomist\n[ok] check           cold room — rent vs build? build = $48k",
@@ -292,6 +317,11 @@ export const extraCourse14: ExtraCourse = {
         {
           type: "paragraph",
           text: "The canvas is finished when it is wrong in the cheapest way possible. Test the riskiest assumption first — usually that someone will actually pay. Talk to buyers before you build, run a small pilot, and update the canvas with what you learn. A validated canvas is the strongest pitch you can carry to a lender, a partner, or your own family meeting.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=IP0cUBWTgpY",
+          caption: "Nine steps to creating a successful business model.",
         },
         {
           type: "note",

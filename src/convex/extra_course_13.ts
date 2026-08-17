@@ -31,6 +31,11 @@ export const extraCourse13: ExtraCourse = {
           text: "Agribusiness is not just farming. It is the whole chain that turns a seed into a product a customer pays for: input supply, production, processing, storage, distribution, and retail. The farm sits in the middle of that chain — and the strongest farms understand the links on both sides of them.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=LpY8Ttez6AQ",
+          caption: "What agribusiness actually covers — inputs, production, and distribution.",
+        },
+        {
           type: "list",
           items: [
             "Input supply — seed, fertilizer, feed, machinery, and credit.",
@@ -86,6 +91,11 @@ export const extraCourse13: ExtraCourse = {
           text: "Every step from field to customer adds value — and every step also adds cost and risk. Map your product's chain, write down who does each step, and see where the margin actually sits. Most operations discover that the biggest margins are earned off the farm, not on it.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=3mx1574r6zs",
+          caption: "Why agricultural value chains create jobs — and where the margin sits.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "chain map --crop maize --field-02\n[ok] production     12.4 ha · cost $2,180\n[ok] harvest & haul  cost $640\n[ok] storage         cost $310\n[ok] sale           revenue $4,900\n[ok] farm margin    $1,770 — 36% of sale price",
@@ -137,6 +147,11 @@ export const extraCourse13: ExtraCourse = {
           text: "A crop with no buyer is a cost, not a revenue. Decide who you sell to before you plant: the spot market, a processor with a contract, a cooperative, or direct to consumers. Each buyer has different requirements — grade, timing, volume — and different prices. Price is set by the buyer's alternatives, not by your costs.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=JD3iMr9N0rQ",
+          caption: "Marketing fundamentals for farm businesses — markets, customers, and pricing.",
+        },
+        {
           type: "note",
           tone: "info",
           text: "A contract that guarantees a floor price is often worth more than a higher spot price with no floor. Certainty is part of the price.",
@@ -186,6 +201,11 @@ export const extraCourse13: ExtraCourse = {
         {
           type: "paragraph",
           text: "Treat each enterprise as its own business unit. An enterprise budget lists the revenue, the variable costs, and the fixed costs of one enterprise — and shows whether it earns its keep. Break-even is the point where revenue covers costs; anything below it is a loss even if the crop is 'fine'.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=gONtCgANgAs",
+          caption: "Enterprise and crop budgets in real farm decision-making.",
         },
         {
           type: "list",
@@ -243,6 +263,11 @@ export const extraCourse13: ExtraCourse = {
           text: "Farming is a risk business: prices move, weather breaks, pests arrive. The answer is not to avoid risk — it is to spread it. Diversify enterprises, stagger planting dates, lock in prices when they are good, and carry a cash buffer. The resilient farm is the one that survives the bad year, not the one that peaks in the good one.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=pCtmKxp1JY8",
+          caption: "Navigating growth, risk, and accountability in agribusiness.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "risk audit --farm\n[ok] price risk    high — single buyer, no contract\n[ok] weather risk  medium — irrigation covers 60%\n[ok] pest risk     low — rotation in place\n[warn] action      add a second buyer this season",
@@ -292,6 +317,11 @@ export const extraCourse13: ExtraCourse = {
         {
           type: "paragraph",
           text: "Growth is a decision, not a wish. Reinvest profits first, then borrow only when the enterprise budget says the expansion pays for itself. Match the loan to the asset: long-term loans for land and equipment, short-term credit for inputs and working capital. Partnerships and cooperatives can buy the scale no single farm can afford.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=heTxEsrPVdQ",
+          caption: "From start to scale — a step-by-step farm business guide.",
         },
         {
           type: "list",

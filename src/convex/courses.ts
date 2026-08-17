@@ -130,7 +130,7 @@ type SeedCourse = {
 };
 
 // Bump when seed course content changes so existing deployments upgrade.
-const SEED_CONTENT_VERSION = 2;
+const SEED_CONTENT_VERSION = 3;
 
 const seedCatalog: SeedCourse[] = [
   // Extended catalog — newest tracks first in source; canonical ordering is

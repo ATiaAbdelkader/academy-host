@@ -31,6 +31,11 @@ export const extraCourse15: ExtraCourse = {
           text: "A project is a temporary effort with a start, an end, and a defined result — a new irrigation system, a packhouse, a certification rollout. Operations are the ongoing work that keeps the farm running. The mistake is managing a project like a routine and a routine like a project. Know which one you are in before you start.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=bw-NvGvLHtM",
+          caption: "What project management is — explained in ten minutes.",
+        },
+        {
           type: "list",
           items: [
             "Projects have a start date, an end date, and a deliverable.",
@@ -86,6 +91,11 @@ export const extraCourse15: ExtraCourse = {
           text: "Start with the finish line. Write the goal in one sentence, list what is in scope and — just as important — what is out of scope, and define how you will know it worked. Success criteria are measurable: hectares irrigated, tonnes through the packhouse, days to market. If you cannot measure it, you cannot manage it.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=UTSKQe8aJXQ",
+          caption: "The essential steps every project beginner needs.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "project init --name drip-block-4\n[ok] goal       irrigate block 4 (14 ha) by season start\n[ok] in scope   mainline, laterals, pump, controller\n[ok] out        block 5 and the borehole upgrade\n[ok] success    90% of block irrigated on schedule, ≤ $31k",
@@ -135,6 +145,11 @@ export const extraCourse15: ExtraCourse = {
         {
           type: "paragraph",
           text: "The plan is a promise you make to yourself before the money moves. Break the work into tasks, order them, and estimate time and cost for each. Budget for the weather — literally: a wet week stalls earthworks, a dry one delays planting. Add a contingency of ten to fifteen percent and treat it as part of the budget, not a surprise.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=_FRIhI28OpU",
+          caption: "How to create a farm business plan — University of Maine Cooperative Extension.",
         },
         {
           type: "list",
@@ -192,6 +207,11 @@ export const extraCourse15: ExtraCourse = {
           text: "A plan you never look at is a wish. Track progress weekly against the plan: tasks done, money spent, days used. One simple rule keeps projects honest — when reality differs from the plan, update the plan and tell the owner. Small weekly corrections beat one large rescue at the end.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=lGeXD34J1V8",
+          caption: "Keeping production records — the backbone of tracking.",
+        },
+        {
           type: "code",
           prompt: true,
           text: "project status --drip-block-4\n[ok] week 3/6 · tasks 58% · budget 61% · on pace\n[ok] mainline  complete\n[ok] laterals   on schedule\n[warn] pump delivery delayed 4 days — re-sequence laterals first",
@@ -243,6 +263,11 @@ export const extraCourse15: ExtraCourse = {
           text: "Every project has a short list of risks that could actually stop it: a late input, a price collapse, a contractor no-show, a permit delay. Write them down at the start, score them, and give each one an owner and a response. When things change — and they will — route the change through a simple rule: does it change scope, time, or budget? If yes, the owner decides, in writing.",
         },
         {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=Nwl7PquhU5U",
+          caption: "An introduction to project risk management.",
+        },
+        {
           type: "note",
           tone: "warn",
           text: "An unmanaged change is a new project hiding inside your project. Scope, time, and budget move together — never change one silently.",
@@ -292,6 +317,11 @@ export const extraCourse15: ExtraCourse = {
         {
           type: "paragraph",
           text: "A project ends twice: when the work stops, and when the records close. Sign off the deliverable against the success criteria, hand over the operation — who runs the new irrigation, who keeps the packhouse records — and write the lessons before everyone forgets. The next project is cheaper because this one was documented.",
+        },
+        {
+          type: "video",
+          url: "https://www.youtube.com/watch?v=OyrKGopOGpQ",
+          caption: "Project management basics, terminology, and the full lifecycle.",
         },
         {
           type: "list",

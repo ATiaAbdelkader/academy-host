@@ -25,7 +25,7 @@ export function AiAssistant({
   courseId?: Id<"courses">;
   courseTitle?: string;
 }) {
-  const history = useQuery(api.ai.myMessages);
+  const history = useQuery(api.aiChat.myMessages);
   const ask = useAction(api.ai.ask);
 
   const [input, setInput] = useState("");

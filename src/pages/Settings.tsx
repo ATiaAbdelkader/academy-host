@@ -6,26 +6,21 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "convex/react";
 import { CheckCircle2, Loader2, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 
-export default function Settings() {
-  const { user } = useAuth();
+type User = NonNullable<ReturnType<typeof useAuth>["user"]>;
+
+/** Display-name editor, keyed by user id in the parent so it always
+ *  initializes from the freshest user record without an effect. */
+function NameForm({ user }: { user: User }) {
   const updateProfile = useMutation(api.users.updateProfile);
-
-  const [name, setName] = useState("");
+  const [name, setName] = useState(user.name ?? "");
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name ?? "");
-    }
-  }, [user]);
 
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!user) return;
     setSaving(true);
     try {
       await updateProfile({ name });
@@ -38,6 +33,48 @@ export default function Settings() {
       setSaving(false);
     }
   };
+
+  return (
+    <form onSubmit={handleSave} className="space-y-3 border-t border-border pt-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="settings-name">display name</Label>
+        <Input
+          id="settings-name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Dana Whitfield"
+          maxLength={60}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Used on certificates, comments, and reviews. Leave blank to fall back
+          to your email prefix.
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-[11px] text-term-green">
+          <CheckCircle2 className="size-3" />
+          changes apply everywhere immediately
+        </p>
+        <Button
+          type="submit"
+          size="sm"
+          className="gap-1.5 text-xs"
+          disabled={saving}
+        >
+          {saving ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Save className="size-3.5" />
+          )}
+          save profile
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export default function Settings() {
+  const { user } = useAuth();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -91,44 +128,7 @@ export default function Settings() {
               </p>
             </div>
 
-            <form
-              onSubmit={handleSave}
-              className="space-y-3 border-t border-border pt-4"
-            >
-              <div className="space-y-1.5">
-                <Label htmlFor="settings-name">display name</Label>
-                <Input
-                  id="settings-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Dana Whitfield"
-                  maxLength={60}
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  Used on certificates, comments, and reviews. Leave blank to
-                  fall back to your email prefix.
-                </p>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="flex items-center gap-1.5 text-[11px] text-term-green">
-                  <CheckCircle2 className="size-3" />
-                  changes apply everywhere immediately
-                </p>
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="gap-1.5 text-xs"
-                  disabled={saving || !user}
-                >
-                  {saving ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Save className="size-3.5" />
-                  )}
-                  save profile
-                </Button>
-              </div>
-            </form>
+            {user ? <NameForm key={user._id} user={user} /> : null}
           </div>
         </div>
 

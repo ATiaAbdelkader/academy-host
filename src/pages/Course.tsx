@@ -24,7 +24,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
 import { toast } from "sonner";
@@ -129,6 +129,81 @@ function NoteBlock({ block }: { block: Extract<ContentBlock, { type: "note" }> }
         {warn ? "> caution" : "> note"}
       </p>
       <p className="mt-1 text-sm leading-6 text-foreground/85">{block.text}</p>
+    </div>
+  );
+}
+
+/** Private study notes for one course. Keyed by the progress entry id in the
+ *  parent so it always initializes from the freshest saved note without an
+ *  effect. */
+function NotesPanel({
+  courseId,
+  initialNote,
+}: {
+  courseId: Id<"courses">;
+  initialNote: string;
+}) {
+  const setNote = useMutation(api.progress.setNote);
+  const [draft, setDraft] = useState(initialNote);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await setNote({ courseId, note: draft });
+      setSaved(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not save notes.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2 border-t border-border pt-3">
+      <p className="text-[11px] font-medium text-muted-foreground">
+        my notes — private to you
+      </p>
+      <Textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={3}
+        placeholder="Your own study notes for this course…"
+        maxLength={5000}
+        className="resize-none text-xs"
+      />
+      <div className="flex items-center justify-end gap-2">
+        {draft !== initialNote && (
+          <span className="mr-auto text-[10px] text-term-amber">unsaved</span>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-[11px]"
+          disabled={saving || draft === initialNote}
+          onClick={() => setDraft(initialNote)}
+        >
+          discard
+        </Button>
+        <Button
+          size="sm"
+          className="h-7 text-[11px]"
+          disabled={saving || draft === initialNote}
+          onClick={() => void handleSave()}
+        >
+          {saving ? (
+            <Loader2 className="size-3 animate-spin" />
+          ) : (
+            "save notes"
+          )}
+        </Button>
+      </div>
+      {saved && (
+        <p className="text-[10px] text-term-green">[ok] notes saved</p>
+      )}
     </div>
   );
 }
@@ -413,7 +488,6 @@ export default function Course() {
   const postComment = useMutation(api.comments.post);
   const postReview = useMutation(api.reviews.post);
   const setProgress = useMutation(api.progress.setStatus);
-  const setNote = useMutation(api.progress.setNote);
   const joinWaitlist = useMutation(api.waitlist.join);
   const leaveWaitlist = useMutation(api.waitlist.leave);
   const sendConfirmation = useAction(api.notifications.sendBookingConfirmation);
@@ -443,9 +517,6 @@ export default function Course() {
   const [reviewComment, setReviewComment] = useState("");
   const [postingReview, setPostingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
-  const [notesDraft, setNotesDraft] = useState("");
-  const [savingNotes, setSavingNotes] = useState(false);
-  const [notesSaved, setNotesSaved] = useState(false);
 
   const isAdmin = user?.role === "admin";
   const progressEntry = course
@@ -503,11 +574,6 @@ export default function Course() {
       ? ""
       : `${Math.round((modulesPassed / modules.length) * 100)}% [${modulesPassed}/${modules.length} modules]`;
 
-  useEffect(() => {
-    setNotesDraft(progressEntry?.note ?? "");
-    setNotesSaved(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progressEntry]);
   const selectedSessionData =
     sessions?.find((s) => s._id === selectedSession) ?? null;
   const selectedIsFull = selectedSessionData
@@ -596,21 +662,6 @@ export default function Course() {
       );
     } finally {
       setPosting(false);
-    }
-  };
-
-  const handleSaveNotes = async () => {
-    if (!course) return;
-    setSavingNotes(true);
-    try {
-      await setNote({ courseId: course._id, note: notesDraft });
-      setNotesSaved(true);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Could not save notes.",
-      );
-    } finally {
-      setSavingNotes(false);
     }
   };
 
@@ -1123,60 +1174,11 @@ export default function Course() {
                         </Button>
                       )}
 
-                      <div className="space-y-2 border-t border-border pt-3">
-                        <p className="text-[11px] font-medium text-muted-foreground">
-                          my notes — private to you
-                        </p>
-                        <Textarea
-                          value={notesDraft}
-                          onChange={(e) => setNotesDraft(e.target.value)}
-                          rows={3}
-                          placeholder="Your own study notes for this course…"
-                          maxLength={5000}
-                          className="resize-none text-xs"
-                        />
-                        <div className="flex items-center justify-end gap-2">
-                          {notesDraft !== (progressEntry?.note ?? "") && (
-                            <span className="mr-auto text-[10px] text-term-amber">
-                              unsaved
-                            </span>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 text-[11px]"
-                            disabled={
-                              savingNotes ||
-                              notesDraft === (progressEntry?.note ?? "")
-                            }
-                            onClick={() =>
-                              setNotesDraft(progressEntry?.note ?? "")
-                            }
-                          >
-                            discard
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="h-7 text-[11px]"
-                            disabled={
-                              savingNotes ||
-                              notesDraft === (progressEntry?.note ?? "")
-                            }
-                            onClick={() => void handleSaveNotes()}
-                          >
-                            {savingNotes ? (
-                              <Loader2 className="size-3 animate-spin" />
-                            ) : (
-                              "save notes"
-                            )}
-                          </Button>
-                        </div>
-                        {notesSaved && (
-                          <p className="text-[10px] text-term-green">
-                            [ok] notes saved
-                          </p>
-                        )}
-                      </div>
+                      <NotesPanel
+                        key={progressEntry?._id ?? "none"}
+                        courseId={course._id}
+                        initialNote={progressEntry?.note ?? ""}
+                      />
                     </div>
                   </div>
                 )}

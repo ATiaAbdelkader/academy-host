@@ -21,7 +21,7 @@ export default function Certificate() {
 
   const loading = progress === undefined || courses === undefined;
   const eligible = entry?.status === "completed";
-  const completedAt = entry?.updatedAt ?? Date.now();
+  const completedAt = entry?.updatedAt;
   const certId =
     courseId && user
       ? `AGS-${courseId.slice(-4).toUpperCase()}-${user._id
@@ -151,11 +151,13 @@ export default function Certificate() {
                       completed
                     </p>
                     <p className="mt-1 text-sm font-medium">
-                      {new Date(completedAt).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {completedAt
+                        ? new Date(completedAt).toLocaleDateString("en-US", {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "—"}
                     </p>
                   </div>
                   <div>

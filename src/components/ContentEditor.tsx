@@ -23,7 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "convex/react";
 import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const BLOCK_TYPES: ContentBlock["type"][] = [
@@ -502,29 +502,26 @@ export function ContentEditor({
   onOpenChange: (open: boolean) => void;
 }) {
   const updateCourse = useMutation(api.courses.update);
-  const [modules, setModules] = useState<CourseModule[]>([]);
+  // A fresh copy is derived once per mount; the parent keys this component by
+  // course id, so opening the dialog remounts it with the course's current
+  // modules — no effect needed.
+  const [modules, setModules] = useState<CourseModule[]>(() =>
+    course && course.modules && course.modules.length > 0
+      ? course.modules.map((m) => ({
+          ...m,
+          content: m.content.map((b) => ({ ...b })),
+        }))
+      : course
+        ? [
+            {
+              title: "Module 1",
+              content: course.content.map((b) => ({ ...b })),
+            },
+          ]
+        : [],
+  );
   const [addType, setAddType] = useState<ContentBlock["type"]>("paragraph");
   const [saving, setSaving] = useState(false);
-
-  // Load a fresh copy of the course whenever the dialog opens.
-  useEffect(() => {
-    if (open && course) {
-      const fromModules =
-        course.modules && course.modules.length > 0
-          ? course.modules.map((m) => ({
-              ...m,
-              content: m.content.map((b) => ({ ...b })),
-            }))
-          : [
-              {
-                title: "Module 1",
-                content: course.content.map((b) => ({ ...b })),
-              },
-            ];
-      setModules(fromModules);
-      setAddType("paragraph");
-    }
-  }, [open, course]);
 
   const updateModule = (index: number, module: CourseModule) => {
     setModules((prev) => prev.map((m, i) => (i === index ? module : m)));

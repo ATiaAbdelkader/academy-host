@@ -549,6 +549,7 @@ function CoursesTab() {
       </Dialog>
 
       <ContentEditor
+        key={contentCourse?._id ?? "none"}
         course={contentCourse}
         open={contentCourse !== null}
         onOpenChange={(open) => {

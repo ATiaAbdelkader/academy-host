@@ -23,6 +23,8 @@ const StudyPlan = lazy(() => import("./pages/StudyPlan.tsx"));
 const Certificates = lazy(() => import("./pages/Certificates.tsx"));
 const Analytics = lazy(() => import("./pages/Analytics.tsx"));
 const Exports = lazy(() => import("./pages/Exports.tsx"));
+const Flashcards = lazy(() => import("./pages/Flashcards.tsx"));
+const LearningPaths = lazy(() => import("./pages/LearningPaths.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const Certificate = lazy(() => import("./pages/Certificate.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
@@ -181,6 +183,22 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <Exports />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/flashcards"
+                element={
+                  <RequireAuth>
+                    <Flashcards />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/learning-paths"
+                element={
+                  <RequireAuth>
+                    <LearningPaths />
                   </RequireAuth>
                 }
               />

@@ -106,6 +106,22 @@ export function AppHeader({ path }: { path?: string }) {
           )}
           {isAuthenticated && (
             <Link
+              to="/flashcards"
+              className="transition-colors hover:text-foreground"
+            >
+              ./flashcards
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
+              to="/learning-paths"
+              className="transition-colors hover:text-foreground"
+            >
+              ./paths
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
               to="/certificates"
               className="transition-colors hover:text-foreground"
             >

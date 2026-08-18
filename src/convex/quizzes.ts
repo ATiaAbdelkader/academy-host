@@ -193,6 +193,83 @@ export const submitQuiz = mutation({
       textAnswers: pendingReview ? cleanText : undefined,
       createdAt: Date.now(),
     });
+
+    // Auto-create flashcards from wrong answers for spaced repetition review
+    const wrongQuestions = quiz.questions
+      .map((q, i) => ({
+        question: q.question,
+        options: q.options,
+        answerIndex: q.answerIndex,
+        wasCorrect: !q.open && cleanAnswers[i] === q.answerIndex,
+      }))
+      .filter((q) => !q.wasCorrect && !quiz.questions[quiz.questions.indexOf(quiz.questions.find((qq) => qq.question === q.question)!)].open);
+
+    if (wrongQuestions.length > 0) {
+      // Find module title for this quiz
+      const modules = course.modules && course.modules.length > 0
+        ? course.modules
+        : [{ title: "Course content", content: course.content }];
+      let quizCount = 0;
+      let moduleTitle = modules[0]?.title ?? "Module";
+      for (const mod of modules) {
+        const modQuizCount = mod.content.filter((b) => b.type === "quiz").length;
+        if (quizIndex < quizCount + modQuizCount) {
+          moduleTitle = mod.title;
+          break;
+        }
+        quizCount += modQuizCount;
+      }
+
+      // Create flashcards for wrong answers
+      const now = Date.now();
+      for (const q of wrongQuestions) {
+        const existing = await ctx.db
+          .query("reviewCards")
+          .withIndex("by_user_due", (qs) => qs.eq("userId", userId))
+          .filter((qs) =>
+            qs.and(
+              qs.eq(qs.field("courseId"), courseId),
+              qs.eq(qs.field("question"), q.question)
+            )
+          )
+          .first();
+
+        if (!existing) {
+          await ctx.db.insert("reviewCards", {
+            userId,
+            courseId,
+            courseTitle: course.title,
+            courseSlug: course.slug,
+            moduleTitle,
+            question: q.question,
+            options: q.options,
+            answerIndex: q.answerIndex,
+            due: now,
+            state: {
+              difficulty: 5,
+              stability: 1,
+              elapsedDays: 0,
+              scheduledDays: 0,
+              reps: 0,
+              lapses: 0,
+              lastReview: now,
+            },
+            createdAt: now,
+          });
+        } else if (existing.due > now) {
+          // Reset card if student got it wrong again
+          await ctx.db.patch(existing._id, {
+            due: now,
+            state: {
+              ...existing.state,
+              lapses: existing.state.lapses + 1,
+              stability: Math.max(1, existing.state.stability * 0.5),
+            },
+          });
+        }
+      }
+    }
+
     return {
       attemptId,
       correct,

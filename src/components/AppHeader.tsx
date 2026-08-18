@@ -114,12 +114,26 @@ export function AppHeader({ path }: { path?: string }) {
             </Link>
           )}
           {isAuthenticated && (
-            <Link
-              to="/learning-paths"
-              className="transition-colors hover:text-foreground"
-            >
-              ./paths
-            </Link>
+            <>
+              <Link
+                to="/learning-paths"
+                className="transition-colors hover:text-foreground"
+              >
+                ./paths
+              </Link>
+              <Link
+                to="/field-journal"
+                className="transition-colors hover:text-foreground"
+              >
+                ./journal
+              </Link>
+              <Link
+                to="/leaderboard"
+                className="transition-colors hover:text-foreground"
+              >
+                ./rankings
+              </Link>
+            </>
           )}
           {isAuthenticated && (
             <Link

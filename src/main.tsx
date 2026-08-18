@@ -25,6 +25,8 @@ const Analytics = lazy(() => import("./pages/Analytics.tsx"));
 const Exports = lazy(() => import("./pages/Exports.tsx"));
 const Flashcards = lazy(() => import("./pages/Flashcards.tsx"));
 const LearningPaths = lazy(() => import("./pages/LearningPaths.tsx"));
+const FieldJournal = lazy(() => import("./pages/FieldJournal.tsx"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const Certificate = lazy(() => import("./pages/Certificate.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
@@ -193,15 +195,9 @@ createRoot(document.getElementById("root")!).render(
                     <Flashcards />
                   </RequireAuth>
                 }
-              />
-              <Route
-                path="/learning-paths"
-                element={
-                  <RequireAuth>
-                    <LearningPaths />
-                  </RequireAuth>
-                }
-              />
+              />          <Route path="/learning-paths" element={<RequireAuth><LearningPaths /></RequireAuth>} />
+          <Route path="/field-journal" element={<RequireAuth><FieldJournal /></RequireAuth>} />
+          <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
               <Route
                 path="/certificates"
                 element={

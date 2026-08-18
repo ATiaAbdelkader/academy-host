@@ -337,6 +337,31 @@ const schema = defineSchema(
 
     // Spaced-repetition review cards (FSRS). Auto-created for quiz questions
     // answered wrong; the review page schedules the next repetition.
+    fieldJournal: defineTable({
+      userId: v.id("users"),
+      title: v.string(),
+      location: v.string(),
+      date: v.number(),
+      soilType: v.optional(v.string()),
+      moisture: v.optional(v.number()),
+      temperature: v.optional(v.number()),
+      ph: v.optional(v.number()),
+      notes: v.string(),
+      cropStage: v.optional(v.string()),
+      weather: v.optional(v.string()),
+      actions: v.optional(v.array(v.string())),
+      createdAt: v.number(),
+    }).index("by_user_date", ["userId", "date"]),
+    leaderboard: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      points: v.number(),
+      coursesCompleted: v.number(),
+      quizzesPassed: v.number(),
+      streak: v.number(),
+      badges: v.array(v.string()),
+      updatedAt: v.number(),
+    }).index("by_points", ["points"]),
     reviewCards: defineTable({
       userId: v.id("users"),
       courseId: v.id("courses"),

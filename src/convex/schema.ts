@@ -292,6 +292,72 @@ const schema = defineSchema(
     })
       .index("by_slug", ["slug"])
       .index("by_order", ["order"]),
+
+    // Printable resources (field guides, checklists, calendars) sold or given
+    // away as digital downloads — CourseLit-style. Content lives in
+    // structured sections rendered as a clean printable document, so no file
+    // storage is needed.
+    downloads: defineTable({
+      title: v.string(),
+      slug: v.string(),
+      description: v.string(),
+      docType: v.union(
+        v.literal("guide"),
+        v.literal("checklist"),
+        v.literal("calendar"),
+        v.literal("template"),
+      ),
+      priceCents: v.number(), // 0 = free lead magnet
+      popular: v.boolean(),
+      sections: v.array(
+        v.object({
+          heading: v.string(),
+          body: v.optional(v.string()),
+          items: v.optional(v.array(v.string())), // checklist lines
+        }),
+      ),
+      createdAt: v.number(),
+    }).index("by_slug", ["slug"]),
+
+    // Who unlocked a download. Free downloads are paid immediately; paid ones
+    // start "pending" until the academy settles them (mirrors the session
+    // waive flow — extend with Stripe later).
+    downloadPurchases: defineTable({
+      userId: v.id("users"),
+      downloadId: v.id("downloads"),
+      paymentStatus: v.union(
+        v.literal("paid"),
+        v.literal("waived"),
+        v.literal("pending"),
+      ),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_download", ["downloadId"]),
+
+    // Spaced-repetition review cards (FSRS). Auto-created for quiz questions
+    // answered wrong; the review page schedules the next repetition.
+    reviewCards: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      courseTitle: v.string(),
+      courseSlug: v.string(),
+      moduleTitle: v.string(),
+      question: v.string(),
+      options: v.array(v.string()),
+      answerIndex: v.number(),
+      due: v.number(), // epoch ms the card is next reviewable
+      state: v.object({
+        difficulty: v.number(),
+        stability: v.number(),
+        elapsedDays: v.number(),
+        scheduledDays: v.number(),
+        reps: v.number(),
+        lapses: v.number(),
+        lastReview: v.number(),
+      }),
+      createdAt: v.number(),
+    }).index("by_user_due", ["userId", "due"]),
   },
   {
     schemaValidation: false,

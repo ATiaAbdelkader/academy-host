@@ -68,6 +68,7 @@
     "stripe": "^22.5.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
+    "ts-fsrs": "^5.4.1",
     "vaul": "^1.1.2",
     "zod": "^4.1.13"
   },

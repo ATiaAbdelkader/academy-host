@@ -197,14 +197,7 @@ export default function LearningPaths() {
                 {/* Expanded course list */}
                 {isExpanded && (
                   <div className="border-t border-border">
-                    {path.courses.map((course, i) => {
-                      const courseProgress = myProgress?.find(
-                        (p) =>
-                          p.pathId === path.id
-                      );
-                      const isCompleted = progress?.completedCourses ?? 0 > i;
-
-                      return (
+                    {path.courses.filter((c): c is NonNullable<typeof c> => c !== null).map((course, i) => (
                         <Link
                           key={course._id}
                           to={`/courses/${course.slug}`}
@@ -230,8 +223,7 @@ export default function LearningPaths() {
                             <ChevronRight className="size-3.5 text-muted-foreground" />
                           </div>
                         </Link>
-                      );
-                    })}
+                      ))}
                     <div className="flex items-center justify-between gap-3 px-4 py-3">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <GraduationCap className="size-3.5 text-term-green" />

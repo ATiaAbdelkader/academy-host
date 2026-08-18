@@ -10,14 +10,18 @@ import { downloadIcs } from "@/lib/ics";
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
   Award,
+  Bell,
   CalendarDays,
   CalendarPlus,
   CheckCircle2,
+  ChevronRight,
   Flame,
   Flag,
+  Lightbulb,
   ListMinus,
   Loader2,
   ShieldCheck,
+  Sparkles,
   Trophy,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -32,6 +36,7 @@ export default function Dashboard() {
   const myStats = useQuery(api.gamification.myStats);
   const leaderboard = useQuery(api.gamification.leaderboard);
   const insights = useQuery(api.insights.myQuizInsights);
+  const nudges = useQuery(api.nudges.myNudges);
   const progress = progressQuery ?? [];
   const courses = useCatalog();
   const resumeEntries = (progress ?? [])
@@ -448,7 +453,40 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Bookings ───────────────────────────────────────────── */}
+        {/* ── Smart Nudges ────────────────────────────────────── */}
+        {nudges && nudges.length > 0 && (
+          <>
+            <div className="mt-8 flex items-center gap-2 text-sm">
+              <span className="text-term-green">$</span>
+              <span>cat nudges.log</span>
+            </div>
+            <div className="mt-3 space-y-2">
+              {nudges.map((nudge) => (
+                <Link
+                  key={nudge.id}
+                  to={nudge.actionLink}
+                  className={`flex items-start gap-3 border px-4 py-3 transition-colors hover:bg-accent/30 ${
+                    nudge.priority === "high"
+                      ? "border-term-amber/40 bg-term-amber/[0.03]"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  <span className="text-lg shrink-0 mt-0.5">{nudge.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{nudge.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {nudge.message}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-[11px] text-term-green flex items-center gap-1">
+                    {nudge.action} <ChevronRight className="size-3" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+
         {/* ── Learner insights ──────────────────────────────────── */}
         <div className="mt-8 flex items-center gap-2 text-sm">
           <span className="text-term-green">$</span>

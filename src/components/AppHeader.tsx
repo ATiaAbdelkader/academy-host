@@ -1,5 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
 import { Bell, LogOut } from "lucide-react";
@@ -164,6 +165,7 @@ export function AppHeader({ path }: { path?: string }) {
                   </span>
                 )}
               </Link>
+              <ThemeToggle />
               <Button
                 type="button"
                 variant="outline"

@@ -19,6 +19,13 @@ import { extraCourse19 } from "./extra_course_19";
 import { extraCourse20 } from "./extra_course_20";
 import { extraCourse21 } from "./extra_course_21";
 import { extraCourse22 } from "./extra_course_22";
+import { extraCourse23 } from "./extra_course_23";
+import { extraCourse24 } from "./extra_course_24";
+import { extraCourse25 } from "./extra_course_25";
+import { extraCourse26 } from "./extra_course_26";
+import { extraCourse27 } from "./extra_course_27";
+import { extraCourse28 } from "./extra_course_28";
+import { extraCourse29 } from "./extra_course_29";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 

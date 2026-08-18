@@ -152,7 +152,7 @@ type SeedCourse = {
 };
 
 // Bump when seed course content changes so existing deployments upgrade.
-const SEED_CONTENT_VERSION = 3;
+const SEED_CONTENT_VERSION = 4;
 
 const seedCatalog: SeedCourse[] = [
   // Extended catalog — newest tracks first in source; canonical ordering is
@@ -170,6 +170,13 @@ const seedCatalog: SeedCourse[] = [
   extraCourse20,
   extraCourse21,
   extraCourse22,
+  extraCourse23,
+  extraCourse24,
+  extraCourse25,
+  extraCourse26,
+  extraCourse27,
+  extraCourse28,
+  extraCourse29,
   {
     category: "Foundations",
     title: "Welcome to AgriSkills Academy",

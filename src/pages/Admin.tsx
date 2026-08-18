@@ -6,6 +6,7 @@ import { MetricsExports } from "@/components/admin/MetricsExports";
 import { ModuleDropOff } from "@/components/admin/ModuleDropOff";
 import { StudentProfileDialog } from "@/components/admin/StudentProfileDialog";
 import { ContentEditor } from "@/components/ContentEditor";
+import { CoursePreviewDialog } from "@/components/admin/CoursePreview";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -205,6 +206,7 @@ function CoursesTab() {
   const [submitting, setSubmitting] = useState(false);
 
   const [contentCourse, setContentCourse] = useState<CourseDoc | null>(null);
+  const [previewCourse, setPreviewCourse] = useState<CourseDoc | null>(null);
   const [editing, setEditing] = useState<CourseDoc | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
@@ -465,6 +467,14 @@ function CoursesTab() {
                 variant="outline"
                 size="sm"
                 className="h-7 px-2 text-[11px]"
+                onClick={() => setPreviewCourse(course)}
+              >
+                preview
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
                 onClick={() => setContentCourse(course)}
               >
                 content
@@ -577,6 +587,14 @@ function CoursesTab() {
         open={contentCourse !== null}
         onOpenChange={(open) => {
           if (!open) setContentCourse(null);
+        }}
+      />
+
+      <CoursePreviewDialog
+        course={previewCourse}
+        open={previewCourse !== null}
+        onOpenChange={(open) => {
+          if (!open) setPreviewCourse(null);
         }}
       />
     </div>

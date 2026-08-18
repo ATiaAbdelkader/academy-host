@@ -2,15 +2,24 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { useAction, useQuery } from "convex/react";
-import { Bot, Loader2, Send, Sparkles, X } from "lucide-react";
+import { Bot, Loader2, MessageSquare, Send, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type ChatTurn = { role: "user" | "assistant"; content: string };
 
-const QUICK_PROMPTS = [
+/** Default prompts when no module context is available. */
+const DEFAULT_PROMPTS = [
   "Summarize the module I just read in three bullet points",
   "Quiz me on this module's key concepts",
   "Give me a real-farm example of this idea",
+];
+
+/** Context-aware prompts when a module index is provided. */
+const MODULE_PROMPTS = [
+  "Explain the key concept from this module in simple terms",
+  "What are the most likely quiz questions for this module?",
+  "How does this module connect to the previous one?",
+  "Give me a practical example I can use on the farm",
 ];
 
 /**
@@ -33,6 +42,17 @@ export function AiAssistant({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<ChatTurn[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [moduleIndex, setModuleIndex] = useState<number | undefined>(undefined);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Parse module index from URL search params when on a course page.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mod = params.get("module");
+    if (mod) setModuleIndex(parseInt(mod, 10));
+  }, []);
+
+  const quickPrompts = moduleIndex != null ? MODULE_PROMPTS : DEFAULT_PROMPTS;
 
   // Keep the view pinned to the newest message.
   useEffect(() => {
@@ -93,10 +113,26 @@ export function AiAssistant({
             </span>
           )}
         </span>
-        <span className="flex items-center gap-1 text-[10px] text-term-green">
-          <span className="inline-block size-1.5 bg-term-green" />
-          online
-        </span>
+        <div className="flex items-center gap-2">
+          {history && history.length > 0 && (
+            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <MessageSquare className="size-3" />
+              {history.length} messages
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowHistory((v) => !v)}
+            className="text-[10px] text-muted-foreground hover:text-foreground"
+            title="toggle conversation history"
+          >
+            {showHistory ? "hide" : "show"} history
+          </button>
+          <span className="flex items-center gap-1 text-[10px] text-term-green">
+            <span className="inline-block size-1.5 bg-term-green" />
+            online
+          </span>
+        </div>
       </div>
 
       <div
@@ -109,11 +145,13 @@ export function AiAssistant({
               <Bot className="mt-0.5 size-4 shrink-0 text-term-green" />
               <p className="text-xs leading-5 text-muted-foreground">
                 Ask anything about this course — concepts, quiz prep, or how it
-                applies on a real farm. Try one of these to get started:
+                applies on a real farm. {moduleIndex != null && (
+                  <span className="text-term-green">[module {moduleIndex + 1} context active]</span>
+                )} Try one of these to get started:
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {QUICK_PROMPTS.map((prompt) => (
+              {quickPrompts.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"

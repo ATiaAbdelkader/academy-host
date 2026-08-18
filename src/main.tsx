@@ -21,6 +21,8 @@ const Booking = lazy(() => import("./pages/Booking.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const StudyPlan = lazy(() => import("./pages/StudyPlan.tsx"));
 const Certificates = lazy(() => import("./pages/Certificates.tsx"));
+const Analytics = lazy(() => import("./pages/Analytics.tsx"));
+const Exports = lazy(() => import("./pages/Exports.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const Certificate = lazy(() => import("./pages/Certificate.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
@@ -163,6 +165,22 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <StudyPlan />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <RequireAuth>
+                    <Analytics />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/exports"
+                element={
+                  <RequireAuth>
+                    <Exports />
                   </RequireAuth>
                 }
               />

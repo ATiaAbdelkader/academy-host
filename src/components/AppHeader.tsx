@@ -90,6 +90,22 @@ export function AppHeader({ path }: { path?: string }) {
           )}
           {isAuthenticated && (
             <Link
+              to="/analytics"
+              className="transition-colors hover:text-foreground"
+            >
+              ./analytics
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
+              to="/exports"
+              className="transition-colors hover:text-foreground"
+            >
+              ./exports
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
               to="/certificates"
               className="transition-colors hover:text-foreground"
             >

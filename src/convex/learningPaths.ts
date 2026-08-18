@@ -85,6 +85,36 @@ const LEARNING_PATHS = [
     estimatedWeeks: 12,
     difficulty: "advanced",
   },
+  {
+    id: "horticulture",
+    title: "Horticulture & Garden Design",
+    description: "Master garden design, plant propagation, and nursery management for beautiful, productive spaces.",
+    icon: "🌸",
+    color: "term-green",
+    courseSlugs: [
+      "garden-design-layout",
+      "plant-propagation-nursery-management",
+      "composting-soil-amendments",
+      "beekeeping-pollination-services",
+    ],
+    estimatedWeeks: 10,
+    difficulty: "beginner",
+  },
+  {
+    id: "post-harvest",
+    title: "Post-Harvest & Farm Operations",
+    description: "Handle, store, and transport produce efficiently. Master equipment and water systems.",
+    icon: "🚜",
+    color: "term-amber",
+    courseSlugs: [
+      "post-harvest-handling-storage",
+      "farm-equipment-machinery-basics",
+      "water-harvesting-irrigation-systems",
+      "precision-agriculture",
+    ],
+    estimatedWeeks: 10,
+    difficulty: "intermediate",
+  },
 ];
 
 /** Get all available learning paths with course details. */

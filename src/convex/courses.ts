@@ -12,6 +12,13 @@ import { extraCourse12 } from "./extra_course_12";
 import { extraCourse13 } from "./extra_course_13";
 import { extraCourse14 } from "./extra_course_14";
 import { extraCourse15 } from "./extra_course_15";
+import { extraCourse16 } from "./extra_course_16";
+import { extraCourse17 } from "./extra_course_17";
+import { extraCourse18 } from "./extra_course_18";
+import { extraCourse19 } from "./extra_course_19";
+import { extraCourse20 } from "./extra_course_20";
+import { extraCourse21 } from "./extra_course_21";
+import { extraCourse22 } from "./extra_course_22";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -149,6 +156,13 @@ const seedCatalog: SeedCourse[] = [
   extraCourse13,
   extraCourse14,
   extraCourse15,
+  extraCourse16,
+  extraCourse17,
+  extraCourse18,
+  extraCourse19,
+  extraCourse20,
+  extraCourse21,
+  extraCourse22,
   {
     category: "Foundations",
     title: "Welcome to AgriSkills Academy",

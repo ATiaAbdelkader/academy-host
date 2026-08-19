@@ -99,7 +99,7 @@ function UnitConverter() {
     ? conv.from === "°F"
       ? ((inputVal - 32) * 5 / 9).toFixed(2)
       : ((inputVal * 9 / 5) + 32).toFixed(2)
-    : (inputVal * conv.factor).toFixed(4);
+    : (inputVal * (conv.factor ?? 1)).toFixed(4);
   return (
     <div className="space-y-4">
       <select value={selected} onChange={(e) => setSelected(parseInt(e.target.value))} className="w-full p-2 bg-muted border border-border rounded font-mono text-sm">

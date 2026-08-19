@@ -33,6 +33,15 @@ const Settings = lazy(() => import("./pages/Settings.tsx"));
 const Notifications = lazy(() => import("./pages/Notifications.tsx"));
 const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase.tsx"));
 const CourseCompare = lazy(() => import("./pages/CourseCompare.tsx"));
+const LiveSessions = lazy(() => import("./pages/LiveSessions.tsx"));
+const Mentorship = lazy(() => import("./pages/Mentorship.tsx"));
+const PeerReviews = lazy(() => import("./pages/PeerReviews.tsx"));
+const Store = lazy(() => import("./pages/Store.tsx"));
+const StudyGroups = lazy(() => import("./pages/StudyGroups.tsx"));
+const Challenges = lazy(() => import("./pages/Challenges.tsx"));
+const Portfolio = lazy(() => import("./pages/Portfolio.tsx"));
+const Tools = lazy(() => import("./pages/Tools.tsx"));
+const Revenue = lazy(() => import("./pages/Revenue.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -234,14 +243,16 @@ createRoot(document.getElementById("root")!).render(
                   </RequireAuth>
                 }
               />
-              <Route
-                path="/admin"
-                element={
-                  <RequireAuth>
-                    <Admin />
-                  </RequireAuth>
-                }
-              />
+              <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+              <Route path="/live-sessions" element={<RequireAuth><LiveSessions /></RequireAuth>} />
+              <Route path="/mentorship" element={<RequireAuth><Mentorship /></RequireAuth>} />
+              <Route path="/peer-reviews" element={<RequireAuth><PeerReviews /></RequireAuth>} />
+              <Route path="/store" element={<RequireAuth><Store /></RequireAuth>} />
+              <Route path="/study-groups" element={<RequireAuth><StudyGroups /></RequireAuth>} />
+              <Route path="/challenges" element={<RequireAuth><Challenges /></RequireAuth>} />
+              <Route path="/portfolio" element={<RequireAuth><Portfolio /></RequireAuth>} />
+              <Route path="/tools" element={<RequireAuth><Tools /></RequireAuth>} />
+              <Route path="/revenue" element={<RequireAuth><Revenue /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

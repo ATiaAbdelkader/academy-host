@@ -144,16 +144,25 @@ export function AppHeader({ path }: { path?: string }) {
             </Link>
           )}
           {isAuthenticated && (
-            <Link
-              to="/compare"
-              className="transition-colors hover:text-foreground"
-            >
-              ./compare
-            </Link>
+            <Link to="/compare" className="transition-colors hover:text-foreground">./compare</Link>
           )}
           {isAuthenticated && (
-            <Link
-              to="/certificates"
+            <Link to="/live-sessions" className="transition-colors hover:text-foreground">./sessions</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/mentorship" className="transition-colors hover:text-foreground">./mentor</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/store" className="transition-colors hover:text-foreground">./store</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/tools" className="transition-colors hover:text-foreground">./tools</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/portfolio" className="transition-colors hover:text-foreground">./portfolio</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/certificates"
               className="transition-colors hover:text-foreground"
             >
               ./certificates

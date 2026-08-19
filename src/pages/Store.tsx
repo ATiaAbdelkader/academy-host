@@ -1,14 +1,14 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { useAuth } from "@convex-dev/auth/react";
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { ShoppingBag, Star, Lock, Check } from "lucide-react";
 
 export default function Store() {
-  const { userId } = useAuth();
+  const { user } = useAuth(); const userId = user?._id;
   const items = useQuery(api.store.listItems, {});
   const purchases = useQuery(api.store.myPurchases, userId ? { userId } : "skip");
-  const userStats = useQuery(api.gamification.getStats, userId ? { userId } : "skip");
+  const userStats = useQuery(api.gamification.myStats);
   const purchaseMutation = useMutation(api.store.purchase);
   const [category, setCategory] = useState<string | null>(null);
   const [purchasing, setPurchasing] = useState<string | null>(null);

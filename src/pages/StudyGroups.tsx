@@ -1,11 +1,11 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { useAuth } from "@convex-dev/auth/react";
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Users, Plus, MessageCircle, Send } from "lucide-react";
 
 export default function StudyGroups() {
-  const { userId } = useAuth();
+  const { user } = useAuth(); const userId = user?._id;
   const groups = useQuery(api.studyGroups.list, {});
   const myGroups = useQuery(api.studyGroups.myGroups, userId ? { userId } : "skip");
   const createGroup = useMutation(api.studyGroups.create);

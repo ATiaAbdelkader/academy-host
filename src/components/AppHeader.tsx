@@ -176,6 +176,47 @@ export function AppHeader({ path }: { path?: string }) {
               ./settings
             </Link>
           )}
+          {isAuthenticated && (
+            <Link to="/seasonal" className="transition-colors hover:text-foreground">./seasonal</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/showcase" className="transition-colors hover:text-foreground">./showcase</Link>
+          )}
+          <Link to="/market" className="transition-colors hover:text-foreground">./market</Link>
+          {isAuthenticated && (
+            <Link to="/knowledge-gaps" className="transition-colors hover:text-foreground">./gaps</Link>
+          )}
+          <Link to="/verify-credential" className="transition-colors hover:text-foreground">./verify</Link>
+          {isAuthenticated && (
+            <Link to="/peer-reviews" className="transition-colors hover:text-foreground">./reviews</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/study-groups" className="transition-colors hover:text-foreground">./groups</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/challenges" className="transition-colors hover:text-foreground">./challenges</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/farm-tools" className="transition-colors hover:text-foreground">./farm-tools</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/labs" className="transition-colors hover:text-foreground">./labs</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/case-studies" className="transition-colors hover:text-foreground">./cases</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/learn" className="transition-colors hover:text-foreground">./learn</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/transcript" className="transition-colors hover:text-foreground">./transcript</Link>
+          )}
+          {isAuthenticated && (
+            <Link to="/skills" className="transition-colors hover:text-foreground">./skills</Link>
+          )}
+          {isAdmin && (
+            <Link to="/revenue" className="transition-colors hover:text-foreground">./revenue</Link>
+          )}
           {isAdmin && (
             <Link
               to="/admin"

@@ -611,6 +611,229 @@ const schema = defineSchema(
       createdAt: v.number(),
     })
       .index("by_date", ["date"]),
+
+    // ── Competency Skills Matrix ──
+    competencies: defineTable({
+      name: v.string(), // e.g. "Soil Analysis", "Pest Identification"
+      category: v.string(), // e.g. "Foundations", "AgTech"
+      description: v.string(),
+      icon: v.optional(v.string()),
+    }).index("by_category", ["category"]),
+
+    userCompetencies: defineTable({
+      userId: v.id("users"),
+      competencyId: v.id("competencies"),
+      level: v.number(), // 0-5 (0=none, 1=beginner, 2=intermediate, 3=advanced, 4=expert, 5=master)
+      score: v.number(), // 0-100
+      quizzesTaken: v.number(),
+      bestScore: v.number(),
+      lastPracticedAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_competency", ["userId", "competencyId"]),
+
+    // ── Case Study Challenges ──
+    caseStudies: defineTable({
+      title: v.string(),
+      description: v.string(),
+      category: v.string(),
+      difficulty: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+      scenario: v.string(), // the problem statement
+      context: v.string(), // background data
+      questions: v.array(v.object({
+        question: v.string(),
+        options: v.array(v.string()),
+        answerIndex: v.number(),
+        explanation: v.string(),
+      })),
+      pointsReward: v.number(),
+      estimatedMinutes: v.number(),
+      tags: v.array(v.string()),
+      active: v.boolean(),
+      createdAt: v.number(),
+    }).index("by_category", ["category"]).index("by_active", ["active"]),
+
+    caseStudyAttempts: defineTable({
+      userId: v.id("users"),
+      caseStudyId: v.id("caseStudies"),
+      answers: v.array(v.number()),
+      correct: v.number(),
+      total: v.number(),
+      score: v.number(), // 0-100
+      passed: v.boolean(),
+      reflection: v.optional(v.string()), // student's written analysis
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]).index("by_case", ["caseStudyId"]),
+
+    // ── Virtual Lab Simulations ──
+    virtualLabs: defineTable({
+      title: v.string(),
+      description: v.string(),
+      category: v.string(), // e.g. "Soil Testing", "Crop Planning"
+      instructions: v.string(),
+      parameters: v.array(v.object({
+        name: v.string(),
+        label: v.string(),
+        type: v.union(v.literal("number"), v.literal("select"), v.literal("boolean")),
+        min: v.optional(v.number()),
+        max: v.optional(v.number()),
+        step: v.optional(v.number()),
+        options: v.optional(v.array(v.string())),
+        default: v.union(v.number(), v.string(), v.boolean()),
+      })),
+      calculationType: v.string(), // determines which formula to use
+      pointsReward: v.number(),
+      active: v.boolean(),
+      createdAt: v.number(),
+    }).index("by_category", ["category"]).index("by_active", ["active"]),
+
+    labSubmissions: defineTable({
+      userId: v.id("users"),
+      labId: v.id("virtualLabs"),
+      inputs: v.string(), // JSON of parameter values
+      result: v.string(), // JSON of calculation output
+      reflection: v.optional(v.string()),
+      pointsEarned: v.number(),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]).index("by_lab", ["labId"]),
+
+    // ── Daily Micro-Lessons ──
+    microLessons: defineTable({
+      title: v.string(),
+      tip: v.string(), // the 1-2 sentence lesson
+      category: v.string(),
+      difficulty: v.union(v.literal("basic"), v.literal("intermediate"), v.literal("advanced")),
+      date: v.string(), // YYYY-MM-DD — one per day per category
+      tags: v.array(v.string()),
+      createdAt: v.number(),
+    }).index("by_date", ["date"]).index("by_category", ["category"]),
+
+    microLessonViews: defineTable({
+      userId: v.id("users"),
+      lessonId: v.id("microLessons"),
+      viewedAt: v.number(),
+    }).index("by_user", ["userId"]).index("by_lesson", ["lessonId"]),
+
+    // ── Farm Business Plans ──
+    businessPlans: defineTable({
+      userId: v.id("users"),
+      farmName: v.string(),
+      farmType: v.string(), // e.g. "crop", "livestock", "mixed", "hydroponic"
+      acreage: v.number(),
+      location: v.string(),
+      crops: v.array(v.string()),
+      goals: v.string(),
+      budget: v.number(), // in cents
+      timeline: v.string(), // e.g. "3 years"
+      generatedPlan: v.string(), // JSON of the full plan
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Soil Test Reports ──
+    soilReports: defineTable({
+      userId: v.id("users"),
+      fieldName: v.string(),
+      location: v.string(),
+      soilType: v.string(),
+      ph: v.number(),
+      nitrogen: v.number(), // ppm
+      phosphorus: v.number(), // ppm
+      potassium: v.number(), // ppm
+      organicMatter: v.number(), // percentage
+      moisture: v.number(), // percentage
+      notes: v.optional(v.string()),
+      recommendations: v.string(), // JSON of generated recommendations
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Crop ROI Calculations ──
+    roiCalculations: defineTable({
+      userId: v.id("users"),
+      cropType: v.string(),
+      acreage: v.number(),
+      seedCost: v.number(), // cents
+      fertilizerCost: v.number(),
+      laborCost: v.number(),
+      equipmentCost: v.number(),
+      irrigationCost: v.number(),
+      otherCosts: v.number(),
+      expectedYield: v.number(), // tons per acre
+      pricePerUnit: v.number(), // cents per ton
+      result: v.string(), // JSON with ROI, profit, break-even etc
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Office Hours / 1-on-1 Scheduling ──
+    officeHours: defineTable({
+      instructorId: v.id("users"),
+      instructorName: v.string(),
+      courseId: v.optional(v.id("courses")),
+      title: v.string(),
+      description: v.optional(v.string()),
+      startsAt: v.number(),
+      durationMinutes: v.number(),
+      maxStudents: v.number(),
+      meetingUrl: v.optional(v.string()),
+      status: v.union(v.literal("scheduled"), v.literal("live"), v.literal("ended"), v.literal("cancelled")),
+      createdAt: v.number(),
+    }).index("by_instructor", ["instructorId"]).index("by_status", ["status"]),
+
+    officeHourBookings: defineTable({
+      officeHourId: v.id("officeHours"),
+      userId: v.id("users"),
+      studentName: v.string(),
+      topic: v.optional(v.string()),
+      status: v.union(v.literal("registered"), v.literal("attended"), v.literal("missed")),
+      createdAt: v.number(),
+    }).index("by_officeHour", ["officeHourId"]).index("by_user", ["userId"]),
+
+    // ── Peer Teaching Answers ──
+    peerTeachingAnswers: defineTable({
+      userId: v.id("users"),
+      authorName: v.string(),
+      courseId: v.id("courses"),
+      questionText: v.string(),
+      answerText: v.string(),
+      upvotes: v.number(),
+      verified: v.boolean(), // marked correct by instructor
+      pointsEarned: v.number(),
+      createdAt: v.number(),
+    }).index("by_course", ["courseId"]).index("by_user", ["userId"]),
+
+    // ── Alumni Network ──
+    alumniProfiles: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      graduationYear: v.number(),
+      completedCourses: v.array(v.string()),
+      expertise: v.array(v.string()),
+      bio: v.string(),
+      availableForMentoring: v.boolean(),
+      linkedinUrl: v.optional(v.string()),
+      location: v.optional(v.string()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]).index("by_year", ["graduationYear"]),
+
+    // ── Micro-Credentials ──
+    microCredentials: defineTable({
+      name: v.string(), // e.g. "Soil Science Specialist"
+      description: v.string(),
+      category: v.string(),
+      requiredCompetencies: v.array(v.id("competencies")),
+      requiredLevel: v.number(), // minimum level for each competency
+      icon: v.string(),
+      color: v.string(),
+      active: v.boolean(),
+      createdAt: v.number(),
+    }).index("by_category", ["category"]).index("by_active", ["active"]),
+
+    userMicroCredentials: defineTable({
+      userId: v.id("users"),
+      credentialId: v.id("microCredentials"),
+      earnedAt: v.number(),
+      verified: v.boolean(),
+    }).index("by_user", ["userId"]).index("by_credential", ["credentialId"]),
   },
   {
     schemaValidation: false,

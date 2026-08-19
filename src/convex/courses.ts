@@ -38,6 +38,21 @@ import { extraCourse38 } from "./extra_course_38";
 import { extraCourse39 } from "./extra_course_39";
 import { extraCourse40 } from "./extra_course_40";
 import { extraCourse41 } from "./extra_course_41";
+import { extraCourse42 } from "./extra_course_42";
+import { extraCourse43 } from "./extra_course_43";
+import { extraCourse44 } from "./extra_course_44";
+import { extraCourse45 } from "./extra_course_45";
+import { extraCourse46 } from "./extra_course_46";
+import { extraCourse47 } from "./extra_course_47";
+import { extraCourse48 } from "./extra_course_48";
+import { extraCourse49 } from "./extra_course_49";
+import { extraCourse50 } from "./extra_course_50";
+import { extraCourse51 } from "./extra_course_51";
+import { extraCourse52 } from "./extra_course_52";
+import { extraCourse53 } from "./extra_course_53";
+import { extraCourse54 } from "./extra_course_54";
+import { extraCourse55 } from "./extra_course_55";
+import { extraCourse56 } from "./extra_course_56";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -3321,6 +3336,21 @@ const seedCatalog: SeedCourse[] = [
   { ...extraCourse39 },
   { ...extraCourse40 },
   { ...extraCourse41 },
+  { ...extraCourse42 },
+  { ...extraCourse43 },
+  { ...extraCourse44 },
+  { ...extraCourse45 },
+  { ...extraCourse46 },
+  { ...extraCourse47 },
+  { ...extraCourse48 },
+  { ...extraCourse49 },
+  { ...extraCourse50 },
+  { ...extraCourse51 },
+  { ...extraCourse52 },
+  { ...extraCourse53 },
+  { ...extraCourse54 },
+  { ...extraCourse55 },
+  { ...extraCourse56 },
 ];
 function atHour(dayOffset: number, hour: number): number {
   const now = new Date();

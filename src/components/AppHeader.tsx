@@ -137,6 +137,22 @@ export function AppHeader({ path }: { path?: string }) {
           )}
           {isAuthenticated && (
             <Link
+              to="/knowledge-base"
+              className="transition-colors hover:text-foreground"
+            >
+              ./knowledge
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
+              to="/compare"
+              className="transition-colors hover:text-foreground"
+            >
+              ./compare
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link
               to="/certificates"
               className="transition-colors hover:text-foreground"
             >

@@ -31,6 +31,8 @@ import { extraCourse31 } from "./extra_course_31";
 import { extraCourse32 } from "./extra_course_32";
 import { extraCourse33 } from "./extra_course_33";
 import { extraCourse34 } from "./extra_course_34";
+import { extraCourse35 } from "./extra_course_35";
+import { extraCourse36 } from "./extra_course_36";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -157,7 +159,7 @@ type SeedCourse = {
 };
 
 // Bump when seed course content changes so existing deployments upgrade.
-const SEED_CONTENT_VERSION = 5;
+const SEED_CONTENT_VERSION = 6;
 
 const seedCatalog: SeedCourse[] = [
   // Extended catalog — newest tracks first in source; canonical ordering is
@@ -187,6 +189,8 @@ const seedCatalog: SeedCourse[] = [
   extraCourse32,
   extraCourse33,
   extraCourse34,
+  extraCourse35,
+  extraCourse36,
   {
     category: "Foundations",
     title: "Welcome to AgriSkills Academy",

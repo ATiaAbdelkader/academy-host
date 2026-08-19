@@ -31,6 +31,8 @@ const Admin = lazy(() => import("./pages/Admin.tsx"));
 const Certificate = lazy(() => import("./pages/Certificate.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
 const Notifications = lazy(() => import("./pages/Notifications.tsx"));
+const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase.tsx"));
+const CourseCompare = lazy(() => import("./pages/CourseCompare.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -198,6 +200,8 @@ createRoot(document.getElementById("root")!).render(
               />          <Route path="/learning-paths" element={<RequireAuth><LearningPaths /></RequireAuth>} />
           <Route path="/field-journal" element={<RequireAuth><FieldJournal /></RequireAuth>} />
           <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
+          <Route path="/knowledge-base" element={<RequireAuth><KnowledgeBase /></RequireAuth>} />
+          <Route path="/compare" element={<RequireAuth><CourseCompare /></RequireAuth>} />
               <Route
                 path="/certificates"
                 element={

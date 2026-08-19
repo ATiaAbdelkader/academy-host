@@ -383,6 +383,234 @@ const schema = defineSchema(
       }),
       createdAt: v.number(),
     }).index("by_user_due", ["userId", "due"]),
+
+    // ── Live Sessions / Webinars ──
+    liveSessions: defineTable({
+      courseId: v.id("courses"),
+      title: v.string(),
+      description: v.optional(v.string()),
+      instructorId: v.id("users"),
+      instructorName: v.string(),
+      startsAt: v.number(), // epoch ms
+      durationMinutes: v.number(),
+      capacity: v.number(),
+      meetingUrl: v.optional(v.string()),
+      recordingUrl: v.optional(v.string()),
+      status: v.union(v.literal("scheduled"), v.literal("live"), v.literal("ended"), v.literal("cancelled")),
+      tags: v.array(v.string()),
+      createdAt: v.number(),
+    })
+      .index("by_course", ["courseId"])
+      .index("by_status", ["status"])
+      .index("by_startsAt", ["startsAt"]),
+
+    liveSessionRsvps: defineTable({
+      sessionId: v.id("liveSessions"),
+      userId: v.id("users"),
+      status: v.union(v.literal("registered"), v.literal("attended"), v.literal("missed")),
+      createdAt: v.number(),
+    })
+      .index("by_session", ["sessionId"])
+      .index("by_user", ["userId"]),
+
+    // ── Mentorship Matching ──
+    mentors: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      bio: v.string(),
+      expertise: v.array(v.string()),
+      maxMentees: v.number(),
+      available: v.boolean(),
+      rating: v.number(),
+      menteeCount: v.number(),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_available", ["available"]),
+
+    mentorships: defineTable({
+      mentorId: v.id("mentors"),
+      menteeId: v.id("users"),
+      courseId: v.optional(v.id("courses")),
+      status: v.union(v.literal("pending"), v.literal("active"), v.literal("completed"), v.literal("cancelled")),
+      goals: v.optional(v.string()),
+      notes: v.optional(v.string()),
+      startedAt: v.optional(v.number()),
+      completedAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_mentor", ["mentorId"])
+      .index("by_mentee", ["menteeId"]),
+
+    // ── Peer Review Assignments ──
+    peerReviews: defineTable({
+      authorId: v.id("users"),
+      authorName: v.string(),
+      courseId: v.id("courses"),
+      moduleId: v.number(),
+      title: v.string(),
+      content: v.string(),
+      status: v.union(v.literal("submitted"), v.literal("under_review"), v.literal("graded")),
+      grade: v.optional(v.number()), // 0-100
+      feedback: v.optional(v.string()),
+      reviewerId: v.optional(v.id("users")),
+      reviewerName: v.optional(v.string()),
+      createdAt: v.number(),
+      reviewedAt: v.optional(v.number()),
+    })
+      .index("by_course", ["courseId"])
+      .index("by_author", ["authorId"])
+      .index("by_status", ["status"]),
+
+    // ── Gamification Store ──
+    storeItems: defineTable({
+      title: v.string(),
+      description: v.string(),
+      category: v.union(v.literal("badge"), v.literal("theme"), v.literal("unlock"), v.literal("avatar"), v.literal("title")),
+      pricePoints: v.number(),
+      icon: v.string(),
+      preview: v.optional(v.string()),
+      active: v.boolean(),
+      order: v.number(),
+    })
+      .index("by_category", ["category"])
+      .index("by_order", ["order"]),
+
+    storePurchases: defineTable({
+      userId: v.id("users"),
+      itemId: v.id("storeItems"),
+      pointsSpent: v.number(),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_item", ["itemId"]),
+
+    // ── Study Groups ──
+    studyGroups: defineTable({
+      name: v.string(),
+      description: v.string(),
+      courseId: v.optional(v.id("courses")),
+      creatorId: v.id("users"),
+      creatorName: v.string(),
+      maxMembers: v.number(),
+      memberCount: v.number(),
+      isPublic: v.boolean(),
+      tags: v.array(v.string()),
+      createdAt: v.number(),
+    })
+      .index("by_course", ["courseId"])
+      .index("by_creator", ["creatorId"]),
+
+    studyGroupMembers: defineTable({
+      groupId: v.id("studyGroups"),
+      userId: v.id("users"),
+      name: v.string(),
+      role: v.union(v.literal("owner"), v.literal("admin"), v.literal("member")),
+      joinedAt: v.number(),
+    })
+      .index("by_group", ["groupId"])
+      .index("by_user", ["userId"]),
+
+    studyGroupMessages: defineTable({
+      groupId: v.id("studyGroups"),
+      userId: v.id("users"),
+      authorName: v.string(),
+      text: v.string(),
+      createdAt: v.number(),
+    })
+      .index("by_group", ["groupId"]),
+
+    // ── Weekly Challenges ──
+    weeklyChallenges: defineTable({
+      title: v.string(),
+      description: v.string(),
+      type: v.union(v.literal("quiz"), v.literal("journal"), v.literal("streak"), v.literal("review"), v.literal("quizComp")),
+      targetValue: v.number(), // e.g. pass 3 quizzes, journal 5 entries
+      pointsReward: v.number(),
+      badgeReward: v.optional(v.string()),
+      startDate: v.number(),
+      endDate: v.number(),
+      active: v.boolean(),
+      createdAt: v.number(),
+    })
+      .index("by_active", ["active"])  
+      .index("by_dates", ["startDate", "endDate"]),
+
+    challengeParticipations: defineTable({
+      challengeId: v.id("weeklyChallenges"),
+      userId: v.id("users"),
+      progress: v.number(), // current count towards target
+      completed: v.boolean(),
+      claimed: v.boolean(),
+      createdAt: v.number(),
+      completedAt: v.optional(v.number()),
+    })
+      .index("by_challenge", ["challengeId"])
+      .index("by_user_challenge", ["userId", "challengeId"]),
+
+    // ── Course Wishlists ──
+    wishlists: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_course", ["courseId"]),
+
+    // ── Module Q&A Discussions ──
+    moduleDiscussions: defineTable({
+      courseId: v.id("courses"),
+      moduleIndex: v.number(),
+      userId: v.id("users"),
+      authorName: v.string(),
+      question: v.string(),
+      parentReplyId: v.optional(v.id("moduleDiscussions")),
+      upvotes: v.number(),
+      answerCount: v.number(),
+      resolved: v.boolean(),
+      createdAt: v.number(),
+    })
+      .index("by_course_module", ["courseId", "moduleIndex"])
+      .index("by_user", ["userId"]),
+
+    // ── Referral Program ──
+    referrals: defineTable({
+      referrerId: v.id("users"),
+      refereeId: v.optional(v.id("users")),
+      code: v.string(), // unique referral code
+      uses: v.number(),
+      rewardPointsEarned: v.number(),
+      active: v.boolean(),
+      createdAt: v.number(),
+    })
+      .index("by_code", ["code"])
+      .index("by_referrer", ["referrerId"]),
+
+    // ── Custom Certificates ──
+    certificateTemplates: defineTable({
+      name: v.string(),
+      primaryColor: v.string(),
+      accentColor: v.string(),
+      logoUrl: v.optional(v.string()),
+      borderStyle: v.union(v.literal("classic"), v.literal("modern"), v.literal("botanical"), v.literal("minimal")),
+      fontFamily: v.string(),
+      active: v.boolean(),
+    })
+      .index("by_active", ["active"]),
+
+    // ── Revenue / Admin Analytics ──
+    revenueSnapshots: defineTable({
+      date: v.string(), // YYYY-MM-DD
+      totalRevenue: v.number(),
+      enrollments: v.number(),
+      activeUsers: v.number(),
+      newUsers: v.number(),
+      completedCourses: v.number(),
+      topCourseId: v.optional(v.id("courses")),
+      topCourseRevenue: v.number(),
+      createdAt: v.number(),
+    })
+      .index("by_date", ["date"]),
   },
   {
     schemaValidation: false,

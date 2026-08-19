@@ -33,6 +33,11 @@ import { extraCourse33 } from "./extra_course_33";
 import { extraCourse34 } from "./extra_course_34";
 import { extraCourse35 } from "./extra_course_35";
 import { extraCourse36 } from "./extra_course_36";
+import { extraCourse37 } from "./extra_course_37";
+import { extraCourse38 } from "./extra_course_38";
+import { extraCourse39 } from "./extra_course_39";
+import { extraCourse40 } from "./extra_course_40";
+import { extraCourse41 } from "./extra_course_41";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -159,7 +164,7 @@ type SeedCourse = {
 };
 
 // Bump when seed course content changes so existing deployments upgrade.
-const SEED_CONTENT_VERSION = 6;
+const SEED_CONTENT_VERSION = 7;
 
 const seedCatalog: SeedCourse[] = [
   // Extended catalog — newest tracks first in source; canonical ordering is
@@ -3311,8 +3316,12 @@ const seedCatalog: SeedCourse[] = [
       },
     ],
   },
+  { ...extraCourse37 },
+  { ...extraCourse38 },
+  { ...extraCourse39 },
+  { ...extraCourse40 },
+  { ...extraCourse41 },
 ];
-
 function atHour(dayOffset: number, hour: number): number {
   const now = new Date();
   const start = new Date(

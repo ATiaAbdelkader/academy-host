@@ -1,1 +1,0 @@
-import{a as c,b as s,e as u}from"./index-BJJMtSQ6.js";import{r as a}from"./react-vendor-KgAAZzzj.js";function i(){const e=c(s.courses.list),t=u(s.courses.seed),o=u(s.bundles.seed),r=a.useRef(!1);return a.useEffect(()=>{e!==void 0&&!r.current&&(r.current=!0,t(),o())},[e,t,o]),e}export{i as u};

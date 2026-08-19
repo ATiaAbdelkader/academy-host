@@ -48,6 +48,11 @@ const VirtualLabs = lazy(() => import("./pages/VirtualLabs.tsx"));
 const FarmTools = lazy(() => import("./pages/FarmTools.tsx"));
 const MicroLearning = lazy(() => import("./pages/MicroLearning.tsx"));
 const SkillsTranscript = lazy(() => import("./pages/SkillsTranscript.tsx"));
+const SeasonalChallenges = lazy(() => import("./pages/SeasonalChallenges.tsx"));
+const ShowcaseWall = lazy(() => import("./pages/ShowcaseWall.tsx"));
+const MarketPrices = lazy(() => import("./pages/MarketPrices.tsx"));
+const KnowledgeGaps = lazy(() => import("./pages/KnowledgeGaps.tsx"));
+const EmployerVerify = lazy(() => import("./pages/EmployerVerify.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -265,6 +270,11 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/farm-tools" element={<RequireAuth><FarmTools /></RequireAuth>} />
               <Route path="/learn" element={<RequireAuth><MicroLearning /></RequireAuth>} />
               <Route path="/transcript" element={<RequireAuth><SkillsTranscript /></RequireAuth>} />
+              <Route path="/seasonal" element={<RequireAuth><SeasonalChallenges /></RequireAuth>} />
+              <Route path="/showcase" element={<RequireAuth><ShowcaseWall /></RequireAuth>} />
+              <Route path="/market" element={<MarketPrices />} />
+              <Route path="/knowledge-gaps" element={<RequireAuth><KnowledgeGaps /></RequireAuth>} />
+              <Route path="/verify-credential" element={<EmployerVerify />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

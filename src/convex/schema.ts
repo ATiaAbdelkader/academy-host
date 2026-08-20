@@ -834,6 +834,64 @@ const schema = defineSchema(
       earnedAt: v.number(),
       verified: v.boolean(),
     }).index("by_user", ["userId"]).index("by_credential", ["credentialId"]),
+
+    // ── Virtual Farm Simulator ──
+    virtualFarms: defineTable({
+      userId: v.id("users"),
+      farmName: v.string(),
+      landSize: v.number(), // acres
+      soilType: v.union(v.literal("sandy"), v.literal("loam"), v.literal("clay"), v.literal("silt"), v.literal("peat")),
+      climateZone: v.string(),
+      startingBudget: v.number(), // cents
+      currentBudget: v.number(),
+      waterSource: v.union(v.literal("rainfed"), v.literal("irrigated"), v.literal("both")),
+      season: v.number(),
+      year: v.number(),
+      month: v.number(),
+      soilHealth: v.number(), // 0-100
+      soilMoisture: v.number(), // 0-100
+      pestPressure: v.number(), // 0-100
+      reputation: v.number(), // 0-100
+      totalEarnings: v.number(),
+      totalSpent: v.number(),
+      cropsHarvested: v.number(),
+      activeCrop: v.optional(v.string()),
+      cropStage: v.optional(v.string()),
+      cropDays: v.number(),
+      logs: v.array(v.object({
+        message: v.string(),
+        date: v.number(),
+        type: v.union(v.literal("planting"), v.literal("harvest"), v.literal("action"), v.literal("event"), v.literal("weather")),
+      })),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── AI Crop Doctor ──
+    cropDiagnoses: defineTable({
+      userId: v.id("users"),
+      cropType: v.string(),
+      reportedSymptoms: v.string(),
+      photoUrl: v.optional(v.string()),
+      diagnosis: v.string(),
+      confidence: v.number(), // 0-100
+      severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      treatment: v.string(),
+      relatedCourseSlug: v.string(),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Farm Advisory Profile ──
+    farmProfiles: defineTable({
+      userId: v.id("users"),
+      location: v.string(),
+      latitude: v.optional(v.number()),
+      longitude: v.optional(v.number()),
+      climateZone: v.union(v.literal("tropical"), v.literal("temperate"), v.literal("arid"), v.literal("equatorial")),
+      soilType: v.optional(v.string()),
+      farmSize: v.optional(v.number()),
+      primaryCrops: v.array(v.string()),
+      updatedAt: v.number(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

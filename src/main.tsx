@@ -53,6 +53,13 @@ const ShowcaseWall = lazy(() => import("./pages/ShowcaseWall.tsx"));
 const MarketPrices = lazy(() => import("./pages/MarketPrices.tsx"));
 const KnowledgeGaps = lazy(() => import("./pages/KnowledgeGaps.tsx"));
 const EmployerVerify = lazy(() => import("./pages/EmployerVerify.tsx"));
+const FarmSimulator = lazy(() => import("./pages/FarmSimulator.tsx"));
+const CropDoctor = lazy(() => import("./pages/CropDoctor.tsx"));
+const Advisory = lazy(() => import("./pages/Advisory.tsx"));
+const FarmDashboard = lazy(() => import("./pages/FarmDashboard.tsx"));
+const CompetencyPassport = lazy(() => import("./pages/CompetencyPassport.tsx"));
+const StudyReminders = lazy(() => import("./pages/StudyReminders.tsx"));
+const CommunityChallenges = lazy(() => import("./pages/CommunityChallenges.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -275,6 +282,13 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/market" element={<MarketPrices />} />
               <Route path="/knowledge-gaps" element={<RequireAuth><KnowledgeGaps /></RequireAuth>} />
               <Route path="/verify-credential" element={<EmployerVerify />} />
+              <Route path="/farm-simulator" element={<RequireAuth><FarmSimulator /></RequireAuth>} />
+              <Route path="/crop-doctor" element={<RequireAuth><CropDoctor /></RequireAuth>} />
+              <Route path="/advisory" element={<RequireAuth><Advisory /></RequireAuth>} />
+              <Route path="/farm-hub" element={<RequireAuth><FarmDashboard /></RequireAuth>} />
+              <Route path="/passport" element={<RequireAuth><CompetencyPassport /></RequireAuth>} />
+              <Route path="/reminders" element={<RequireAuth><StudyReminders /></RequireAuth>} />
+              <Route path="/community-challenges" element={<RequireAuth><CommunityChallenges /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

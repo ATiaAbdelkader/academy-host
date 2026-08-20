@@ -24,9 +24,18 @@ export default function FarmDashboard() {
     { to: "/farm-simulator", label: "Farm Simulator", icon: Tractor, desc: "Grow virtual crops" },
     { to: "/crop-doctor", label: "Crop Doctor", icon: Stethoscope, desc: "Diagnose plant issues" },
     { to: "/advisory", label: "Farm Advisory", icon: MapPin, desc: "Location-based advice" },
+    { to: "/farm-progress", label: "Farm Progress", icon: TrendingUp, desc: "Track farm outcomes" },
     { to: "/courses", label: "Browse Courses", icon: BookOpen, desc: "Continue learning" },
     { to: "/flashcards", label: "Flashcards", icon: TrendingUp, desc: "Review key concepts" },
     { to: "/field-journal", label: "Field Journal", icon: Calendar, desc: "Log observations" },
+    { to: "/nudges", label: "Study Nudges", icon: TrendingUp, desc: "Smart reminders" },
+    { to: "/assessments", label: "Assessments", icon: Stethoscope, desc: "Skill assessments" },
+    { to: "/peer-teaching", label: "Peer Teaching", icon: TrendingUp, desc: "Earn by helping" },
+    { to: "/buddies", label: "Learning Buddies", icon: TrendingUp, desc: "Study together" },
+    { to: "/badges", label: "Badges & Milestones", icon: Trophy, desc: "Track achievements" },
+    { to: "/gamification", label: "Gamification Hub", icon: Trophy, desc: "XP, levels, leaderboards" },
+    { to: "/ai-assistant", label: "AI Assistant", icon: Stethoscope, desc: "Ask anything" },
+    { to: "/passport", label: "Skill Passport", icon: TrendingUp, desc: "Your credentials" },
   ];
 
   return (

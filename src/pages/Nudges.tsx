@@ -19,8 +19,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 export default function Nudges() {
-  const { user } = useAuth();
-  const userId = user?._id;
+  useAuth();
   const nudges = useQuery(api.nudges.myNudges);
   const summary = useQuery(api.nudges.nudgeSummary);
 

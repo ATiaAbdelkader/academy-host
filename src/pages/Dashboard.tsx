@@ -147,6 +147,15 @@ export default function Dashboard() {
           <Button asChild size="sm" className="text-xs">
             <Link to="/courses">browse catalog</Link>
           </Button>
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <Link to="/farm-hub">farm dashboard</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <Link to="/gamification">gamification</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <Link to="/ai-assistant">AI assistant</Link>
+          </Button>
           {isAdmin && (
             <Button
               asChild
@@ -160,6 +169,27 @@ export default function Dashboard() {
               </Link>
             </Button>
           )}
+        </div>
+
+        {/* ── Quick Access to New Features */}
+        <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-2">
+          {[
+            { to: "/nudges", label: "Nudges", icon: "🔔" },
+            { to: "/assessments", label: "Assessments", icon: "📋" },
+            { to: "/peer-teaching", label: "Peer Teach", icon: "🤝" },
+            { to: "/farm-progress", label: "Farm Progress", icon: "📈" },
+            { to: "/buddies", label: "Buddies", icon: "👥" },
+            { to: "/badges", label: "Badges", icon: "🏅" },
+          ].map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="border border-border bg-card p-3 text-center hover:bg-muted/50 transition-colors"
+            >
+              <div className="text-lg">{item.icon}</div>
+              <div className="text-[10px] font-mono font-bold mt-1">{item.label}</div>
+            </Link>
+          ))}
         </div>
 
         {/* ── Progress ───────────────────────────────────────────── */}

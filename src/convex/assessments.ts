@@ -36,10 +36,13 @@ export const submit = mutation({
     const user = await ctx.db.get(userId);
     const name = user?.name ?? "Student";
 
+    const fallbackCourse = args.courseId ?? (await ctx.db.query("courses").first())?._id;
+    if (!fallbackCourse) throw new Error("No courses available");
+
     const id = await ctx.db.insert("peerReviews", {
       authorId: userId,
       authorName: name,
-      courseId: args.courseId ?? (await ctx.db.query("courses").first())!._id,
+      courseId: fallbackCourse,
       moduleId: 0,
       title: `[${args.type}] ${args.title}`,
       content: args.description + (args.mediaUrl ? `\n\nMedia: ${args.mediaUrl}` : ""),

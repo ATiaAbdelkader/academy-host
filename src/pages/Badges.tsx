@@ -21,7 +21,7 @@ const BADGE_ICONS: Record<string, string> = {
 };
 
 export default function Badges() {
-  const { user } = useAuth();
+  useAuth();
   const stats = useQuery(api.gamification.myStats);
 
   const earnedBadges = stats?.badges ?? [];

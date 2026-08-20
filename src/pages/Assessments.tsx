@@ -6,8 +6,7 @@ import { ClipboardCheck, Upload, CheckCircle2, Clock, Star, ArrowLeft } from "lu
 import { toast } from "sonner";
 
 export default function Assessments() {
-  const { user } = useAuth();
-  const userId = user?._id;
+  useAuth();
   const types = useQuery(api.assessments.listTypes);
   const mySubmissions = useQuery(api.assessments.mySubmissions);
   const submitAssessment = useMutation(api.assessments.submit);

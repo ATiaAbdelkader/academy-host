@@ -90,11 +90,11 @@ export default function InstructorAnalytics() {
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm">{insight.courseTitle ?? "Course"}</div>
                     <div className="text-xs text-gray-500">
-                      {insight.passRate != null ? `${Math.round(insight.passRate)}% pass rate` : "No attempts yet"}
+                      {insight.attempts} attempts · {insight.passed} passed
                     </div>
                   </div>
                   <div className="text-sm font-bold text-green-600">
-                    {insight.averageScore != null ? `${insight.averageScore}%` : "—"}
+                    {insight.bestScore}%
                   </div>
                 </div>
               ))}

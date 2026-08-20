@@ -17,7 +17,17 @@ export function useCatalog() {
   useEffect(() => {
     if (courses !== undefined && !attempted.current) {
       attempted.current = true;
-      void seed();
+      // Seed in batches to avoid the 16 MB single-execution limit.
+      const seedAll = async () => {
+        let batch = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const result = await seed({ batch });
+          if (result.done) break;
+          batch++;
+        }
+      };
+      void seedAll();
       void seedBundles();
     }
   }, [courses, seed, seedBundles]);

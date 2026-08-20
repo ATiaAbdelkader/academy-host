@@ -3399,12 +3399,15 @@ const sessionPlans: Array<{ offset: number; hour: number; capacity: number }> = 
  * content of courses that are already current.
  */
 export const seed = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { batch: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const batchIndex = args.batch ?? 0;
+    const start = batchIndex * 10;
+    const batch = seedCatalog.slice(start, start + 10);
     let insertedCourses = 0;
     let upgradedCourses = 0;
     let sessions = 0;
-    for (const course of seedCatalog) {
+    for (const course of batch) {
       const slug = slugify(course.title);
       const existing = await ctx.db
         .query("courses")
@@ -3448,11 +3451,15 @@ export const seed = mutation({
         sessions += 1;
       }
     }
+    const totalBatches = Math.ceil(seedCatalog.length / 10);
     return {
       seeded: insertedCourses > 0,
       count: insertedCourses,
       upgraded: upgradedCourses,
       sessions,
+      batch: batchIndex,
+      totalBatches,
+      done: batchIndex >= totalBatches - 1,
     };
   },
 });

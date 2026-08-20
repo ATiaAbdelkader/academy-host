@@ -69,6 +69,7 @@ const Badges = lazy(() => import("./pages/Badges.tsx"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant.tsx"));
 const InstructorAnalytics = lazy(() => import("./pages/InstructorAnalytics.tsx"));
 const Gamification = lazy(() => import("./pages/Gamification.tsx"));
+const CertificateDemo = lazy(() => import("./pages/CertificateDemo.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -307,6 +308,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/ai-assistant" element={<RequireAuth><AiAssistant /></RequireAuth>} />
               <Route path="/instructor-analytics" element={<RequireAuth><InstructorAnalytics /></RequireAuth>} />
               <Route path="/gamification" element={<RequireAuth><Gamification /></RequireAuth>} />
+              <Route path="/certificate-demo" element={<CertificateDemo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

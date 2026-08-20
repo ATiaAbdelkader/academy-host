@@ -60,6 +60,15 @@ const FarmDashboard = lazy(() => import("./pages/FarmDashboard.tsx"));
 const CompetencyPassport = lazy(() => import("./pages/CompetencyPassport.tsx"));
 const StudyReminders = lazy(() => import("./pages/StudyReminders.tsx"));
 const CommunityChallenges = lazy(() => import("./pages/CommunityChallenges.tsx"));
+const Nudges = lazy(() => import("./pages/Nudges.tsx"));
+const Assessments = lazy(() => import("./pages/Assessments.tsx"));
+const PeerTeachingPage = lazy(() => import("./pages/PeerTeachingPage.tsx"));
+const FarmProgress = lazy(() => import("./pages/FarmProgress.tsx"));
+const Buddies = lazy(() => import("./pages/Buddies.tsx"));
+const Badges = lazy(() => import("./pages/Badges.tsx"));
+const AiAssistant = lazy(() => import("./pages/AiAssistant.tsx"));
+const InstructorAnalytics = lazy(() => import("./pages/InstructorAnalytics.tsx"));
+const Gamification = lazy(() => import("./pages/Gamification.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -289,6 +298,15 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/passport" element={<RequireAuth><CompetencyPassport /></RequireAuth>} />
               <Route path="/reminders" element={<RequireAuth><StudyReminders /></RequireAuth>} />
               <Route path="/community-challenges" element={<RequireAuth><CommunityChallenges /></RequireAuth>} />
+              <Route path="/nudges" element={<RequireAuth><Nudges /></RequireAuth>} />
+              <Route path="/assessments" element={<RequireAuth><Assessments /></RequireAuth>} />
+              <Route path="/peer-teaching" element={<RequireAuth><PeerTeachingPage /></RequireAuth>} />
+              <Route path="/farm-progress" element={<RequireAuth><FarmProgress /></RequireAuth>} />
+              <Route path="/buddies" element={<RequireAuth><Buddies /></RequireAuth>} />
+              <Route path="/badges" element={<RequireAuth><Badges /></RequireAuth>} />
+              <Route path="/ai-assistant" element={<RequireAuth><AiAssistant /></RequireAuth>} />
+              <Route path="/instructor-analytics" element={<RequireAuth><InstructorAnalytics /></RequireAuth>} />
+              <Route path="/gamification" element={<RequireAuth><Gamification /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

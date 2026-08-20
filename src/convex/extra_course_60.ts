@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse60: ExtraCourse = {
   title: "Computer Vision for Pest & Disease Detection",
   description: "Learn to build AI systems that identify crop pests and diseases from images using deep learning, enabling early detection and targeted treatment.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. James Okafor",
   instructorTitle: "Computer Vision Researcher",
-  tags: ["Computer Vision", "Deep Learning", "Pest Detection", "Plant Pathology", "Mobile AI"],
   order: 60,
   modules: [
     {
@@ -23,8 +32,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "paragraph", text: "Why AI? A trained plant pathologist can identify most diseases, but there aren't enough experts for every farm. AI democratizes expert-level identification through smartphone apps, achieving 90-99% accuracy for common diseases across major crops." },
         { type: "video", caption: "Watch: The Global Crop Disease Challenge — How crop diseases impact food security and why AI-powered detection is transformative for smallholder farmers.", url: "https://example.com/cv-pest/introduction" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What percentage of global crop losses are caused by diseases and pests annually?", options: ["5-10%", "20-40%", "50-60%", "70-80%"], answerIndex: 1, explanation: "Diseases and pests cause 20-40% of global crop losses annually, amounting to approximately $220 billion in economic damage." },
-          { question: "Which disease type typically produces circular lesions with concentric rings?", options: ["Bacterial", "Viral", "Fungal", "Physiological"], answerIndex: 2, explanation: "Fungal diseases commonly produce circular lesions with concentric ring patterns, caused by the radial growth of fungal hyphae from the infection point." }
+          { question: "What percentage of global crop losses are caused by diseases and pests annually?", options: ["5-10%", "20-40%", "50-60%", "70-80%"], answerIndex: 1 },
+          { question: "Which disease type typically produces circular lesions with concentric rings?", options: ["Bacterial", "Viral", "Fungal", "Physiological"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -39,8 +48,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "paragraph", text: "Challenges: Class imbalance (healthy >> diseased), look-alike diseases (early blight vs. late blight), multi-pathogen infections, mixed pest-disease damage, background noise (soil particles mistaken for spots). Address with oversampling, class weighting, and hard negative mining." },
         { type: "video", caption: "Watch: Building a Plant Disease Dataset — From field photography through annotation to a training-ready dataset for deep learning models.", url: "https://example.com/cv-pest/dataset-building" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the minimum recommended image variety for robust pest/disease detection?", options: ["Same lighting and angle only", "Varying lighting, backgrounds, angles, disease severity, and crop varieties", "Only diseased images", "Only high-resolution images"], answerIndex: 1, explanation: "Diverse training data across lighting, backgrounds, angles, severity levels, and varieties ensures the model generalizes to real-world field conditions." },
-          { question: "Which augmentation technique combines two images to create a blended training sample?", options: ["Random rotation", "Color jittering", "MixUp/CutMix", "Gaussian blur"], answerIndex: 2, explanation: "MixUp and CutMix blend or overlay two images with their labels proportionally, helping the model learn smoother decision boundaries." }
+          { question: "What is the minimum recommended image variety for robust pest/disease detection?", options: ["Same lighting and angle only", "Varying lighting, backgrounds, angles, disease severity, and crop varieties", "Only diseased images", "Only high-resolution images"], answerIndex: 1 },
+          { question: "Which augmentation technique combines two images to create a blended training sample?", options: ["Random rotation", "Color jittering", "MixUp/CutMix", "Gaussian blur"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -55,8 +64,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "paragraph", text: "Training Best Practices: Learning rate scheduling (cosine annealing), label smoothing (prevent overconfidence), early stopping (prevent overfitting), mixup augmentation, class-balanced sampling, multi-scale training. Typical training: 50-100 epochs on GPU (2-8 hours)." },
         { type: "video", caption: "Watch: Training a Disease Classifier — Complete walkthrough from data loading through model training, evaluation, and optimization for plant disease detection.", url: "https://example.com/cv-pest/classification-models" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is transfer learning particularly effective for plant disease detection?", options: ["It doesn't need training data", "Pre-trained features (edges, textures) transfer well to leaf images", "It only works for one disease", "It requires special hardware"], answerIndex: 1, explanation: "Low-level visual features learned from millions of general images (edges, textures, shapes) are highly relevant for identifying disease symptoms on leaves." },
-          { question: "What is the advantage of Vision Transformers over CNNs for disease detection?", options: ["They are faster to train", "Self-attention captures global context across the entire image", "They need less data", "They don't require GPUs"], answerIndex: 1, explanation: "Transformer self-attention mechanisms can capture relationships between distant parts of an image, identifying disease patterns that span the entire leaf or plant." }
+          { question: "Why is transfer learning particularly effective for plant disease detection?", options: ["It doesn't need training data", "Pre-trained features (edges, textures) transfer well to leaf images", "It only works for one disease", "It requires special hardware"], answerIndex: 1 },
+          { question: "What is the advantage of Vision Transformers over CNNs for disease detection?", options: ["They are faster to train", "Self-attention captures global context across the entire image", "They need less data", "They don't require GPUs"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -71,8 +80,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "paragraph", text: "Small Object Detection: Many agricultural pests are tiny (aphids: 1-3mm). Techniques: image tiling (split large image into small patches), super-resolution preprocessing, feature pyramid networks (FPN), attention mechanisms focusing on fine details." },
         { type: "video", caption: "Watch: Building a Real-Time Pest Detector — Training YOLOv8 for field-deployable pest detection that runs on smartphones and edge devices.", url: "https://example.com/cv-pest/object-detection" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is YOLO preferred for field-deployable pest detection?", options: ["It has the highest accuracy", "It runs in real-time with good accuracy on mobile/edge devices", "It doesn't need training data", "It works without images"], answerIndex: 1, explanation: "YOLO provides the best speed-accuracy trade-off for real-time detection, running at 30+ FPS on mobile devices while maintaining good detection accuracy." },
-          { question: "What technique helps detect tiny pests like aphids in images?", options: ["Lowering resolution", "Image tiling with feature pyramid networks", "Using only grayscale images", "Reducing batch size"], answerIndex: 1, explanation: "Image tiling splits large images into small patches for better detection of tiny objects, while feature pyramid networks preserve fine-grained features across scales." }
+          { question: "Why is YOLO preferred for field-deployable pest detection?", options: ["It has the highest accuracy", "It runs in real-time with good accuracy on mobile/edge devices", "It doesn't need training data", "It works without images"], answerIndex: 1 },
+          { question: "What technique helps detect tiny pests like aphids in images?", options: ["Lowering resolution", "Image tiling with feature pyramid networks", "Using only grayscale images", "Reducing batch size"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -87,8 +96,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "paragraph", text: "Performance Optimization: Pre-processing optimization (camera frame → model input in <10ms), async inference (capture frame while processing previous), multi-model pipelines (fast detector → slow classifier), GPU/NPU acceleration, model caching." },
         { type: "video", caption: "Watch: Deploying Plant Disease Detection on Mobile — From PyTorch model to production-ready TensorFlow Lite app for Android and iOS.", url: "https://example.com/cv-pest/mobile-deployment" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How much smaller can INT8 quantization make a model compared to FP32?", options: ["1x (same size)", "2x smaller", "4x smaller", "10x smaller"], answerIndex: 2, explanation: "INT8 quantization reduces each parameter from 32 bits to 8 bits, making the model approximately 4x smaller with only 1-2% accuracy loss." },
-          { question: "What enables offline pest detection in mobile apps?", options: ["Internet connection", "Models embedded directly in the app package", "Cloud-based processing", "Bluetooth sensors"], answerIndex: 1, explanation: "Quantized models are small enough (5-20MB) to embed directly in mobile apps, enabling field use without internet connectivity." }
+          { question: "How much smaller can INT8 quantization make a model compared to FP32?", options: ["1x (same size)", "2x smaller", "4x smaller", "10x smaller"], answerIndex: 2 },
+          { question: "What enables offline pest detection in mobile apps?", options: ["Internet connection", "Models embedded directly in the app package", "Cloud-based processing", "Bluetooth sensors"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -104,8 +113,8 @@ export const extraCourse60: ExtraCourse = {
         { type: "video", caption: "Watch: AI-Powered IPM in Practice — How AI detection integrates with biological control, precision spraying, and resistance management for sustainable pest control.", url: "https://example.com/cv-pest/ipm-integration" },
         { type: "paragraph", text: "Future of AI Pest Management: Swarm robotics for autonomous pest monitoring, pheromone sensors combined with AI for moth pest detection, CRISPR-based biopesticides guided by AI diagnostics, and global pest surveillance networks using citizen science + AI." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the economic threshold in IPM?", options: ["The maximum number of pests allowed", "The pest level where control costs are justified by prevented losses", "When 50% of the crop is damaged", "The farmer's tolerance for pests"], answerIndex: 1, explanation: "The economic threshold is the pest population level where the cost of control is less than the potential crop loss, making intervention economically justified." },
-          { question: "How much can AI-targeted spot spraying reduce pesticide use compared to broadcast application?", options: ["5-10%", "20-30%", "40-50%", "60-90%"], answerIndex: 3, explanation: "AI-targeted spot spraying applies pesticides only where pests are detected, reducing chemical use by 60-90% while maintaining effective pest control." }
+          { question: "What is the economic threshold in IPM?", options: ["The maximum number of pests allowed", "The pest level where control costs are justified by prevented losses", "When 50% of the crop is damaged", "The farmer's tolerance for pests"], answerIndex: 1 },
+          { question: "How much can AI-targeted spot spraying reduce pesticide use compared to broadcast application?", options: ["5-10%", "20-30%", "40-50%", "60-90%"], answerIndex: 3 }
         ], passPercent: 70 }
       ]
     }

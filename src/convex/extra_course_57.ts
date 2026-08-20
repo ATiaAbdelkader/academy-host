@@ -33,8 +33,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "video", caption: "Watch: The Evolution of Precision Crop Monitoring — How technology transformed farming oversight from visual inspection to AI-powered systems.", url: "https://example.com/ai-crop-monitoring/intro-evolution" },
         { type: "paragraph", text: "Economic Impact: Studies show AI crop monitoring reduces input costs by 15-25% while increasing yields by 10-20%. Early stress detection alone can save $50-100/hectare in prevented crop losses." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the primary advantage of AI crop monitoring over traditional methods?", options: ["Lower cost", "Analyzes millions of data points simultaneously", "Requires no equipment", "Works in all weather"], answerIndex: 1, explanation: "AI systems can process vast amounts of data from multiple sources simultaneously, far exceeding human capacity." },
-          { question: "How far ahead can AI detect nutrient deficiencies compared to visible symptoms?", options: ["1-2 days", "1-2 weeks", "2-3 weeks", "1 month"], answerIndex: 2, explanation: "ML models trained on spectral data can detect nutrient deficiencies 2-3 weeks before they become visible to the naked eye." }
+          { question: "What is the primary advantage of AI crop monitoring over traditional methods?", options: ["Lower cost", "Analyzes millions of data points simultaneously", "Requires no equipment", "Works in all weather"], answerIndex: 1 },
+          { question: "How far ahead can AI detect nutrient deficiencies compared to visible symptoms?", options: ["1-2 days", "1-2 weeks", "2-3 weeks", "1 month"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -49,8 +49,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "paragraph", text: "Cloud Detection: One of the biggest challenges is cloud cover. AI models like s2cloudless and Sen2Cor automatically mask clouds and shadows, ensuring only clear pixels are analyzed. Temporal compositing fills gaps between cloud-free observations." },
         { type: "video", caption: "Watch: Reading Satellite Imagery for Crop Health — How to interpret multispectral data and vegetation indices for practical farming decisions.", url: "https://example.com/ai-crop-monitoring/satellite-imagery" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which vegetation index uses Red and Near-Infrared bands to measure vegetation vigor?", options: ["SWVI", "NDVI", "NDWI", "PSRI"], answerIndex: 1, explanation: "NDVI = (NIR - Red) / (NIR + Red) is the most widely used vegetation index for assessing plant health." },
-          { question: "What is the main advantage of Sentinel-2 for crop monitoring?", options: ["Highest resolution available", "Free data with 10m resolution and 5-day revisit", "Thermal imaging capability", "Real-time data streaming"], answerIndex: 1, explanation: "Sentinel-2 provides free multispectral data at 10m resolution with a 5-day revisit time, making it ideal for crop monitoring." }
+          { question: "Which vegetation index uses Red and Near-Infrared bands to measure vegetation vigor?", options: ["SWVI", "NDVI", "NDWI", "PSRI"], answerIndex: 1 },
+          { question: "What is the main advantage of Sentinel-2 for crop monitoring?", options: ["Highest resolution available", "Free data with 10m resolution and 5-day revisit", "Thermal imaging capability", "Real-time data streaming"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -66,8 +66,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "video", caption: "Watch: Drone Mission Planning for Crop Surveys — Step-by-step guide to planning, flying, and processing drone data for agricultural insights.", url: "https://example.com/ai-crop-monitoring/drone-monitoring" },
         { type: "paragraph", text: "Cost-Benefit Analysis: Drone surveys cost $5-15/acre vs. $50-100/acre for manual scouting. A single drone flight over 200 acres generates data equivalent to 2 weeks of manual field walks, completed in 30 minutes of flight time." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What overlap is typically recommended for drone photogrammetry?", options: ["30-40%", "50-60%", "70-80% front, 60-70% side", "90-100%"], answerIndex: 2, explanation: "High overlap (70-80% front, 60-70% side) ensures accurate orthomosaic generation and 3D reconstruction." },
-          { question: "Which sensor type measures canopy temperature for water stress detection?", options: ["RGB camera", "Multispectral camera", "Thermal camera", "LiDAR"], answerIndex: 2, explanation: "Thermal cameras detect canopy temperature, which increases when plants are water-stressed due to reduced transpiration." }
+          { question: "What overlap is typically recommended for drone photogrammetry?", options: ["30-40%", "50-60%", "70-80% front, 60-70% side", "90-100%"], answerIndex: 2 },
+          { question: "Which sensor type measures canopy temperature for water stress detection?", options: ["RGB camera", "Multispectral camera", "Thermal camera", "LiDAR"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -83,8 +83,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "video", caption: "Watch: Building a Crop Disease Detector — Training a CNN model to identify 10 common crop diseases from leaf images using transfer learning.", url: "https://example.com/ai-crop-monitoring/computer-vision" },
         { type: "paragraph", text: "Data Augmentation: Rotations, flips, color jittering, cutout, and mixup increase training dataset diversity. Combined with transfer learning, these techniques enable robust models with only 500-1,000 labeled images per class." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which architecture is commonly used for pixel-level crop/weed segmentation?", options: ["Linear Regression", "U-Net", "Random Forest", "K-Means"], answerIndex: 1, explanation: "U-Net is a convolutional neural network designed for semantic segmentation, achieving pixel-level classification of crop and weed areas." },
-          { question: "How does transfer learning reduce data requirements for crop disease detection?", options: ["By using random weights", "By leveraging features learned from large general image datasets", "By reducing image resolution", "By eliminating the need for labeled data"], answerIndex: 1, explanation: "Transfer learning uses pre-trained models (e.g., trained on ImageNet) as feature extractors, requiring only 500-1,000 labeled images per class instead of tens of thousands." }
+          { question: "Which architecture is commonly used for pixel-level crop/weed segmentation?", options: ["Linear Regression", "U-Net", "Random Forest", "K-Means"], answerIndex: 1 },
+          { question: "How does transfer learning reduce data requirements for crop disease detection?", options: ["By using random weights", "By leveraging features learned from large general image datasets", "By reducing image resolution", "By eliminating the need for labeled data"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -100,8 +100,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "video", caption: "Watch: Building Crop Health Time Series — Constructing and analyzing NDVI profiles to detect field anomalies and predict yield outcomes.", url: "https://example.com/ai-crop-monitoring/time-series" },
         { type: "paragraph", text: "Real-World Application: Brazilian soybean farmers using time-series NDVI analysis detected Asian rust infection 12 days before visual symptoms, enabling targeted fungicide application that saved $35/hectare in unnecessary spraying." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is time-series analysis important for crop monitoring?", options: ["It reduces data storage needs", "It detects how vegetation health changes over time", "It eliminates the need for satellite data", "It only works for one crop type"], answerIndex: 1, explanation: "Time-series analysis tracks vegetation index changes over time, enabling detection of anomalies, prediction of yields, and early identification of crop stress." },
-          { question: "Which deep learning model is effective for learning normal temporal patterns in crop data?", options: ["Linear Regression", "Decision Tree", "LSTM Autoencoder", "K-Nearest Neighbors"], answerIndex: 2, explanation: "LSTM autoencoders learn to reconstruct normal temporal patterns; anomalies produce high reconstruction error, flagging potential problems." }
+          { question: "Why is time-series analysis important for crop monitoring?", options: ["It reduces data storage needs", "It detects how vegetation health changes over time", "It eliminates the need for satellite data", "It only works for one crop type"], answerIndex: 1 },
+          { question: "Which deep learning model is effective for learning normal temporal patterns in crop data?", options: ["Linear Regression", "Decision Tree", "LSTM Autoencoder", "K-Nearest Neighbors"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -117,8 +117,8 @@ export const extraCourse57: ExtraCourse = {
         { type: "video", caption: "Watch: From Data to Decision — Building a complete AI-powered crop monitoring workflow from data collection through actionable recommendations.", url: "https://example.com/ai-crop-monitoring/decision-support" },
         { type: "paragraph", text: "Future Trends: Federated learning for privacy-preserving model training across farms, foundation models for agriculture (like SatCLIP), real-time processing from next-gen satellites, and autonomous drones that adapt flight paths based on AI findings." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the typical payback period for an AI crop monitoring system?", options: ["5+ years", "3-5 years", "First season", "Never"], answerIndex: 2, explanation: "With savings of $50-100/acre from reduced inputs and increased yields, most systems pay for themselves in the first season." },
-          { question: "What format is commonly used to export prescription maps to farm equipment?", options: ["PDF", "CSV", "Shapefile/GeoJSON/ISOXML", "JPEG"], answerIndex: 2, explanation: "Shapefile, GeoJSON, and ISOXML are standard geospatial formats that farm management software and equipment can import for variable rate applications." }
+          { question: "What is the typical payback period for an AI crop monitoring system?", options: ["5+ years", "3-5 years", "First season", "Never"], answerIndex: 2 },
+          { question: "What format is commonly used to export prescription maps to farm equipment?", options: ["PDF", "CSV", "Shapefile/GeoJSON/ISOXML", "JPEG"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     }

@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse63: ExtraCourse = {
   title: "AI for Supply Chain & Post-Harvest",
   description: "Apply AI to reduce food waste, optimize supply chains, predict demand, and manage post-harvest quality—from farm gate to consumer table.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Michael Oduor",
   instructorTitle: "Supply Chain Analytics Expert",
-  tags: ["Supply Chain", "Post-Harvest", "Food Waste", "Logistics", "Demand Forecasting"],
   order: 63,
   modules: [
     {
@@ -24,8 +33,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "paragraph", text: "Economic Impact: Reducing food loss by 25% would feed 870 million hungry people, reduce greenhouse gas emissions by 4.4 Gt CO₂e, and generate $150 billion in economic value annually." },
         { type: "video", caption: "Watch: The Global Food Loss Challenge — Understanding where and why food is lost across the supply chain and how AI provides solutions.", url: "https://example.com/ai-supply/introduction" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What percentage of food is lost between harvest and consumption globally?", options: ["10-15%", "20-25%", "30-40%", "50-60%"], answerIndex: 2, explanation: "Globally, 30-40% of food produced is lost between harvest and consumption, amounting to approximately 1.3 billion tons and $1 trillion annually." },
-          { question: "How does each 1°C above optimal temperature affect perishable shelf life?", options: ["No effect", "Reduces by 1-5%", "Reduces by 10-15%", "Reduces by 50%"], answerIndex: 2, explanation: "Every 1°C above the optimal storage temperature reduces perishable shelf life by 10-15%, making cold chain management critical." }
+          { question: "What percentage of food is lost between harvest and consumption globally?", options: ["10-15%", "20-25%", "30-40%", "50-60%"], answerIndex: 2 },
+          { question: "How does each 1°C above optimal temperature affect perishable shelf life?", options: ["No effect", "Reduces by 1-5%", "Reduces by 10-15%", "Reduces by 50%"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -40,8 +49,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "paragraph", text: "Automated Sorting Systems: Robotic arms with suction cups pick and sort produce at 120+ items/minute. Computer vision guides pick points for gentle handling. Color sorters using multispectral sensors separate by ripeness for staggered market release." },
         { type: "video", caption: "Watch: AI Quality Grading Systems — How computer vision and hyperspectral imaging sort and grade produce at commercial scale.", url: "https://example.com/ai-supply/quality-monitoring" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does hyperspectral imaging detect that cameras cannot?", options: ["Size and shape", "Internal quality attributes like browning and sugar content", "Weight", "Smell"], answerIndex: 1, explanation: "Hyperspectral imaging penetrates fruit tissue to detect internal defects (browning, rot), chemical composition (sugar content, dry matter), and quality invisible to external cameras." },
-          { question: "How accurate is AI shelf life prediction for perishables?", options: ["±1 week", "±1-2 days", "±1 month", "±1 hour"], answerIndex: 1, explanation: "ML models predict remaining shelf life with ±1-2 day accuracy using temperature history, gas composition, and current quality measurements." }
+          { question: "What does hyperspectral imaging detect that cameras cannot?", options: ["Size and shape", "Internal quality attributes like browning and sugar content", "Weight", "Smell"], answerIndex: 1 },
+          { question: "How accurate is AI shelf life prediction for perishables?", options: ["±1 week", "±1-2 days", "±1 month", "±1 hour"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -56,8 +65,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "paragraph", text: "Automated Replenishment: AI systems generate purchase orders automatically based on forecasts, current inventory, lead times, and minimum order quantities. Reduce manual ordering errors by 60-80% and out-of-stock events by 30-50%." },
         { type: "video", caption: "Watch: AI Demand Forecasting for Fresh Produce — Building models that account for perishability, weather, and seasonal patterns to reduce food waste.", url: "https://example.com/ai-supply/demand-forecasting" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which forecasting model is specifically designed to handle holidays and seasonal effects?", options: ["Linear Regression", "Prophet", "K-Means", "Naive Bayes"], answerIndex: 1, explanation: "Facebook Prophet is specifically designed for business time series with strong seasonal patterns and holiday effects, making it well-suited for agricultural demand forecasting." },
-          { question: "How much can automated AI replenishment reduce out-of-stock events?", options: ["5-10%", "10-20%", "30-50%", "70-90%"], answerIndex: 2, explanation: "AI automated replenishment reduces out-of-stock events by 30-50% while simultaneously reducing overstock waste through dynamic inventory optimization." }
+          { question: "Which forecasting model is specifically designed to handle holidays and seasonal effects?", options: ["Linear Regression", "Prophet", "K-Means", "Naive Bayes"], answerIndex: 1 },
+          { question: "How much can automated AI replenishment reduce out-of-stock events?", options: ["5-10%", "10-20%", "30-50%", "70-90%"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -72,8 +81,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "paragraph", text: "Carbon Footprint Optimization: AI minimizes transportation emissions by consolidating loads, optimizing routes, selecting appropriate vehicle types, and planning deliveries to minimize empty return trips. Reduce logistics carbon footprint by 15-30%." },
         { type: "video", caption: "Watch: AI Logistics for Perishables — Optimizing cold chain transportation from farm to retail with real-time monitoring and smart routing.", url: "https://example.com/ai-supply/logistics" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What percentage of food costs does transportation logistics typically account for?", options: ["1-5%", "15-25%", "35-45%", "50-60%"], answerIndex: 1, explanation: "Transportation logistics account for 15-25% of total food costs, making optimization through AI a significant cost reduction opportunity." },
-          { question: "How much can load optimization improve truck utilization?", options: ["From 50% to 70%", "From 70% to 90%+", "From 90% to 100%", "No improvement"], answerIndex: 1, explanation: "3D bin packing algorithms improve truck utilization from a typical 70% to 90%+, reducing the number of trips needed and associated costs and emissions." }
+          { question: "What percentage of food costs does transportation logistics typically account for?", options: ["1-5%", "15-25%", "35-45%", "50-60%"], answerIndex: 1 },
+          { question: "How much can load optimization improve truck utilization?", options: ["From 50% to 70%", "From 70% to 90%+", "From 90% to 100%", "No improvement"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "paragraph", text: "Recall Optimization: When contamination is detected, AI identifies affected products precisely (not entire production runs), estimates consumer exposure, optimizes recall logistics, and predicts recall effectiveness. Reduces recall scope by 40-70% compared to traditional methods." },
         { type: "video", caption: "Watch: Blockchain + AI Food Safety — From farm to fork traceability and predictive contamination prevention systems.", url: "https://example.com/ai-supply/food-safety" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How does blockchain improve food safety recalls?", options: ["It prevents all contamination", "Reduces recall tracing from weeks to minutes by providing immutable records of every supply chain event", "Eliminates the need for recalls", "Only works for organic products"], answerIndex: 1, explanation: "Blockchain provides an immutable, transparent record of every supply chain event, enabling precise identification of affected products in minutes rather than the weeks required with traditional paper-based traceability." },
-          { question: "What does HACCP stand for?", options: ["Hazard Analysis Critical Control Points", "Health and Crop Control Protocol", "Harvest Assessment and Certification Program", "High Accuracy Crop Classification Process"], answerIndex: 0, explanation: "HACCP (Hazard Analysis Critical Control Points) is a systematic approach to food safety that identifies and controls biological, chemical, and physical hazards throughout production." }
+          { question: "How does blockchain improve food safety recalls?", options: ["It prevents all contamination", "Reduces recall tracing from weeks to minutes by providing immutable records of every supply chain event", "Eliminates the need for recalls", "Only works for organic products"], answerIndex: 1 },
+          { question: "What does HACCP stand for?", options: ["Hazard Analysis Critical Control Points", "Health and Crop Control Protocol", "Harvest Assessment and Certification Program", "High Accuracy Crop Classification Process"], answerIndex: 0 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse63: ExtraCourse = {
         { type: "video", caption: "Watch: AI Solutions for Food Waste — Dynamic pricing, surplus redistribution, and smart packaging technologies reducing waste across the supply chain.", url: "https://example.com/ai-supply/food-waste" },
         { type: "paragraph", text: "Impact Potential: If AI food waste solutions achieved full adoption, they could: prevent 1.3 billion tons of food waste annually, save $600 billion in economic value, feed 2 billion people, and reduce food-related greenhouse gas emissions by 20%." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How much can dynamic AI pricing reduce retail food waste?", options: ["5-10%", "15-20%", "30-40%", "60-70%"], answerIndex: 2, explanation: "Dynamic markdown pricing adjusts prices in real-time based on remaining shelf life and demand, reducing waste by 30-40% while maintaining revenue through optimized pricing." },
-          { question: "What is the global economic value of food that could be saved with AI solutions?", options: ["$50 billion", "$150 billion", "$600 billion", "$1 trillion"], answerIndex: 2, explanation: "AI food waste solutions at full adoption could save approximately $600 billion in economic value annually by preventing the waste of 1.3 billion tons of food." }
+          { question: "How much can dynamic AI pricing reduce retail food waste?", options: ["5-10%", "15-20%", "30-40%", "60-70%"], answerIndex: 2 },
+          { question: "What is the global economic value of food that could be saved with AI solutions?", options: ["$50 billion", "$150 billion", "$600 billion", "$1 trillion"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     }

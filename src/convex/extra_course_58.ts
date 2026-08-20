@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse58: ExtraCourse = {
   title: "Machine Learning for Yield Prediction",
   description: "Learn to build ML models that predict crop yields using weather data, soil sensors, satellite imagery, and historical records—enabling better planning and risk management.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Marcus Chen",
   instructorTitle: "Agricultural Data Scientist",
-  tags: ["Machine Learning", "Yield Prediction", "Weather", "Data Science", "Statistics"],
   order: 58,
   modules: [
     {
@@ -23,8 +32,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "paragraph", text: "Key Metrics: RMSE (Root Mean Square Error), MAE (Mean Absolute Error), R² (coefficient of determination), MAPE (Mean Absolute Percentage Error). A good yield prediction model achieves MAPE < 10% at field level." },
         { type: "video", caption: "Watch: Why Yield Prediction Matters — The economic impact of accurate yield forecasting for farm planning and risk management.", url: "https://example.com/ml-yield/foundations" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is a good target MAPE for field-level yield prediction?", options: ["Less than 1%", "Less than 10%", "Less than 30%", "Less than 50%"], answerIndex: 1, explanation: "A MAPE under 10% is considered accurate for field-level yield prediction and enables actionable decision-making." },
-          { question: "Which of these is NOT a common data source for ML yield prediction?", options: ["Weather data", "Satellite imagery", "Social media posts", "Soil sensor data"], answerIndex: 2, explanation: "Social media posts are not a standard data source for yield prediction. Weather, satellite imagery, and soil data are primary inputs." }
+          { question: "What is a good target MAPE for field-level yield prediction?", options: ["Less than 1%", "Less than 10%", "Less than 30%", "Less than 50%"], answerIndex: 1 },
+          { question: "Which of these is NOT a common data source for ML yield prediction?", options: ["Weather data", "Satellite imagery", "Social media posts", "Soil sensor data"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -39,8 +48,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "video", caption: "Watch: Weather Feature Engineering for Yield Models — Transforming raw weather data into predictive features that capture crop-weather relationships.", url: "https://example.com/ml-yield/weather-features" },
         { type: "paragraph", text: "Data Sources: NOAA (US), ERA5 (global reanalysis), Open-Meteo (free API), NASA POWER, national meteorological services. Resolution matters—point weather stations may miss spatial variation across large fields." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is Growing Degree Days (GDD) used for?", options: ["Measuring rainfall", "Tracking crop development based on temperature accumulation", "Calculating fertilizer needs", "Predicting market prices"], answerIndex: 1, explanation: "GDD accumulates daily heat units above a base temperature, providing a more accurate measure of crop development than calendar days." },
-          { question: "For corn, which growth stage is MOST sensitive to weather stress?", options: ["Emergence (VE)", "Tasseling/Silking (V14-R2)", "Maturity (R6)", "Leaf development (V6)"], answerIndex: 1, explanation: "Tasseling and silking is the most critical period—drought stress during pollination can reduce yields by 40-80%." }
+          { question: "What is Growing Degree Days (GDD) used for?", options: ["Measuring rainfall", "Tracking crop development based on temperature accumulation", "Calculating fertilizer needs", "Predicting market prices"], answerIndex: 1 },
+          { question: "For corn, which growth stage is MOST sensitive to weather stress?", options: ["Emergence (VE)", "Tasseling/Silking (V14-R2)", "Maturity (R6)", "Leaf development (V6)"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -55,8 +64,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "paragraph", text: "Feature Engineering from Soil Data: (1) Available water capacity (AWC), (2) Root zone depth, (3) Soil fertility index (combined NPK/pH), (4) Drainage score, (5) Organic matter trend (increasing/decreasing), (6) Soil health indicators." },
         { type: "video", caption: "Watch: Integrating Soil Data into Yield Models — How soil properties interact with weather and management to determine crop yield potential.", url: "https://example.com/ml-yield/soil-data" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is within-field soil variability important for yield prediction?", options: ["It isn't important", "Different parts of a field have different yield potentials based on soil properties", "It makes predictions less accurate", "Only texture varies within fields"], answerIndex: 1, explanation: "Within-field soil variability can exceed between-field variability. Capturing this variation through spatial soil data improves site-specific yield predictions." },
-          { question: "What does Available Water Capacity (AWC) represent?", options: ["Total water in the soil", "Plant-available water between field capacity and wilting point", "Annual rainfall", "Irrigation water applied"], answerIndex: 1, explanation: "AWC is the amount of water held between field capacity and permanent wilting point—the water plants can actually extract from the soil." }
+          { question: "Why is within-field soil variability important for yield prediction?", options: ["It isn't important", "Different parts of a field have different yield potentials based on soil properties", "It makes predictions less accurate", "Only texture varies within fields"], answerIndex: 1 },
+          { question: "What does Available Water Capacity (AWC) represent?", options: ["Total water in the soil", "Plant-available water between field capacity and wilting point", "Annual rainfall", "Irrigation water applied"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -71,8 +80,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "paragraph", text: "Multi-Source Fusion: Combine satellite (large area, lower resolution), drone (small area, high resolution), and ground sensor (point data, high accuracy) data using late fusion or attention-based fusion architectures for optimal predictions." },
         { type: "video", caption: "Watch: Engineering Remote Sensing Features — Transforming satellite imagery into predictive variables for crop yield models.", url: "https://example.com/ml-yield/remote-sensing" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which NDVI feature often has the highest correlation with final yield?", options: ["NDVI at planting", "Maximum NDVI during vegetative stage", "NDVI during reproductive stage", "NDVI after harvest"], answerIndex: 2, explanation: "NDVI during the reproductive stage (flowering, pollination, grain fill) has the strongest relationship with final yield because this is when yield is determined." },
-          { question: "What is the benefit of fusing satellite and drone imagery?", options: ["Reduces cost", "Combines large area coverage with high resolution detail", "Eliminates the need for ground truth", "Works in all weather"], answerIndex: 1, explanation: "Satellite imagery provides broad coverage while drone imagery adds detailed resolution in key areas. Fusion captures both spatial extent and local detail." }
+          { question: "Which NDVI feature often has the highest correlation with final yield?", options: ["NDVI at planting", "Maximum NDVI during vegetative stage", "NDVI during reproductive stage", "NDVI after harvest"], answerIndex: 2 },
+          { question: "What is the benefit of fusing satellite and drone imagery?", options: ["Reduces cost", "Combines large area coverage with high resolution detail", "Eliminates the need for ground truth", "Works in all weather"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "video", caption: "Watch: Building Your First Yield Prediction Model — End-to-end walkthrough from data loading to model deployment using Python and scikit-learn.", url: "https://example.com/ml-yield/building-models" },
         { type: "paragraph", text: "Deployment: Package models as REST APIs (Flask/FastAPI), schedule batch predictions, integrate with farm management software, create farmer-facing dashboards with prediction confidence intervals. Monitor model performance over time—retrain annually with new data." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why should you never use random train/test splits for yield prediction?", options: ["It's too slow", "Temporal or spatial autocorrelation causes data leakage", "Random splits use more memory", "Models don't work with random splits"], answerIndex: 1, explanation: "Adjacent years and nearby fields have correlated yields. Random splits would put correlated data in both train and test sets, overestimating model performance." },
-          { question: "What tool explains individual predictions by showing feature contributions?", options: ["Pandas", "NumPy", "SHAP", "Matplotlib"], answerIndex: 2, explanation: "SHAP (SHapley Additive exPlanations) values decompose each prediction into contributions from each feature, explaining why the model predicted a specific yield." }
+          { question: "Why should you never use random train/test splits for yield prediction?", options: ["It's too slow", "Temporal or spatial autocorrelation causes data leakage", "Random splits use more memory", "Models don't work with random splits"], answerIndex: 1 },
+          { question: "What tool explains individual predictions by showing feature contributions?", options: ["Pandas", "NumPy", "SHAP", "Matplotlib"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse58: ExtraCourse = {
         { type: "video", caption: "Watch: Production ML for Yield Prediction — Deploying, monitoring, and maintaining yield prediction models at scale in real agricultural operations.", url: "https://example.com/ml-yield/advanced-deployment" },
         { type: "paragraph", text: "Emerging Trends: Foundation models for agriculture (SatCLIP, Prithvi), federated learning across farms for privacy, self-supervised pre-training on unlabeled satellite data, integration with climate models for long-range forecasting, real-time yield updates during the season." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is uncertainty quantification important for yield prediction?", options: ["It makes models faster", "Farmers need to know the range of likely outcomes, not just a single number", "It reduces training data requirements", "It eliminates the need for validation"], answerIndex: 1, explanation: "Farmers make financial decisions based on yield forecasts. Knowing the confidence range helps them plan for best-case and worst-case scenarios." },
-          { question: "What is a key advantage of transfer learning for yield prediction?", options: ["It eliminates the need for data", "It enables accurate predictions in data-scarce regions by leveraging knowledge from data-rich areas", "It only works for one crop type", "It requires no computing resources"], answerIndex: 1, explanation: "Transfer learning allows models trained on data-rich regions to provide accurate predictions in areas with limited historical data, dramatically expanding coverage." }
+          { question: "Why is uncertainty quantification important for yield prediction?", options: ["It makes models faster", "Farmers need to know the range of likely outcomes, not just a single number", "It reduces training data requirements", "It eliminates the need for validation"], answerIndex: 1 },
+          { question: "What is a key advantage of transfer learning for yield prediction?", options: ["It eliminates the need for data", "It enables accurate predictions in data-scarce regions by leveraging knowledge from data-rich areas", "It only works for one crop type", "It requires no computing resources"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     }

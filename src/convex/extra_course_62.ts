@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse62: ExtraCourse = {
   title: "Robotics in Agriculture",
   description: "Explore autonomous farming robots, from self-driving tractors to harvesting robots and weeding bots, learning the AI that powers them and how to integrate them into farm operations.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Advanced",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Tomoko Tanaka",
   instructorTitle: "Agricultural Robotics Engineer",
-  tags: ["Robotics", "Autonomous Vehicles", "Navigation", "Manipulation", "AgTech"],
   order: 62,
   modules: [
     {
@@ -24,8 +33,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "paragraph", text: "Adoption Challenges: High upfront cost ($100K-500K), connectivity requirements, regulatory uncertainty, farmer trust, and the need for farm infrastructure adaptation. Shared ownership models and Robotics-as-a-Service (RaaS) lower barriers to entry." },
         { type: "video", caption: "Watch: The Rise of Agricultural Robots — How autonomous machines are transforming farming operations worldwide.", url: "https://example.com/ag-robotics/introduction" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the primary driver of agricultural robotics adoption?", options: ["Farmer preference", "Global labor shortages and rising costs", "Government mandates", "Robot price decreases"], answerIndex: 1, explanation: "The 30% deficit in agricultural workers and rising labor costs are the primary economic drivers pushing adoption of agricultural robotics." },
-          { question: "What does RTK GPS provide for autonomous farm vehicles?", options: ["1-meter accuracy", "Centimeter-level positioning accuracy", "1-kilometer accuracy", "Weather forecasting"], answerIndex: 1, explanation: "RTK (Real-Time Kinematic) GPS provides centimeter-level positioning accuracy, essential for precise row following, automated plowing, and targeted spraying." }
+          { question: "What is the primary driver of agricultural robotics adoption?", options: ["Farmer preference", "Global labor shortages and rising costs", "Government mandates", "Robot price decreases"], answerIndex: 1 },
+          { question: "What does RTK GPS provide for autonomous farm vehicles?", options: ["1-meter accuracy", "Centimeter-level positioning accuracy", "1-kilometer accuracy", "Weather forecasting"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -40,8 +49,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "paragraph", text: "Multi-Robot Coordination: Coordinating multiple robots in the same field without collisions or work duplication. Task allocation algorithms (auction-based, market-based), communication protocols, and decentralized decision-making for scalable fleet management." },
         { type: "video", caption: "Watch: Robot Navigation in Farm Fields — How autonomous robots find their way through rows, around obstacles, and across entire fields.", url: "https://example.com/ag-robotics/navigation" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does SLAM stand for in robot navigation?", options: ["Sensor-Laser Array Mapping", "Simultaneous Localization and Mapping", "System-Level Area Monitoring", "Standard Land Assessment Method"], answerIndex: 1, explanation: "SLAM (Simultaneous Localization and Mapping) enables robots to build a map of an unknown environment while simultaneously tracking their position within it." },
-          { question: "Which path planning pattern is most common for field robots?", options: ["Random walk", "Boustrophedon (back-and-forth)", "Figure-8", "Spiral outward"], answerIndex: 1, explanation: "Boustrophedon (back-and-forth) paths provide complete coverage with minimal turning, making them the most efficient pattern for most field operations." }
+          { question: "What does SLAM stand for in robot navigation?", options: ["Sensor-Laser Array Mapping", "Simultaneous Localization and Mapping", "System-Level Area Monitoring", "Standard Land Assessment Method"], answerIndex: 1 },
+          { question: "Which path planning pattern is most common for field robots?", options: ["Random walk", "Boustrophedon (back-and-forth)", "Figure-8", "Spiral outward"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -56,8 +65,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "paragraph", text: "Harvest Robot Platforms: Agrobot SW6010 (strawberry picking with 24 arms), Abundant Robotics (apple picking with vacuum), Octinion (tomato picking), Burroway (citrus). Speed: 1-5 seconds per fruit vs. 2-3 seconds for skilled human pickers." },
         { type: "video", caption: "Watch: Harvesting Robots in Action — From strawberry pickers to apple harvesters, how robots handle delicate produce with precision and care.", url: "https://example.com/ag-robotics/harvesting" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which gripper technology is best for delicate berries?", options: ["Mechanical steel gripper", "Soft silicone pneumatic gripper", "Vacuum gripper", "Magnetic gripper"], answerIndex: 1, explanation: "Soft pneumatic grippers conform to berry shapes with gentle pressure (<5g force), preventing bruising while maintaining secure grip during picking." },
-          { question: "How does computer vision determine fruit ripeness?", options: ["By weight", "Color analysis, shape detection, and spectral indices", "By smell", "By touch sensors"], answerIndex: 1, explanation: "Computer vision uses color (hue shifts during ripening), shape (size and circularity), and spectral reflectance (sugar content correlates with light absorption patterns)." }
+          { question: "Which gripper technology is best for delicate berries?", options: ["Mechanical steel gripper", "Soft silicone pneumatic gripper", "Vacuum gripper", "Magnetic gripper"], answerIndex: 1 },
+          { question: "How does computer vision determine fruit ripeness?", options: ["By weight", "Color analysis, shape detection, and spectral indices", "By smell", "By touch sensors"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -72,8 +81,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "paragraph", text: "Integrated Weed Management: Robots combine multiple strategies: (1) Pre-emergence thermal treatment, (2) In-season mechanical/laser weeding, (3) Targeted micro-spraying as last resort, (4) Cover crop seeding for long-term suppression. Reduces herbicide dependence by 80-100%." },
         { type: "video", caption: "Watch: Laser Weeding Robots — How Carbon Robotics' LaserWeeder eliminates 200,000 weeds per hour without chemicals.", url: "https://example.com/ag-robotics/weeding-robots" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How many weeds per hour can the Carbon Robotics LaserWeeder process?", options: ["1,000", "10,000", "100,000", "200,000"], answerIndex: 3, explanation: "The LaserWeeder processes 200,000 weeds per hour using high-powered CO₂ lasers, making it significantly faster than manual weeding or traditional cultivation." },
-          { question: "How much herbicide reduction does See & Spray technology achieve?", options: ["10-20%", "30-40%", "50-60%", "77%"], answerIndex: 3, explanation: "See & Spray applies herbicide only to detected weeds rather than broadcast spraying, reducing herbicide use by approximately 77%." }
+          { question: "How many weeds per hour can the Carbon Robotics LaserWeeder process?", options: ["1,000", "10,000", "100,000", "200,000"], answerIndex: 3 },
+          { question: "How much herbicide reduction does See & Spray technology achieve?", options: ["10-20%", "30-40%", "50-60%", "77%"], answerIndex: 3 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "paragraph", text: "Manure Management Robots: Automated scrapers, solid-liquid separators, and composting systems. Biogas production from manure via anaerobic digesters. AI optimizes digester operation (feedstock mix, temperature, retention time) for maximum methane yield." },
         { type: "video", caption: "Watch: Robotic Dairy Farming — How Lely Astronaut milking robots and sensor networks transformed the modern dairy operation.", url: "https://example.com/ag-robotics/livestock-robots" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How much labor can robotic milking systems reduce?", options: ["10-20%", "30-40%", "50-70%", "90-100%"], answerIndex: 2, explanation: "Robotic milking systems reduce milking labor by 50-70%, allowing cows to milk voluntarily on demand while sensors monitor milk quality automatically." },
-          { question: "How far in advance can health monitoring sensors detect cattle illness?", options: ["1-6 hours", "24-48 hours", "1-2 weeks", "1 month"], answerIndex: 1, explanation: "Wearable sensors detect behavioral changes (reduced rumination, altered activity) 24-48 hours before visible symptoms, enabling early treatment." }
+          { question: "How much labor can robotic milking systems reduce?", options: ["10-20%", "30-40%", "50-70%", "90-100%"], answerIndex: 2 },
+          { question: "How far in advance can health monitoring sensors detect cattle illness?", options: ["1-6 hours", "24-48 hours", "1-2 weeks", "1 month"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse62: ExtraCourse = {
         { type: "video", caption: "Watch: The Autonomous Farm of 2035 — Swarms of small robots, flying systems, and AI coordination working together to farm without human labor.", url: "https://example.com/ag-robotics/future-robots" },
         { type: "paragraph", text: "Getting Started: Begin with scouting robots (lowest cost, highest learning value), progress to weeding robots (immediate ROI from reduced inputs), then consider harvesting robots for high-value crops. RaaS models let you try before buying." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the key advantage of swarm robotics over single large robots?", options: ["Lower AI requirements", "Reduced soil compaction and parallel task execution", "Simpler mechanical design", "Better weather resistance"], answerIndex: 1, explanation: "Hundreds of small robots (<100kg each) reduce soil compaction dramatically while working in parallel, completing tasks faster than a single large machine." },
-          { question: "What does 'RaaS' stand for in agricultural robotics?", options: ["Robotics as a Sensor", "Robotics as a Service", "Remote Access and Sync", "Robot Autonomous System"], answerIndex: 1, explanation: "Robotics as a Service (RaaS) allows farmers to rent or lease robots instead of purchasing, lowering upfront costs and enabling trial before commitment." }
+          { question: "What is the key advantage of swarm robotics over single large robots?", options: ["Lower AI requirements", "Reduced soil compaction and parallel task execution", "Simpler mechanical design", "Better weather resistance"], answerIndex: 1 },
+          { question: "What does 'RaaS' stand for in agricultural robotics?", options: ["Robotics as a Sensor", "Robotics as a Service", "Remote Access and Sync", "Robot Autonomous System"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     }

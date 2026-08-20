@@ -53,6 +53,16 @@ import { extraCourse53 } from "./extra_course_53";
 import { extraCourse54 } from "./extra_course_54";
 import { extraCourse55 } from "./extra_course_55";
 import { extraCourse56 } from "./extra_course_56";
+import { extraCourse57 } from "./extra_course_57";
+import { extraCourse58 } from "./extra_course_58";
+import { extraCourse59 } from "./extra_course_59";
+import { extraCourse60 } from "./extra_course_60";
+import { extraCourse61 } from "./extra_course_61";
+import { extraCourse62 } from "./extra_course_62";
+import { extraCourse63 } from "./extra_course_63";
+import { extraCourse64 } from "./extra_course_64";
+import { extraCourse65 } from "./extra_course_65";
+import { extraCourse66 } from "./extra_course_66";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -3351,6 +3361,16 @@ const seedCatalog: SeedCourse[] = [
   { ...extraCourse54 },
   { ...extraCourse55 },
   { ...extraCourse56 },
+  { ...extraCourse57 },
+  { ...extraCourse58 },
+  { ...extraCourse59 },
+  { ...extraCourse60 },
+  { ...extraCourse61 },
+  { ...extraCourse62 },
+  { ...extraCourse63 },
+  { ...extraCourse64 },
+  { ...extraCourse65 },
+  { ...extraCourse66 },
 ];
 function atHour(dayOffset: number, hour: number): number {
   const now = new Date();

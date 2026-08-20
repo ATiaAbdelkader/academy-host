@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse65: ExtraCourse = {
   title: "Natural Language Processing for Agriculture",
   description: "Build AI chatbots, multilingual crop advisors, and document analysis systems that make agricultural knowledge accessible to farmers in their own language.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Fatima Al-Hassan",
   instructorTitle: "NLP Researcher & AgTech Developer",
-  tags: ["NLP", "Chatbot", "Multilingual", "Knowledge Base", "Farmer Support"],
   order: 65,
   modules: [
     {
@@ -23,8 +32,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "paragraph", text: "Text Preprocessing: Tokenization → lowercasing → stop word removal → stemming/lemmatization → entity recognition. For agricultural text: domain-specific tokenizers that handle crop variety names, chemical compounds, and local terminology." },
         { type: "video", caption: "Watch: NLP for Farmer Support — How natural language processing can deliver agricultural advice to 500 million smallholder farmers in their own language.", url: "https://example.com/ag-nlp/introduction" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How many smallholder farmers globally lack access to agricultural extension services?", options: ["50 million", "100 million", "500 million", "1 billion"], answerIndex: 2, explanation: "Approximately 500 million smallholder farmers worldwide lack access to formal agricultural extension services—NLP-powered tools can bridge this gap." },
-          { question: "What is a major NLP challenge for agricultural applications in developing countries?", options: ["Too much training data", "Low-resource languages with limited digital text", "Only English speakers use phones", "Farmers do not ask questions"], answerIndex: 1, explanation: "Many agricultural communities speak low-resource languages with limited digital text available for training NLP models, requiring specialized approaches like transfer learning and data augmentation." }
+          { question: "How many smallholder farmers globally lack access to agricultural extension services?", options: ["50 million", "100 million", "500 million", "1 billion"], answerIndex: 2 },
+          { question: "What is a major NLP challenge for agricultural applications in developing countries?", options: ["Too much training data", "Low-resource languages with limited digital text", "Only English speakers use phones", "Farmers do not ask questions"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -39,8 +48,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "paragraph", text: "Response Generation: Template-based responses ensure accuracy for critical topics (chemical recommendations, safety warnings). LLM-enhanced responses provide conversational flexibility for general questions. Always include confidence scores and 'verify with local expert' disclaimers." },
         { type: "video", caption: "Watch: Building a Crop Disease Chatbot — From knowledge base creation through intent classification to farmer-facing conversation interface.", url: "https://example.com/ag-nlp/chatbots" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which chatbot architecture provides the best balance of accuracy and flexibility for agriculture?", options: ["Pure rule-based", "Pure generative (LLM)", "Hybrid (template + LLM)", "Random responses"], answerIndex: 2, explanation: "Hybrid chatbots use templates for accuracy-critical topics (chemical recommendations) and LLMs for conversational flexibility, providing reliable yet natural interactions." },
-          { question: "What is the recommended size of an agricultural knowledge base for comprehensive coverage?", options: ["100-500 Q&A pairs", "500-1,000 Q&A pairs", "5,000-10,000 Q&A pairs", "100,000+ Q&A pairs"], answerIndex: 2, explanation: "5,000-10,000 curated Q&A pairs provide comprehensive coverage across major crops, regions, and topics while remaining manageable to maintain and update." }
+          { question: "Which chatbot architecture provides the best balance of accuracy and flexibility for agriculture?", options: ["Pure rule-based", "Pure generative (LLM)", "Hybrid (template + LLM)", "Random responses"], answerIndex: 2 },
+          { question: "What is the recommended size of an agricultural knowledge base for comprehensive coverage?", options: ["100-500 Q&A pairs", "500-1,000 Q&A pairs", "5,000-10,000 Q&A pairs", "100,000+ Q&A pairs"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -55,8 +64,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "paragraph", text: "Voice Interface Design: WhatsApp integration (most common farmer platform in developing countries), USSD menus (feature phones), IVR (Interactive Voice Response), and mobile apps. Keep interactions short (<3 exchanges to answer), support voice messages, and handle noisy environments." },
         { type: "video", caption: "Watch: Multilingual Farmer AI — Building voice-enabled, multilingual agricultural chatbots using WhatsApp and low-bandwidth technologies.", url: "https://example.com/ag-nlp/multilingual" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which speech-to-text model supports the most languages for agricultural applications?", options: ["Siri", "Whisper (99 languages)", "Alexa", "Cortana"], answerIndex: 1, explanation: "OpenAI's Whisper supports 99 languages with strong performance on low-resource languages, making it ideal for multilingual agricultural applications." },
-          { question: "What is the most common farmer-facing platform in developing countries for chatbot deployment?", options: ["Twitter", "Facebook", "WhatsApp", "LinkedIn"], answerIndex: 2, explanation: "WhatsApp is the most widely used messaging platform among farmers in developing countries, with billions of users and voice message support." }
+          { question: "Which speech-to-text model supports the most languages for agricultural applications?", options: ["Siri", "Whisper (99 languages)", "Alexa", "Cortana"], answerIndex: 1 },
+          { question: "What is the most common farmer-facing platform in developing countries for chatbot deployment?", options: ["Twitter", "Facebook", "WhatsApp", "LinkedIn"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -71,8 +80,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "paragraph", text: "Retrieval-Augmented Generation (RAG): Combine LLMs with agricultural knowledge bases. Embed documents as vectors, retrieve relevant passages for each question, and generate answers grounded in specific sources. Reduces hallucination and provides citations." },
         { type: "video", caption: "Watch: Building an Agricultural Knowledge Graph — Extracting structured knowledge from research papers and extension documents for AI-powered advisory.", url: "https://example.com/ag-nlp/document-analysis" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is Retrieval-Augmented Generation (RAG)?", options: ["Generating random agricultural content", "Combining LLMs with knowledge bases to provide source-grounded answers", "A farming technique", "A type of irrigation system"], answerIndex: 1, explanation: "RAG retrieves relevant passages from knowledge bases to augment LLM responses, providing answers grounded in specific agricultural sources with citations." },
-          { question: "What does a knowledge graph connect in agricultural NLP?", options: ["Farmers to markets", "Crops, pests, chemicals, and application rates as connected entities", "Weather stations to apps", "Photos to text"], answerIndex: 1, explanation: "Agricultural knowledge graphs connect entities like crops, pests, diseases, chemicals, and application rates, enabling complex queries and reasoning across the knowledge base." }
+          { question: "What is Retrieval-Augmented Generation (RAG)?", options: ["Generating random agricultural content", "Combining LLMs with knowledge bases to provide source-grounded answers", "A farming technique", "A type of irrigation system"], answerIndex: 1 },
+          { question: "What does a knowledge graph connect in agricultural NLP?", options: ["Farmers to markets", "Crops, pests, chemicals, and application rates as connected entities", "Weather stations to apps", "Photos to text"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -87,8 +96,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "paragraph", text: "Misinformation Detection: Identify and flag false agricultural advice circulating on social media: fake product promotions, incorrect application rates, dangerous practices. NLP classifiers trained on verified vs. misleading agricultural content (85-90% accuracy)." },
         { type: "video", caption: "Watch: Farmer Sentiment Analytics — Using NLP to understand farmer opinions, detect outbreaks from social media, and combat agricultural misinformation.", url: "https://example.com/ag-nlp/sentiment" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is aspect-based sentiment analysis?", options: ["Analyzing the overall tone of text", "Extracting sentiment toward specific topics/aspects within the same text", "Counting words", "Translating text"], answerIndex: 1, explanation: "Aspect-based sentiment analysis identifies sentiment toward specific aspects (price, quality, effectiveness) within the same piece of text, providing more nuanced insights than overall sentiment." },
-          { question: "How can NLP help combat agricultural misinformation?", options: ["It can't", "By training classifiers to identify false or misleading agricultural advice on social media", "By censoring posts", "By only showing positive content"], answerIndex: 1, explanation: "NLP classifiers trained on verified vs. misleading agricultural content can automatically flag misinformation like fake product promotions or dangerous application rates." }
+          { question: "What is aspect-based sentiment analysis?", options: ["Analyzing the overall tone of text", "Extracting sentiment toward specific topics/aspects within the same text", "Counting words", "Translating text"], answerIndex: 1 },
+          { question: "How can NLP help combat agricultural misinformation?", options: ["It can't", "By training classifiers to identify false or misleading agricultural advice on social media", "By censoring posts", "By only showing positive content"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -104,8 +113,8 @@ export const extraCourse65: ExtraCourse = {
         { type: "video", caption: "Watch: Deploying LLMs for Agricultural Advisory — Fine-tuning, prompt engineering, and safety guardrails for reliable farmer-facing AI systems.", url: "https://example.com/ag-nlp/llms-agriculture" },
         { type: "paragraph", text: "Impact Metrics: LLM-powered advisory systems achieve 85-95% farmer satisfaction, answer 10x more questions than human extension agents, operate 24/7 in 50+ languages, and cost $0.01-0.05 per interaction versus $5-20 for human consultation." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is a critical safety requirement for agricultural LLM deployment?", options: ["Maximum response length", "Confidence thresholds to avoid dangerous recommendations", "Minimum word count", "Color-coded responses"], answerIndex: 1, explanation: "Confidence thresholds prevent LLMs from providing unreliable chemical or treatment recommendations. Below 80% confidence, the system should escalate to human experts." },
-          { question: "What is the cost advantage of LLM advisory vs. human extension services?", options: ["$0.01-0.05 per interaction vs. $5-20 for human consultation", "Same cost", "LLM is more expensive", "Cost depends on electricity"], answerIndex: 0, explanation: "LLM interactions cost $0.01-0.05 each versus $5-20 for human extension consultations, making expert-level advice 100-400x more affordable at scale." }
+          { question: "What is a critical safety requirement for agricultural LLM deployment?", options: ["Maximum response length", "Confidence thresholds to avoid dangerous recommendations", "Minimum word count", "Color-coded responses"], answerIndex: 1 },
+          { question: "What is the cost advantage of LLM advisory vs. human extension services?", options: ["$0.01-0.05 per interaction vs. $5-20 for human consultation", "Same cost", "LLM is more expensive", "Cost depends on electricity"], answerIndex: 0 }
         ], passPercent: 70 }
       ]
     }

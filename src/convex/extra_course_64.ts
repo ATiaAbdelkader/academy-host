@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse64: ExtraCourse = {
   title: "Precision Agriculture with GIS & AI",
   description: "Master Geographic Information Systems combined with AI for spatial analysis, zone management, variable rate application, and data-driven field management decisions.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Anton Petrov",
   instructorTitle: "GIS & Spatial Analytics Specialist",
-  tags: ["GIS", "Precision Agriculture", "Spatial Analysis", "Variable Rate", "Mapping"],
   order: 64,
   modules: [
     {
@@ -24,8 +33,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "paragraph", text: "Spatial Data Formats: Shapefile (legacy but universal), GeoJSON (web-friendly), GeoTIFF (raster with georeference), KML (Google Earth), ISOXML (agricultural equipment standard). Understanding format compatibility ensures data flows between farm systems." },
         { type: "video", caption: "Watch: GIS for Precision Farming — Understanding spatial data, coordinate systems, and essential map layers for data-driven agriculture.", url: "https://example.com/precision-gis/fundamentals" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does vector data represent in agricultural GIS?", options: ["Continuous surfaces like elevation", "Discrete features like field boundaries and sampling points", "Weather patterns", "Time series data"], answerIndex: 1, explanation: "Vector data represents discrete geographic features as points (sample locations), lines (drainage), and polygons (field boundaries, soil zones)." },
-          { question: "Which open-source GIS tool is most commonly used for agricultural spatial analysis?", options: ["Microsoft Excel", "QGIS", "Photoshop", "AutoCAD"], answerIndex: 1, explanation: "QGIS is the leading open-source desktop GIS, widely used in precision agriculture for map creation, spatial analysis, and data management." }
+          { question: "What does vector data represent in agricultural GIS?", options: ["Continuous surfaces like elevation", "Discrete features like field boundaries and sampling points", "Weather patterns", "Time series data"], answerIndex: 1 },
+          { question: "Which open-source GIS tool is most commonly used for agricultural spatial analysis?", options: ["Microsoft Excel", "QGIS", "Photoshop", "AutoCAD"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -40,8 +49,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "paragraph", text: "Multi-Year Analysis: Overlaying 3-5 years of yield data reveals 'management zones'—areas with consistent high, medium, or low productivity. These zones often correlate with soil type, topography, and drainage. Zone stability determines whether management changes are worthwhile." },
         { type: "video", caption: "Watch: Creating and Analyzing Yield Maps — From combine sensor data to actionable spatial variability insights for field management.", url: "https://example.com/precision-gis/yield-mapping" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is multi-year yield averaging important?", options: ["It saves data storage", "It separates consistent productivity patterns from year-to-year weather variation", "It's required by law", "It increases GPS accuracy"], answerIndex: 1, explanation: "Multi-year averaging smooths out weather-driven year-to-year variation, revealing consistent underlying productivity patterns related to soil and topography." },
-          { question: "What does Moran's I measure in yield analysis?", options: ["Total yield", "Spatial autocorrelation in yield patterns", "Soil pH", "Rainfall amount"], answerIndex: 1, explanation: "Moran's I measures whether yield values are spatially clustered (similar values near each other), dispersed, or random—indicating whether management zones make sense." }
+          { question: "Why is multi-year yield averaging important?", options: ["It saves data storage", "It separates consistent productivity patterns from year-to-year weather variation", "It's required by law", "It increases GPS accuracy"], answerIndex: 1 },
+          { question: "What does Moran's I measure in yield analysis?", options: ["Total yield", "Spatial autocorrelation in yield patterns", "Soil pH", "Rainfall amount"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -56,8 +65,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "paragraph", text: "Zone Validation: Collect soil samples from each zone to verify zone homogeneity. Check that within-zone variability is significantly less than between-zone variability. Adjust zone boundaries based on ground truth. Re-evaluate every 3-5 years." },
         { type: "video", caption: "Watch: AI-Powered Management Zone Creation — Using clustering algorithms and multi-layer analysis to define optimal management zones.", url: "https://example.com/precision-gis/management-zones" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the recommended number of management zones per field?", options: ["1-2", "3-6", "10-15", "20-30"], answerIndex: 1, explanation: "3-6 zones per field balance precision (capturing meaningful variability) with practical manageability (compatible with equipment and operational complexity)." },
-          { question: "How often should management zones be re-evaluated?", options: ["Every year", "Every 3-5 years", "Every 10-15 years", "Never"], answerIndex: 1, explanation: "Management zones should be re-evaluated every 3-5 years as soil conditions, drainage patterns, and long-term yield trends change over time." }
+          { question: "What is the recommended number of management zones per field?", options: ["1-2", "3-6", "10-15", "20-30"], answerIndex: 1 },
+          { question: "How often should management zones be re-evaluated?", options: ["Every year", "Every 3-5 years", "Every 10-15 years", "Never"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -72,8 +81,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "paragraph", text: "VRT Lime: pH correction varies across zones based on soil buffering capacity and current pH. Variable rate lime application saves 20-40% compared to uniform rates while ensuring all zones reach optimal pH. Results visible in 1-2 seasons." },
         { type: "video", caption: "Watch: Variable Rate Application in Practice — Creating prescription maps and calibrating VRT equipment for precision input application.", url: "https://example.com/precision-gis/vrt-practice" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How much can VRT nitrogen application save compared to uniform rates?", options: ["1-5%", "5-10%", "15-30%", "50-70%"], answerIndex: 2, explanation: "VRT nitrogen application saves 15-30% on fertilizer costs while maintaining or improving yield by applying more in high-productivity zones and less in low-potential areas." },
-          { question: "What is the difference between map-based and sensor-based VRT?", options: ["No difference", "Map-based uses pre-loaded prescription maps; sensor-based makes real-time adjustments", "Map-based is more expensive", "Sensor-based only works for seeding"], answerIndex: 1, explanation: "Map-based VRT applies pre-determined rates from prescription maps, while sensor-based VRT measures conditions in real-time and adjusts application rates on the fly." }
+          { question: "How much can VRT nitrogen application save compared to uniform rates?", options: ["1-5%", "5-10%", "15-30%", "50-70%"], answerIndex: 2 },
+          { question: "What is the difference between map-based and sensor-based VRT?", options: ["No difference", "Map-based uses pre-loaded prescription maps; sensor-based makes real-time adjustments", "Map-based is more expensive", "Sensor-based only works for seeding"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "paragraph", text: "Time-Series Spatial Analysis: Track how spatial patterns change over years. Detect expanding problem areas (salinity, compaction, erosion), shrinking high-yield zones, and the effects of management changes. Change detection algorithms quantify spatial trends." },
         { type: "video", caption: "Watch: Multi-Layer Spatial Analysis — Integrating terrain, soil, yield, and satellite data for comprehensive field understanding.", url: "https://example.com/precision-gis/spatial-integration" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does the Topographic Wetness Index (TWI) predict?", options: ["Soil temperature", "Where water accumulates in the landscape", "Wind speed", "Crop height"], answerIndex: 1, explanation: "TWI combines slope and contributing area to predict where water naturally accumulates, identifying areas prone to waterlogging, high moisture, and potential drainage issues." },
-          { question: "Why is time-series spatial analysis important?", options: ["It creates prettier maps", "It reveals how spatial patterns change over years, detecting expanding problems or management effects", "It reduces data storage", "It's required for certification"], answerIndex: 1, explanation: "Tracking spatial patterns over years reveals trends like expanding salinity zones, shrinking high-yield areas, and the measurable effects of management interventions." }
+          { question: "What does the Topographic Wetness Index (TWI) predict?", options: ["Soil temperature", "Where water accumulates in the landscape", "Wind speed", "Crop height"], answerIndex: 1 },
+          { question: "Why is time-series spatial analysis important?", options: ["It creates prettier maps", "It reveals how spatial patterns change over years, detecting expanding problems or management effects", "It reduces data storage", "It's required for certification"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse64: ExtraCourse = {
         { type: "video", caption: "Watch: From Analysis to Action — How AI-powered GIS creates precision management recommendations that integrate directly with farm equipment.", url: "https://example.com/precision-gis/decision-support" },
         { type: "paragraph", text: "Future Directions: Real-time AI analysis of drone imagery for in-season adjustments, digital twin field simulations for scenario planning, autonomous equipment integration, and carbon credit verification through spatial monitoring." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does the 4R nutrient management approach stand for?", options: ["Right seed, Right water, Right sun, Right soil", "Right source, Right rate, Right time, Right place", "Right field, Right farmer, Right market, Right price", "Right pH, Right NPK, Right organic matter, Right moisture"], answerIndex: 1, explanation: "The 4R framework (Right source, Right rate, Right time, Right place) is the foundation of precision nutrient management, optimized through spatial AI analysis." },
-          { question: "How much can spatial AI models outperform non-spatial models?", options: ["1-2%", "5-10%", "10-20%", "30-50%"], answerIndex: 2, explanation: "Models that incorporate spatial features and geographic relationships outperform non-spatial models by 10-20%, capturing field-specific patterns that general models miss." }
+          { question: "What does the 4R nutrient management approach stand for?", options: ["Right seed, Right water, Right sun, Right soil", "Right source, Right rate, Right time, Right place", "Right field, Right farmer, Right market, Right price", "Right pH, Right NPK, Right organic matter, Right moisture"], answerIndex: 1 },
+          { question: "How much can spatial AI models outperform non-spatial models?", options: ["1-2%", "5-10%", "10-20%", "30-50%"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     }

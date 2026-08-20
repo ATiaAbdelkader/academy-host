@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse61: ExtraCourse = {
   title: "AI-Based Soil Analysis",
   description: "Use AI and spectroscopic analysis to assess soil health, predict nutrient availability, and generate precision management recommendations without traditional lab testing.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Sarah Kim",
   instructorTitle: "Soil Scientist & Spectroscopist",
-  tags: ["AI", "Soil Analysis", "Spectroscopy", "NIR", "Precision Agriculture"],
   order: 61,
   modules: [
     {
@@ -24,8 +33,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "paragraph", text: "Soil Classification Systems: USDA Soil Taxonomy (12 orders), WRB (World Reference Base), local classification systems. Understanding classification helps AI models generalize across regions—soils in the same class share behavioral patterns." },
         { type: "video", caption: "Watch: Soil Properties That Matter for AI Analysis — Understanding the physical, chemical, and biological properties that AI models predict from spectral data.", url: "https://example.com/ai-soil/soil-fundamentals" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does CEC (Cation Exchange Capacity) measure?", options: ["Soil temperature", "Soil's ability to hold and exchange nutrients", "Soil water content", "Soil depth"], answerIndex: 1, explanation: "CEC measures the soil's capacity to hold positively charged nutrient ions (cations) on clay and organic matter surfaces, directly affecting nutrient availability." },
-          { question: "Which soil property most directly affects nutrient availability?", options: ["Bulk density", "Soil pH", "Sand content", "Infiltration rate"], answerIndex: 1, explanation: "Soil pH controls the chemical form and solubility of nutrients. Most nutrients are optimally available between pH 6.0-7.5. Extreme pH locks up nutrients regardless of total supply." }
+          { question: "What does CEC (Cation Exchange Capacity) measure?", options: ["Soil temperature", "Soil's ability to hold and exchange nutrients", "Soil water content", "Soil depth"], answerIndex: 1 },
+          { question: "Which soil property most directly affects nutrient availability?", options: ["Bulk density", "Soil pH", "Sand content", "Infiltration rate"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -40,8 +49,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "paragraph", text: "Spectral Preprocessing: Raw spectra require preprocessing before AI analysis: (1) Savitzky-Golay smoothing, (2) Standard Normal Variate (SNV) correction, (3) Multiplicative Scatter Correction (MSC), (4) First/second derivative transformation, (5) continuum removal." },
         { type: "video", caption: "Watch: Spectroscopic Soil Sensing in Practice — From handheld NIR devices to laboratory MIR analysis, how spectral data captures soil properties.", url: "https://example.com/ai-soil/spectroscopic-sensing" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is NIR spectroscopy useful for soil analysis?", options: ["It measures soil temperature", "It detects chemical bonds (O-H, C-H, N-H) related to organic matter and nutrients", "It measures soil depth", "It counts soil organisms"], answerIndex: 1, explanation: "NIR spectroscopy detects vibrations of chemical bonds in soil components—O-H (water, clay minerals), C-H (organic compounds), and N-H (nitrogen compounds)—enabling prediction of multiple soil properties simultaneously." },
-          { question: "What is the purpose of Savitzky-Golay smoothing in spectral preprocessing?", options: ["To increase spectral resolution", "To reduce noise while preserving spectral features", "To change the wavelength range", "To calibrate the instrument"], answerIndex: 1, explanation: "Savitzky-Golay smoothing reduces random noise in spectral data while preserving the shape and position of important absorption features." }
+          { question: "Why is NIR spectroscopy useful for soil analysis?", options: ["It measures soil temperature", "It detects chemical bonds (O-H, C-H, N-H) related to organic matter and nutrients", "It measures soil depth", "It counts soil organisms"], answerIndex: 1 },
+          { question: "What is the purpose of Savitzky-Golay smoothing in spectral preprocessing?", options: ["To increase spectral resolution", "To reduce noise while preserving spectral features", "To change the wavelength range", "To calibrate the instrument"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -56,8 +65,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "paragraph", text: "Transfer Learning for Soils: Models trained on soils from one region can be adapted to new regions with relatively few calibration samples. Domain adaptation techniques (CORAL, DAN) align spectral distributions between source and target regions." },
         { type: "video", caption: "Watch: Building Soil Property Prediction Models — From PLSR to deep learning, comparing algorithms for spectral soil analysis.", url: "https://example.com/ai-soil/ml-prediction" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What does RPD > 2.0 indicate in soil spectral prediction?", options: ["Poor prediction", "Good prediction", "Excellent prediction", "No prediction possible"], answerIndex: 2, explanation: "RPD (Ratio of Performance to Deviation) > 2.0 indicates the model's prediction error is less than half the standard deviation of the reference values—considered excellent for most applications." },
-          { question: "Which algorithm is the recommended first choice for new soil spectroscopy laboratories?", options: ["Deep Neural Network", "PLSR (Partial Least Squares Regression)", "K-Means Clustering", "Linear Regression"], answerIndex: 1, explanation: "PLSR is the gold standard for new laboratories because it's interpretable, robust, works well with small datasets, and has decades of proven performance in soil spectroscopy." }
+          { question: "What does RPD > 2.0 indicate in soil spectral prediction?", options: ["Poor prediction", "Good prediction", "Excellent prediction", "No prediction possible"], answerIndex: 2 },
+          { question: "Which algorithm is the recommended first choice for new soil spectroscopy laboratories?", options: ["Deep Neural Network", "PLSR (Partial Least Squares Regression)", "K-Means Clustering", "Linear Regression"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -72,8 +81,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "paragraph", text: "Web Soil Map Integration: Combine field-level spectral data with regional soil maps (Web Soil Survey, SoilGrids) for seamless prediction. Local calibration improves regional maps; regional context fills gaps between field samples." },
         { type: "video", caption: "Watch: Digital Soil Mapping Workflow — From field sampling through spatial prediction to continuous soil property maps for precision agriculture.", url: "https://example.com/ai-soil/digital-mapping" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is spatial cross-validation important for digital soil mapping?", options: ["It's faster than random validation", "Nearby soil samples are correlated, so random splits cause data leakage", "It requires fewer samples", "It only works for clay soils"], answerIndex: 1, explanation: "Soil properties exhibit spatial autocorrelation—nearby samples are similar. Random validation would put correlated samples in both train and test sets, overestimating accuracy." },
-          { question: "What does TWI (Topographic Wetness Index) help predict in soil mapping?", options: ["Soil color", "Water accumulation zones that affect soil moisture", "Soil temperature", "Root depth"], answerIndex: 1, explanation: "TWI combines slope and contributing area to predict where water accumulates in the landscape, helping map soil moisture patterns and hydric soil conditions." }
+          { question: "Why is spatial cross-validation important for digital soil mapping?", options: ["It's faster than random validation", "Nearby soil samples are correlated, so random splits cause data leakage", "It requires fewer samples", "It only works for clay soils"], answerIndex: 1 },
+          { question: "What does TWI (Topographic Wetness Index) help predict in soil mapping?", options: ["Soil color", "Water accumulation zones that affect soil moisture", "Soil temperature", "Root depth"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "paragraph", text: "Soil Health Scoring: Composite indices combining physical (aggregate stability, infiltration), chemical (pH, nutrients, CEC), and biological (organic matter, respiration) indicators. AI weights indicators based on their predictive power for crop performance in specific regions." },
         { type: "video", caption: "Watch: Building a Real-Time Soil Monitoring System — IoT sensors, AI interpretation, and automated nutrient recommendations for precision soil management.", url: "https://example.com/ai-soil/real-time-monitoring" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Why is sensor fusion important for soil monitoring?", options: ["It reduces the number of sensors needed", "It combines measurements with different accuracies and resolutions into a comprehensive picture", "It eliminates the need for calibration", "It only works for moisture monitoring"], answerIndex: 1, explanation: "Different sensors measure different properties with different accuracies and time resolutions. Sensor fusion optimally combines these diverse data sources for a more complete and accurate soil health picture." },
-          { question: "What factors does a AI nutrient recommendation engine consider?", options: ["Only soil test results", "Soil tests + crop requirements + economics + environmental constraints", "Only crop type", "Only fertilizer price"], answerIndex: 1, explanation: "AI recommendation engines integrate soil test results, crop nutrient requirements, economic factors (fertilizer cost, crop value), and environmental constraints (runoff risk, regulatory limits) for optimal prescriptions." }
+          { question: "Why is sensor fusion important for soil monitoring?", options: ["It reduces the number of sensors needed", "It combines measurements with different accuracies and resolutions into a comprehensive picture", "It eliminates the need for calibration", "It only works for moisture monitoring"], answerIndex: 1 },
+          { question: "What factors does a AI nutrient recommendation engine consider?", options: ["Only soil test results", "Soil tests + crop requirements + economics + environmental constraints", "Only crop type", "Only fertilizer price"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse61: ExtraCourse = {
         { type: "video", caption: "Watch: The Future of AI Soil Science — From foundation models to digital twins to autonomous soil robots, the technologies that will transform soil management.", url: "https://example.com/ai-soil/future-technologies" },
         { type: "paragraph", text: "Global Soil Health Initiative: The UNs 4 per 1000 initiative aims to increase soil organic carbon by 0.4% annually - reversing climate change while improving food security. AI-powered soil monitoring is essential for tracking progress at global scale." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is a 'Digital Twin' of soil?", options: ["A photograph of soil", "A virtual model that simulates soil physical, chemical, and biological processes in real-time", "A soil museum exhibit", "A digital soil classification system"], answerIndex: 1, explanation: "A Digital Twin is a virtual model that mirrors real soil behavior, enabling scenario testing and prediction of soil responses to different management practices before implementation." },
-          { question: "How does the '4 per 1000' initiative relate to AI soil monitoring?", options: ["It doesn't", "AI monitoring tracks global progress toward the goal of increasing soil organic carbon by 0.4% annually", "It's an AI company", "It's about soil temperature"], answerIndex: 1, explanation: "The 4 per 1000 initiative aims to increase global soil organic carbon by 0.4% per year. AI-powered monitoring at scale is essential for tracking progress toward this climate and food security goal." }
+          { question: "What is a 'Digital Twin' of soil?", options: ["A photograph of soil", "A virtual model that simulates soil physical, chemical, and biological processes in real-time", "A soil museum exhibit", "A digital soil classification system"], answerIndex: 1 },
+          { question: "How does the '4 per 1000' initiative relate to AI soil monitoring?", options: ["It doesn't", "AI monitoring tracks global progress toward the goal of increasing soil organic carbon by 0.4% annually", "It's an AI company", "It's about soil temperature"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     }

@@ -1,16 +1,25 @@
-import type { ExtraCourse } from "./schema";
+import type { CourseModule } from "./schema";
+
+type ExtraCourse = {
+  category: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  durationMinutes: number;
+  order: number;
+  instructor: string;
+  instructorTitle: string;
+  modules: CourseModule[];
+};
 
 export const extraCourse59: ExtraCourse = {
   title: "Smart Irrigation with IoT & AI",
   description: "Design and implement intelligent irrigation systems using IoT sensors, weather data, and AI algorithms to optimize water usage, reduce costs, and improve crop health.",
   category: "AI in Agriculture",
-  duration: "8 weeks",
-  difficulty: "Intermediate",
   priceCents: 0,
   durationMinutes: 2400,
   instructor: "Dr. Elena Rodriguez",
   instructorTitle: "Agricultural IoT Engineer",
-  tags: ["IoT", "Smart Irrigation", "Water Management", "AI", "Sensors"],
   order: 59,
   modules: [
     {
@@ -23,8 +32,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "paragraph", text: "Water Stress Indicators: Stomatal closure (reduced transpiration), leaf temperature increase, canopy spectral changes (NDWI, CWSI), soil water potential decline, turgor pressure loss. AI detects these stress indicators before visible wilting." },
         { type: "video", caption: "Watch: The Science of Crop Water Needs — Understanding evapotranspiration, crop coefficients, and water balance for precision irrigation.", url: "https://example.com/smart-irrigation/fundamentals" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the typical water efficiency of drip irrigation?", options: ["40-60%", "60-80%", "90-98%", "100%"], answerIndex: 2, explanation: "Drip irrigation delivers water directly to root zones with 90-98% efficiency, minimizing evaporation and runoff losses." },
-          { question: "How is crop water requirement calculated?", options: ["Rainfall × crop height", "Reference ET × crop coefficient (Kc)", "Soil moisture × temperature", "Farmer experience only"], answerIndex: 1, explanation: "Crop ET = Reference ET₀ × Kc. The crop coefficient adjusts for crop type, growth stage, and canopy cover." }
+          { question: "What is the typical water efficiency of drip irrigation?", options: ["40-60%", "60-80%", "90-98%", "100%"], answerIndex: 2 },
+          { question: "How is crop water requirement calculated?", options: ["Rainfall × crop height", "Reference ET × crop coefficient (Kc)", "Soil moisture × temperature", "Farmer experience only"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -39,8 +48,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "paragraph", text: "Edge Computing: Process sensor data locally at the field edge before sending to cloud. Benefits: reduced bandwidth (send anomalies instead of all data), faster response (irrigation decisions in seconds, not minutes), offline operation (works when connectivity drops)." },
         { type: "video", caption: "Watch: Setting Up an IoT Irrigation Sensor Network — Sensor selection, placement strategies, and communication architecture for field monitoring.", url: "https://example.com/smart-irrigation/iot-sensors" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How many soil moisture depths are typically monitored per station?", options: ["1", "2", "3", "5"], answerIndex: 2, explanation: "Three depths (15cm, 30cm, 60cm) capture shallow root activity, main root zone moisture, and deep drainage patterns." },
-          { question: "Which communication protocol is best for large farms with sensors kilometers apart?", options: ["WiFi", "Bluetooth LE", "LoRaWAN", "Zigbee"], answerIndex: 2, explanation: "LoRaWAN provides 2-10km range with very low power consumption, making it ideal for large agricultural fields where sensors are spread far apart." }
+          { question: "How many soil moisture depths are typically monitored per station?", options: ["1", "2", "3", "5"], answerIndex: 2 },
+          { question: "Which communication protocol is best for large farms with sensors kilometers apart?", options: ["WiFi", "Bluetooth LE", "LoRaWAN", "Zigbee"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -56,8 +65,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "video", caption: "Watch: AI Irrigation Decision Algorithms — Comparing rule-based, ML, reinforcement learning, and MPC approaches for water optimization.", url: "https://example.com/smart-irrigation/ai-algorithms" },
         { type: "paragraph", text: "Hybrid Approach: The most effective systems combine physics-based crop/soil water models with ML. Physics provides generalization (works for new conditions), ML provides accuracy (captures field-specific patterns the physics model misses)." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "Which AI approach uses weather forecasts to optimize irrigation over a planning horizon?", options: ["Threshold-based", "Reinforcement Learning", "Model Predictive Control", "Fuzzy Logic"], answerIndex: 2, explanation: "MPC uses weather forecasts combined with crop and soil models to optimize irrigation decisions over a multi-day planning horizon." },
-          { question: "Why are hybrid physics-ML models effective for irrigation?", options: ["They are simpler to implement", "Physics provides generalization, ML captures field-specific patterns", "They don't need training data", "They work offline"], answerIndex: 1, explanation: "Physics-based models generalize to new conditions while ML models learn field-specific patterns that the general model misses, combining the strengths of both approaches." }
+          { question: "Which AI approach uses weather forecasts to optimize irrigation over a planning horizon?", options: ["Threshold-based", "Reinforcement Learning", "Model Predictive Control", "Fuzzy Logic"], answerIndex: 2 },
+          { question: "Why are hybrid physics-ML models effective for irrigation?", options: ["They are simpler to implement", "Physics provides generalization, ML captures field-specific patterns", "They don't need training data", "They work offline"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -72,8 +81,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "paragraph", text: "ROI of VRI: Water savings of 15-30% compared to uniform irrigation. Energy savings of 10-20% (less pumping). Yield increase of 5-15% in previously over/under-watered zones. Typical payback: 2-4 years depending on field variability." },
         { type: "video", caption: "Watch: Variable Rate Irrigation in Practice — From soil mapping to prescription maps to system calibration for precision water application.", url: "https://example.com/smart-irrigation/vri-systems" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "How many management zones per field is practical for VRI?", options: ["1-2", "3-8", "20-50", "100+"], answerIndex: 1, explanation: "3-8 zones balance precision with practical manageability. Too many zones increase complexity without proportional benefit." },
-          { question: "What is the typical water savings from VRI compared to uniform irrigation?", options: ["1-5%", "15-30%", "50-70%", "90%+"], answerIndex: 1, explanation: "VRI typically saves 15-30% water by applying more to dry zones and less to wet zones compared to uniform application." }
+          { question: "How many management zones per field is practical for VRI?", options: ["1-2", "3-8", "20-50", "100+"], answerIndex: 1 },
+          { question: "What is the typical water savings from VRI compared to uniform irrigation?", options: ["1-5%", "15-30%", "50-70%", "90%+"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     },
@@ -88,8 +97,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "paragraph", text: "Fertigation Optimization: AI-controlled fertigation injects nutrients based on real-time soil sensor data, crop growth stage, and nutrient uptake models. Saves 20-40% fertilizer compared to calendar-based applications while improving nutrient use efficiency." },
         { type: "video", caption: "Watch: AI Water Quality Monitoring — Using sensors and machine learning to ensure irrigation water quality and optimize fertigation programs.", url: "https://example.com/smart-irrigation/water-quality" },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is the optimal pH range for most crops?", options: ["3.0-4.0", "5.5-7.0", "8.0-9.0", "10.0-12.0"], answerIndex: 1, explanation: "Most crops thrive in slightly acidic to neutral soil (pH 5.5-7.0), which optimizes nutrient availability." },
-          { question: "How much fertilizer can AI-controlled fertigation save compared to calendar-based methods?", options: ["1-5%", "10-15%", "20-40%", "50-70%"], answerIndex: 2, explanation: "AI fertigation delivers nutrients precisely when and where crops need them, reducing waste by 20-40% compared to fixed-schedule applications." }
+          { question: "What is the optimal pH range for most crops?", options: ["3.0-4.0", "5.5-7.0", "8.0-9.0", "10.0-12.0"], answerIndex: 1 },
+          { question: "How much fertilizer can AI-controlled fertigation save compared to calendar-based methods?", options: ["1-5%", "10-15%", "20-40%", "50-70%"], answerIndex: 2 }
         ], passPercent: 70 }
       ]
     },
@@ -105,8 +114,8 @@ export const extraCourse59: ExtraCourse = {
         { type: "video", caption: "Watch: Building a Complete Smart Irrigation System — End-to-end integration from sensors through AI to automated water application with conservation strategies.", url: "https://example.com/smart-irrigation/system-integration" },
         { type: "paragraph", text: "Global Impact: If smart irrigation were adopted on 30% of irrigated farmland globally, it would save approximately 48 billion cubic meters of water annually—enough to supply 1.8 billion people with drinking water." },
         { type: "quiz", title: "Module Quiz", questions: [
-          { question: "What is Regulated Deficit Irrigation (RDI)?", options: ["Irrigating at maximum capacity at all times", "Reducing water during non-critical growth periods while maintaining full irrigation during critical stages", "Never irrigating", "Only irrigating during droughts"], answerIndex: 1, explanation: "RDI strategically reduces water during non-critical periods, saving 20-40% water with minimal yield impact while maintaining full irrigation during the most sensitive growth stages." },
-          { question: "What enables closed-loop automation in smart irrigation?", options: ["Manual farmer input", "The feedback loop of apply → measure → adjust → optimize", "Fixed timer schedules", "Weather almanacs"], answerIndex: 1, explanation: "Closed-loop automation continuously monitors soil moisture response to irrigation and adjusts future applications, creating a self-correcting system." }
+          { question: "What is Regulated Deficit Irrigation (RDI)?", options: ["Irrigating at maximum capacity at all times", "Reducing water during non-critical growth periods while maintaining full irrigation during critical stages", "Never irrigating", "Only irrigating during droughts"], answerIndex: 1 },
+          { question: "What enables closed-loop automation in smart irrigation?", options: ["Manual farmer input", "The feedback loop of apply → measure → adjust → optimize", "Fixed timer schedules", "Weather almanacs"], answerIndex: 1 }
         ], passPercent: 70 }
       ]
     }

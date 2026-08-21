@@ -85,7 +85,7 @@ export default function CaseStudies() {
           </div>
         ) : (
           <div className="space-y-6">
-            {categories.map((cat) => (
+            {(categories as any[]).map((cat: any) => (
               <div key={cat}>
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{cat}</h2>
                 <div className="space-y-3">
@@ -108,8 +108,8 @@ export default function CaseStudies() {
                             </div>
                           </div>
                           {attempt ? (
-                            <span className={`text-[10px] font-mono px-2 py-0.5 ${attempt.passed ? "bg-term-green/10 text-term-green" : "bg-term-amber/10 text-term-amber"}`}>
-                              {attempt.passed ? "PASSED" : `${attempt.score}%`}
+                            <span className={`text-[10px] font-mono px-2 py-0.5 ${(attempt as any).passed ? "bg-term-green/10 text-term-green" : "bg-term-amber/10 text-term-amber"}`}>
+                              {(attempt as any).passed ? "PASSED" : `${(attempt as any).score}%`}
                             </span>
                           ) : (
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />

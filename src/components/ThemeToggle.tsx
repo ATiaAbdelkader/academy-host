@@ -2,7 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 /**
- * Dark Terminal Mode toggle.
+ * Dark / Light Mode toggle.
  * Toggles the `.dark` class on the document root element.
  * Persists the user's preference in localStorage.
  */
@@ -40,7 +40,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="flex size-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-term-green/50 hover:text-foreground"
+      className="flex size-8 items-center justify-center rounded-xl border border-border/40 text-muted-foreground transition-all hover:border-agri-green/40 hover:bg-accent hover:text-foreground"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >

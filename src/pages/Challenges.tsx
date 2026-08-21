@@ -32,7 +32,7 @@ export default function Challenges() {
         ) : (
           <div className="space-y-4">
             {challenges.map((challenge) => {
-              const prog = progressMap.get(challenge._id);
+              const prog: any = progressMap.get(challenge._id);
               const pct = prog ? Math.min(100, (prog.progress / challenge.targetValue) * 100) : 0;
               return (
                 <div key={challenge._id} className="border border-border rounded-lg p-6 bg-card">

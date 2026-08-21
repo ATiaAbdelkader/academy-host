@@ -58,7 +58,7 @@ async function recordFurthestModule(
 ) {
   const existing = await ctx.db
     .query("progress")
-    .withIndex("by_user_course", (q) =>
+    .withIndex("by_user_course", (q: any) =>
       q.eq("userId", userId).eq("courseId", courseId),
     )
     .first();
@@ -111,7 +111,7 @@ export const submitQuiz = mutation({
     if (quizIndex > 0) {
       const attempts = await ctx.db
         .query("quizAttempts")
-        .withIndex("by_user_course", (q) =>
+        .withIndex("by_user_course", (q: any) =>
           q.eq("userId", userId).eq("courseId", courseId),
         )
         .collect();
@@ -162,7 +162,7 @@ export const submitQuiz = mutation({
     if (passed) {
       const priorPass = await ctx.db
         .query("quizAttempts")
-        .withIndex("by_user_course", (q) =>
+        .withIndex("by_user_course", (q: any) =>
           q.eq("userId", userId).eq("courseId", courseId),
         )
         .filter((q) =>
@@ -400,7 +400,7 @@ export const gradeOpenAnswer = mutation({
     if (passed) {
       const priorPass = await ctx.db
         .query("quizAttempts")
-        .withIndex("by_user_course", (q) =>
+        .withIndex("by_user_course", (q: any) =>
           q.eq("userId", attempt.userId).eq("courseId", attempt.courseId),
         )
         .filter((q) =>
@@ -522,7 +522,7 @@ export const myQuizResults = query({
     }
     const attempts = await ctx.db
       .query("quizAttempts")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId),
       )
       .order("desc")

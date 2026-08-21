@@ -43,7 +43,7 @@ export const updateCompetency = mutation({
   handler: async (ctx, { userId, competencyId, score }) => {
     const existing = await ctx.db
       .query("userCompetencies")
-      .withIndex("by_user_competency", (q) =>
+      .withIndex("by_user_competency", (q: any) =>
         q.eq("userId", userId).eq("competencyId", competencyId)
       )
       .first();

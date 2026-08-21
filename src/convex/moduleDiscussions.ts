@@ -6,7 +6,7 @@ export const listByModule = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("moduleDiscussions")
-      .withIndex("by_course_module", (q) =>
+      .withIndex("by_course_module", (q: any) =>
         q.eq("courseId", args.courseId).eq("moduleIndex", args.moduleIndex)
       )
       .collect();

@@ -150,7 +150,7 @@ export default function VirtualLabs() {
           </div>
         ) : (
           <div className="space-y-6">
-            {categories.map((cat) => (
+            {(categories as any[]).map((cat: any) => (
               <div key={cat}>
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{cat}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

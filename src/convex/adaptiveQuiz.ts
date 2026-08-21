@@ -12,7 +12,7 @@ export const getAdaptiveQuestions = query({
     // Get student's past attempts for this quiz
     const attempts = await ctx.db
       .query("quizAttempts")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId)
       )
       .collect();
@@ -74,7 +74,7 @@ export const recordAttempt = mutation({
     // Update progress
     const existing = await ctx.db
       .query("progress")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId)
       )
       .first();
@@ -112,7 +112,7 @@ export const getMasteryStatus = query({
   handler: async (ctx, { courseId, moduleIndex, userId }) => {
     const attempts = await ctx.db
       .query("quizAttempts")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId)
       )
       .collect();

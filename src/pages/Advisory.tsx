@@ -137,11 +137,11 @@ export default function Advisory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(cropCalendar).map(([crop, info]) => (
+                  {Object.entries(cropCalendar).map(([crop, info]: [string, any]) => (
                     <tr key={crop} className="border-t border-border/50">
                       <td className="p-2 font-bold capitalize">{crop}</td>
-                      <td className="p-2">{info.plantMonths.map((m) => MONTHS[m]?.slice(0, 3)).join(", ")}</td>
-                      <td className="p-2">{info.harvestMonths.map((m) => MONTHS[m]?.slice(0, 3)).join(", ")}</td>
+                      <td className="p-2">{info.plantMonths?.map((m: any) => MONTHS[m]?.slice(0, 3)).join(", ")}</td>
+                      <td className="p-2">{info.harvestMonths?.map((m: any) => MONTHS[m]?.slice(0, 3)).join(", ")}</td>
                       <td className="p-2">{info.daysToHarvest}d</td>
                       <td className="p-2">{info.waterNeeds}</td>
                     </tr>

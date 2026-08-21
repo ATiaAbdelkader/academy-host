@@ -37,7 +37,7 @@ export const requestBuddy = mutation({
 
     // Find a waiting buddy group (single member)
     const allGroups = await ctx.db.query("studyGroups").collect();
-    const waitingGroups = [];
+    const waitingGroups: any[] = [];
 
     for (const group of allGroups) {
       if (group.memberCount === 1 && group.tags.includes("buddy") && group.creatorId !== userId) {
@@ -102,7 +102,7 @@ export const myBuddies = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    const buddyPairs = [];
+    const buddyPairs: any[] = [];
 
     for (const membership of myMemberships) {
       const group = await ctx.db.get(membership.groupId);

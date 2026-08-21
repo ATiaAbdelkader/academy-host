@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
@@ -7,12 +8,15 @@ import {
   ChevronRight,
   Leaf,
   Sprout,
+  Zap,
   Sun,
   Droplets,
   Award,
   Users,
   TrendingUp,
   TreePine,
+  Menu,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
@@ -33,10 +37,36 @@ const item = {
   transition: { duration: 0.4, ease: "easeOut" as const },
 };
 
+function MobileLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="block rounded px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+  return (
+    <div className="border-b border-border bg-background px-4 pb-4 pt-2 md:hidden">
+      <MobileLink to="/courses" onClick={onClose}>./catalog</MobileLink>
+      <MobileLink to="/instructors" onClick={onClose}>./instructors</MobileLink>
+      <MobileLink to="#features" onClick={onClose}>./features</MobileLink>
+      <MobileLink to="#how" onClick={onClose}>./how-it-works</MobileLink>
+      <MobileLink to="#testimonials" onClick={onClose}>./testimonials</MobileLink>
+      <MobileLink to="#faq" onClick={onClose}>./faq</MobileLink>
+    </div>
+  );
+}
+
 function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <span className="flex size-7 items-center justify-center bg-term-green">
+      <span className="flex size-7 items-center justify-center bg-term-green shadow-md glow-pulse">
         <Leaf className="size-4 text-white" />
       </span>
       <span className="text-sm font-bold tracking-tight">
@@ -58,16 +88,16 @@ function FeatureCard({
   description: string;
   accent?: "green" | "amber";
 }) {
+  const iconBorder = accent === "green"
+    ? "border-term-green/30 bg-term-green/10 text-term-green"
+    : "border-term-amber/30 bg-term-amber/10 text-term-amber";
   return (
-    <div className="group border border-border bg-card p-5 transition-all hover:border-term-green/40 hover:shadow-[4px_4px_0_0_color-mix(in_oklch,var(--term-green)_10%,transparent)]">
+    <div className="group relative overflow-hidden border border-border bg-card p-7 transition-all hover:border-term-green/40 hover:shadow-[4px_4px_0_0_color-mix(in_oklch,var(--term-green)_10%,transparent)]">
+      <div className="pointer-events-none absolute -top-12 -right-12 size-32 rounded-full bg-agri-green/5 blur-2xl transition-all group-hover:bg-agri-green/10" />
       <div
-        className={`mb-3 inline-flex items-center justify-center size-9 border ${
-          accent === "green"
-            ? "border-term-green/30 bg-term-green/10 text-term-green"
-            : "border-term-amber/30 bg-term-amber/10 text-term-amber"
-        }`}
+        className={`mb-3 inline-flex items-center justify-center size-9 rounded-2xl border ${iconBorder}`}
       >
-        <Icon className="size-4.5" />
+        <Icon className="size-5" />
       </div>
       <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
       <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
@@ -83,16 +113,24 @@ export default function Landing() {
   const categories = Array.from(
     new Map(published.map((c) => [c.category, c.category])).values(),
   );
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const totalMinutes =
     published.reduce((sum, c) => sum + c.durationMinutes, 0) ?? 0;
   const catalogRows = published.slice(0, 5);
   const featuredCategories = categories.slice(0, 6);
 
+  const statsData = [
+    { icon: BookOpen, value: published.length, label: "courses live", color: "green" as const },
+    { icon: TreePine, value: categories.length, label: "training tracks", color: "green" as const },
+    { icon: Sun, value: `${Math.floor(totalMinutes / 60)}h+`, label: "total content", color: "amber" as const },
+    { icon: Award, value: "100%", label: "certification", color: "green" as const },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/92 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-border glass-header">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
           <nav className="hidden items-center gap-1 text-xs text-muted-foreground md:flex">
@@ -134,32 +172,40 @@ export default function Landing() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="text-xs">
+            <button
+              className="inline-flex items-center justify-center rounded p-2 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground md:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+            <Button asChild variant="ghost" size="sm" className="hidden text-xs sm:inline-flex">
               <Link to="/auth">
                 <span className="text-term-green">$</span> sign_in
               </Link>
             </Button>
-            <Button asChild size="sm" className="text-xs gap-1.5">
+            <Button asChild size="sm" className="hidden text-xs gap-1.5 sm:inline-flex">
               <Link to="/courses">
                 browse catalog <ArrowRight className="size-3.5" />
               </Link>
             </Button>
           </div>
         </div>
+        <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-leaf-pattern">
+      <section className="relative overflow-hidden border-b border-border bg-leaf-pattern noise-bg">
         {/* decorative top bar */}
         <div className="h-1 bg-gradient-to-r from-term-green/20 via-term-green to-term-green/20" />
 
         <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-28">
           <motion.div {...fadeUp}>
             <div className="mb-4 inline-flex items-center gap-2 border border-term-green/30 bg-term-green/10 px-3 py-1.5 text-xs text-term-green">
-              <Sprout className="size-3.5" />
+              <Zap className="size-3.5" />
               <span>[ok] enrollment open — new season</span>
             </div>
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
               Grow your skills
               <br />
               from the
@@ -205,7 +251,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.15, ease: "easeOut" }}
-            className="border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]"
+            className="rounded-3xl glass-card border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]"
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
               <div className="flex items-center gap-2">
@@ -272,48 +318,26 @@ export default function Landing() {
       {/* ── Stats ───────────────────────────────────────────────── */}
       <section className="border-b border-border bg-soil-gradient">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-2 divide-x divide-border border-x border-border lg:grid-cols-4">
-          <div className="px-4 py-7 sm:px-6">
-            <div className="flex items-center gap-2">
-              <BookOpen className="size-4 text-term-green" />
-              <p className="text-2xl font-bold text-term-green">
-                {published.length}
+          {statsData.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="px-4 py-7 sm:px-6"
+            >
+              <div className="flex items-center gap-2">
+                <stat.icon className={`size-4 ${stat.color === "amber" ? "text-term-amber" : "text-term-green"}`} />
+                <p className={`text-2xl font-bold ${stat.color === "amber" ? "text-term-amber" : "text-term-green"}`}>
+                  {stat.value}
+                </p>
+              </div>
+              <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                {stat.label}
               </p>
-            </div>
-            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              courses live
-            </p>
-          </div>
-          <div className="px-4 py-7 sm:px-6">
-            <div className="flex items-center gap-2">
-              <TreePine className="size-4 text-term-green" />
-              <p className="text-2xl font-bold text-term-green">
-                {categories.length}
-              </p>
-            </div>
-            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              training tracks
-            </p>
-          </div>
-          <div className="px-4 py-7 sm:px-6">
-            <div className="flex items-center gap-2">
-              <Sun className="size-4 text-term-amber" />
-              <p className="text-2xl font-bold text-term-amber">
-                {Math.floor(totalMinutes / 60)}h+
-              </p>
-            </div>
-            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              total content
-            </p>
-          </div>
-          <div className="px-4 py-7 sm:px-6">
-            <div className="flex items-center gap-2">
-              <Award className="size-4 text-term-green" />
-              <p className="text-2xl font-bold text-term-green">100%</p>
-            </div>
-            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              certification
-            </p>
-          </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -534,16 +558,17 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="border border-border bg-card p-5 transition-all hover:border-term-green/40"
+                className="relative overflow-hidden border border-border bg-card p-5 transition-all hover:border-term-green/40"
               >
-                <div className="mb-3 flex items-center gap-3">
+                <span className="pointer-events-none absolute -right-2 -top-4 text-[5rem] font-black text-agri-green/[0.04] leading-none">{step.step}</span>
+                <div className="relative mb-3 flex items-center gap-3">
                   <span className="flex size-8 items-center justify-center border border-term-green/30 bg-term-green/10 font-mono text-xs font-bold text-term-green">
                     {step.step}
                   </span>
                   <step.icon className="size-4 text-term-green" />
                 </div>
-                <h3 className="text-sm font-semibold">{step.title}</h3>
-                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+                <h3 className="relative text-sm font-semibold">{step.title}</h3>
+                <p className="relative mt-1.5 text-xs leading-5 text-muted-foreground">
                   {step.body}
                 </p>
               </motion.div>
@@ -591,7 +616,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="flex flex-col border border-border bg-card"
+                className="flex flex-col overflow-hidden border border-border bg-card"
               >
                 <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2">
                   <span className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -661,7 +686,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="group border border-border bg-card open:border-term-green/40"
+                className="group rounded-2xl border border-border/40 bg-card open:border-term-green/40"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
                   <span className="flex items-center gap-3">
@@ -684,10 +709,11 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────── */}
-      <section className="border-b border-border">
+      <section className="noise-bg border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
-          <div className="border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+          <div className="relative overflow-hidden border border-border bg-card shadow-2xl">
+            <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-80 rounded-full bg-white/5 blur-3xl" />
+            <div className="relative flex items-center justify-between border-b border-border px-4 py-2.5">
               <div className="flex items-center gap-2">
                 <Leaf className="size-3.5 text-term-green" />
                 <span className="text-xs text-muted-foreground">
@@ -700,7 +726,7 @@ export default function Landing() {
                 <span className="size-2.5 rounded-full border border-border bg-muted" />
               </span>
             </div>
-            <div className="flex flex-col items-start gap-6 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <div className="relative flex flex-col items-start gap-6 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div>
                 <p className="text-sm">
                   <span className="text-term-green">$</span>{" "}
@@ -714,7 +740,7 @@ export default function Landing() {
                 </p>
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
-                <Button asChild className="gap-2 text-sm">
+                <Button asChild className="gap-2 bg-white text-agri-green font-semibold shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all text-sm">
                   <Link to="/courses">
                     explore courses <ArrowRight className="size-4" />
                   </Link>
@@ -769,7 +795,7 @@ export default function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
+          <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border/30 pt-6 text-xs text-muted-foreground sm:flex-row">
             <p>
               <span className="text-term-green">agriskills_academy</span> © 2026
               — agriculture training platform

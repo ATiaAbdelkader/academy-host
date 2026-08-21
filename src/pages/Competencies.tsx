@@ -47,12 +47,12 @@ export default function Competencies() {
           ))}
         </div>
 
-        {allComps && Object.entries(allComps).map(([category, comps]) => (
+        {allComps && Object.entries(allComps as any).map(([category, comps]: [string, any]) => (
           <div key={category} className="mb-6">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{category}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {comps.map((comp) => {
-                const userComp = compMap.get(comp._id);
+                const userComp: any = compMap.get(comp._id);
                 const level = userComp?.level ?? 0;
                 const score = userComp?.score ?? 0;
                 return (

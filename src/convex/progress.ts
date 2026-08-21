@@ -14,7 +14,7 @@ export const myProgress = query({
     }
     const entries = await ctx.db
       .query("progress")
-      .withIndex("by_user_course", (q) => q.eq("userId", userId))
+      .withIndex("by_user_course", (q: any) => q.eq("userId", userId))
       .collect();
     return Promise.all(
       entries.map(async (entry) => {
@@ -46,7 +46,7 @@ export const recordModule = mutation({
     }
     const existing = await ctx.db
       .query("progress")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId),
       )
       .first();
@@ -103,7 +103,7 @@ export const setStatus = mutation({
         if (quizzes.length > 0) {
           const attempts = await ctx.db
             .query("quizAttempts")
-            .withIndex("by_user_course", (q) =>
+            .withIndex("by_user_course", (q: any) =>
               q.eq("userId", userId).eq("courseId", courseId),
             )
             .collect();
@@ -120,7 +120,7 @@ export const setStatus = mutation({
     }
     const existing = await ctx.db
       .query("progress")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId),
       )
       .first();
@@ -177,7 +177,7 @@ export const setNote = mutation({
     }
     const existing = await ctx.db
       .query("progress")
-      .withIndex("by_user_course", (q) =>
+      .withIndex("by_user_course", (q: any) =>
         q.eq("userId", userId).eq("courseId", courseId),
       )
       .first();

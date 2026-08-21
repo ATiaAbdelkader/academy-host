@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Leaf, Loader2, Mail, UserX } from "lucide-react";
+import { ArrowRight, Leaf, Loader2, Mail, UserX, Sparkles } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
@@ -107,13 +107,18 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   return (
-    <div className="min-h-screen bg-leaf-pattern bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute -top-40 -right-40 size-96 rounded-full bg-agri-green/6 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 size-80 rounded-full bg-agri-amber/6 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[32rem] rounded-full bg-agri-leaf/4 blur-3xl" />
+
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4 sm:px-6">
+      <header className="relative z-10 border-b border-border/30">
+        <div className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between px-5 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5">
-            <span className="flex size-6 items-center justify-center bg-term-green">
-              <Leaf className="size-3.5 text-white" />
+            <span className="flex size-8 items-center justify-center rounded-lg bg-agri-green">
+              <Leaf className="size-4 text-white" />
             </span>
             <span className="text-sm font-semibold tracking-tight">
               AgriSkills
@@ -121,87 +126,86 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 Academy
               </span>
             </span>
-            <span className="hidden text-xs text-muted-foreground sm:inline">
-              ~/access
-            </span>
           </Link>
-          <span className="text-xs text-muted-foreground">
-            <span className="text-term-green">$</span> whoami
-          </span>
+          <Link
+            to="/"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Back to home
+          </Link>
         </div>
       </header>
 
-      {/* ── Auth terminal window ────────────────────────────────── */}
-      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-[420px] overflow-hidden rounded-none border border-border bg-card pb-0 shadow-[8px_8px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]">
-          {/* window title bar */}
-          <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
-            <div className="flex items-center gap-2">
-              <Leaf className="size-3.5 text-term-green" />
-              <span className="text-xs text-muted-foreground">
-                agriskills — access
-              </span>
-            </div>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full border border-border bg-muted" />
-              <span className="size-2.5 rounded-full border border-border bg-muted" />
-              <span className="size-2.5 rounded-full border border-border bg-muted" />
-            </span>
-          </div>
+      {/* ── Auth card ────────────────────────────────────────────── */}
+      <div className="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center px-5 py-16">
+        <div className="w-full max-w-[420px]">
+          <Card className="overflow-hidden rounded-3xl border border-border/40 bg-card/80 backdrop-blur-xl shadow-2xl shadow-black/[0.06]">
+            {/* gradient accent bar */}
+            <div className="h-1 w-full bg-gradient-to-r from-agri-green via-agri-leaf to-agri-amber" />
 
-          {step === "signIn" ? (
-            <>
-              <CardHeader className="text-left">
-                <p className="text-xs text-term-green">
-                  // students — email or guest
-                </p>
-                <CardTitle className="mt-1 text-xl font-bold tracking-tight">
-                  $ sign_in
-                </CardTitle>
-                <CardDescription className="text-sm">
-                  Sign in to browse courses, track your progress, and earn
-                  certificates. We&apos;ll send a one-time code to your email.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleEmailSubmit}>
-                <CardContent>
-                  <div className="relative flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-term-green" />
-                      <Input
-                        name="email"
-                        placeholder="name@example.com"
-                        type="email"
-                        className="pl-9 font-mono"
-                        disabled={isLoading}
-                        required
-                      />
+            {step === "signIn" ? (
+              <>
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-agri-green/10 shadow-sm">
+                    <Mail className="size-6 text-agri-green" />
+                  </div>
+                  <CardTitle className="text-xl font-bold tracking-tight">
+                    Sign in to your account
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    We&apos;ll send a one-time verification code to your email.
+                    No passwords needed.
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleEmailSubmit}>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="mb-1.5 block text-sm font-medium"
+                      >
+                        Email address
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          name="email"
+                          placeholder="name@example.com"
+                          type="email"
+                          className="h-11 rounded-xl border-border/40 pl-10 text-sm bg-background/50"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
                     </div>
+
                     <Button
                       type="submit"
-                      variant="outline"
-                      size="icon"
+                      className="h-11 w-full rounded-xl text-sm font-medium shadow-md hover:shadow-lg transition-shadow"
                       disabled={isLoading}
                     >
                       {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="mr-2 h-4 w-4" />
                       )}
+                      Continue with email
                     </Button>
-                  </div>
-                  {error && (
-                    <p className="mt-2 text-sm text-term-amber">{error}</p>
-                  )}
 
-                  <div className="mt-4">
+                    {error && (
+                      <p className="text-center text-sm text-agri-amber">
+                        {error}
+                      </p>
+                    )}
+
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                        <span className="w-full border-t border-border/40" />
                       </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                          Or
+                      <div className="relative flex justify-center text-sm">
+                        <span className="bg-card px-3 text-muted-foreground">
+                          or
                         </span>
                       </div>
                     </div>
@@ -209,119 +213,122 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     <Button
                       type="button"
                       variant="outline"
-                      className="mt-4 w-full font-mono text-sm"
+                      className="h-11 w-full rounded-xl text-sm font-medium"
                       onClick={handleGuestLogin}
                       disabled={isLoading}
                     >
-                      <UserX className="mr-2 h-4 w-4 text-term-green" />
-                      continue as guest
+                      <UserX className="mr-2 h-4 w-4 text-muted-foreground" />
+                      Continue as guest
                     </Button>
+                  </CardContent>
+                </form>
+              </>
+            ) : (
+              <>
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-agri-green/10 shadow-sm">
+                    <Sparkles className="size-6 text-agri-green" />
                   </div>
-                </CardContent>
-              </form>
-            </>
-          ) : (
-            <>
-              <CardHeader className="mt-4 text-left">
-                <p className="text-xs text-term-green">
-                  // code sent to {step.email}
-                </p>
-                <CardTitle className="mt-1 text-xl font-bold tracking-tight">
-                  $ verify_code
-                </CardTitle>
-                <CardDescription>
-                  We&apos;ve sent a one-time code to {step.email}
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleOtpSubmit}>
-                <CardContent className="pb-4">
-                  <input type="hidden" name="email" value={step.email} />
-                  <input type="hidden" name="code" value={otp} />
+                  <CardTitle className="text-xl font-bold tracking-tight">
+                    Verify your email
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    We&apos;ve sent a 6-digit code to{" "}
+                    <span className="font-medium text-foreground">
+                      {step.email}
+                    </span>
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleOtpSubmit}>
+                  <CardContent className="space-y-4">
+                    <input type="hidden" name="email" value={step.email} />
+                    <input type="hidden" name="code" value={otp} />
 
-                  <div className="flex justify-center">
-                    <InputOTP
-                      value={otp}
-                      onChange={setOtp}
-                      maxLength={6}
-                      disabled={isLoading}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && otp.length === 6 && !isLoading) {
-                          const form = (e.target as HTMLElement).closest(
-                            "form",
-                          );
-                          if (form) {
-                            form.requestSubmit();
+                    <div className="flex justify-center">
+                      <InputOTP
+                        value={otp}
+                        onChange={setOtp}
+                        maxLength={6}
+                        disabled={isLoading}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && otp.length === 6 && !isLoading) {
+                            const form = (e.target as HTMLElement).closest(
+                              "form",
+                            );
+                            if (form) {
+                              form.requestSubmit();
+                            }
                           }
-                        }
-                      }}
-                    >
-                      <InputOTPGroup>
-                        {Array.from({ length: 6 }).map((_, index) => (
-                          <InputOTPSlot key={index} index={index} />
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  {error && (
-                    <p className="mt-2 text-center text-sm text-term-amber">
-                      {error}
-                    </p>
-                  )}
-                  <p className="mt-4 text-center text-sm text-muted-foreground">
-                    Didn&apos;t receive a code?{" "}
-                    <Button
-                      variant="link"
-                      className="h-auto p-0 font-mono"
-                      onClick={() => setStep("signIn")}
-                    >
-                      try_again
-                    </Button>
-                  </p>
-                </CardContent>
-                <CardFooter className="flex-col gap-2">
-                  <Button
-                    type="submit"
-                    className="w-full font-mono"
-                    disabled={isLoading || otp.length !== 6}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        verifying…
-                      </>
-                    ) : (
-                      <>
-                        verify code
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </>
+                        }}
+                      >
+                        <InputOTPGroup>
+                          {Array.from({ length: 6 }).map((_, index) => (
+                            <InputOTPSlot key={index} index={index} />
+                          ))}
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+                    {error && (
+                      <p className="text-center text-sm text-agri-amber">
+                        {error}
+                      </p>
                     )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setStep("signIn")}
-                    disabled={isLoading}
-                    className="w-full font-mono"
-                  >
-                    use_different_email
-                  </Button>
-                </CardFooter>
-              </form>
-            </>
-          )}
+                    <p className="text-center text-sm text-muted-foreground">
+                      Didn&apos;t receive a code?{" "}
+                      <button
+                        type="button"
+                        className="font-medium text-agri-green hover:underline"
+                        onClick={() => setStep("signIn")}
+                      >
+                        Try again
+                      </button>
+                    </p>
+                  </CardContent>
+                  <CardFooter className="flex-col gap-2">
+                    <Button
+                      type="submit"
+                      className="h-11 w-full rounded-xl text-sm font-medium shadow-md hover:shadow-lg transition-shadow"
+                      disabled={isLoading || otp.length !== 6}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Verifying…
+                        </>
+                      ) : (
+                        <>
+                          Verify code
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setStep("signIn")}
+                      disabled={isLoading}
+                      className="w-full rounded-xl text-sm"
+                    >
+                      Use a different email
+                    </Button>
+                  </CardFooter>
+                </form>
+              </>
+            )}
 
-          <div className="border-t bg-muted px-6 py-3 text-center text-xs text-muted-foreground">
-            secured by{" "}
-            <a
-              href="https://freebuff.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline transition-colors hover:text-term-green"
-            >
-              freebuff.com
-            </a>
-          </div>
-        </Card>
+            <div className="border-t border-border/40 px-6 py-4 text-center text-xs text-muted-foreground">
+              Secured by{" "}
+              <a
+                href="https://freebuff.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-agri-green transition-colors hover:underline"
+              >
+                freebuff.com
+              </a>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

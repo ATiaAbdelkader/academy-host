@@ -60,7 +60,7 @@ export default function InstructorAnalytics() {
             <h2 className="font-bold text-sm uppercase tracking-wider">Category Breakdown</h2>
           </div>
           <div className="divide-y divide-gray-100">
-            {categoryStats.map((cat) => (
+            {categoryStats.map((cat: any) => (
               <div key={cat.category} className="px-4 py-3 flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm">{cat.category}</div>

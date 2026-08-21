@@ -17,7 +17,7 @@ export const myProgress = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("challengeParticipations")
-      .withIndex("by_user_challenge", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user_challenge", (q: any) => q.eq("userId", args.userId))
       .collect();
   },
 });
@@ -27,7 +27,7 @@ export const join = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("challengeParticipations")
-      .withIndex("by_user_challenge", (q) =>
+      .withIndex("by_user_challenge", (q: any) =>
         q.eq("userId", args.userId).eq("challengeId", args.challengeId)
       )
       .first();
@@ -53,7 +53,7 @@ export const updateProgress = mutation({
   handler: async (ctx, args) => {
     const participation = await ctx.db
       .query("challengeParticipations")
-      .withIndex("by_user_challenge", (q) =>
+      .withIndex("by_user_challenge", (q: any) =>
         q.eq("userId", args.userId).eq("challengeId", args.challengeId)
       )
       .first();

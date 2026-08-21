@@ -97,7 +97,7 @@ export const dueCards = query({
     const now = Date.now();
     const cards = await ctx.db
       .query("reviewCards")
-      .withIndex("by_user_due", (q) =>
+      .withIndex("by_user_due", (q: any) =>
         q.eq("userId", userId).lte("due", now)
       )
       .collect();
@@ -124,7 +124,7 @@ export const myStats = query({
     }
     const allCards = await ctx.db
       .query("reviewCards")
-      .withIndex("by_user_due", (q) => q.eq("userId", userId))
+      .withIndex("by_user_due", (q: any) => q.eq("userId", userId))
       .collect();
 
     const now = Date.now();
@@ -153,7 +153,7 @@ export const byCourse = query({
     }
     const allCards = await ctx.db
       .query("reviewCards")
-      .withIndex("by_user_due", (q) => q.eq("userId", userId))
+      .withIndex("by_user_due", (q: any) => q.eq("userId", userId))
       .collect();
 
     const courseMap = new Map<string, {
@@ -334,7 +334,7 @@ export const deleteCourseCards = mutation({
     if (!userId) throw new Error("Sign in.");
     const cards = await ctx.db
       .query("reviewCards")
-      .withIndex("by_user_due", (q) => q.eq("userId", userId))
+      .withIndex("by_user_due", (q: any) => q.eq("userId", userId))
       .collect();
     const courseCards = cards.filter((c) => c.courseId === courseId);
     for (const card of courseCards) {

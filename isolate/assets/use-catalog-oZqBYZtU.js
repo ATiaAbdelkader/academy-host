@@ -1,0 +1,1 @@
+import{a as n,b as s,e as a}from"./index-DveCaH_8.js";import{r as c}from"./react-vendor-KgAAZzzj.js";function p(){const e=n(s.courses.list),t=a(s.courses.seed),r=a(s.bundles.seed),o=c.useRef(!1);return c.useEffect(()=>{e!==void 0&&!o.current&&(o.current=!0,(async()=>{let u=0;for(;!(await t({batch:u})).done;)u++})(),r())},[e,t,r]),e}export{p as u};

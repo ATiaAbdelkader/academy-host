@@ -15,22 +15,12 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
+import { ArrowRight, Leaf, Loader2, Mail, UserX } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
 interface AuthProps {
   redirectAfterAuth?: string;
-}
-
-function WindowDots() {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-    </span>
-  );
 }
 
 function resolveRedirectAfterAuth(
@@ -117,12 +107,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   return (
-    <div className="min-h-screen bg-grid-faint bg-background text-foreground">
+    <div className="min-h-screen bg-leaf-pattern bg-background text-foreground">
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="border-b border-border">
         <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5">
-            <span className="inline-block size-3.5 bg-term-green" />
+            <span className="flex size-6 items-center justify-center bg-term-green">
+              <Leaf className="size-3.5 text-white" />
+            </span>
             <span className="text-sm font-semibold tracking-tight">
               AgriSkills
               <span className="ml-1 font-normal text-muted-foreground">
@@ -141,27 +133,34 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
 
       {/* ── Auth terminal window ────────────────────────────────── */}
       <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-[400px] overflow-hidden rounded-none border border-border bg-card pb-0 shadow-[8px_8px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]">
+        <Card className="w-full max-w-[420px] overflow-hidden rounded-none border border-border bg-card pb-0 shadow-[8px_8px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]">
           {/* window title bar */}
           <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
-            <span className="text-xs text-muted-foreground">
-              agriskills — access
+            <div className="flex items-center gap-2">
+              <Leaf className="size-3.5 text-term-green" />
+              <span className="text-xs text-muted-foreground">
+                agriskills — access
+              </span>
+            </div>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full border border-border bg-muted" />
+              <span className="size-2.5 rounded-full border border-border bg-muted" />
+              <span className="size-2.5 rounded-full border border-border bg-muted" />
             </span>
-            <WindowDots />
           </div>
 
           {step === "signIn" ? (
             <>
               <CardHeader className="text-left">
                 <p className="text-xs text-term-green">
-                  // customers — email or guest
+                  // students — email or guest
                 </p>
                 <CardTitle className="mt-1 text-xl font-bold tracking-tight">
                   $ sign_in
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Sign in to browse the catalog, book sessions, and manage your
-                  training. We&apos;ll send a one-time code to your email.
+                  Sign in to browse courses, track your progress, and earn
+                  certificates. We&apos;ll send a one-time code to your email.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleEmailSubmit}>
@@ -247,7 +246,6 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       disabled={isLoading}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && otp.length === 6 && !isLoading) {
-                          // Find the closest form and submit it
                           const form = (e.target as HTMLElement).closest(
                             "form",
                           );

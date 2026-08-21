@@ -1,38 +1,79 @@
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronRight,
+  Leaf,
+  Sprout,
+  Sun,
+  Droplets,
+  Award,
+  Users,
+  TrendingUp,
+  TreePine,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
 
 const fadeUp = {
-  initial: { opacity: 0, y: 12 },
+  initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, ease: "easeOut" as const },
+  transition: { duration: 0.5, ease: "easeOut" as const },
 };
 
-function WindowDots() {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-      <span className="size-2.5 rounded-full border border-border bg-muted" />
-    </span>
-  );
-}
+const stagger = {
+  animate: { transition: { staggerChildren: 0.08 } },
+};
+
+const item = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: "easeOut" as const },
+};
 
 function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <span className="inline-block size-3.5 bg-term-green" />
-      <span className="text-sm font-semibold tracking-tight">
+      <span className="flex size-7 items-center justify-center bg-term-green">
+        <Leaf className="size-4 text-white" />
+      </span>
+      <span className="text-sm font-bold tracking-tight">
         AgriSkills
         <span className="ml-1 font-normal text-muted-foreground">Academy</span>
       </span>
-      <span className="hidden text-xs text-muted-foreground sm:inline">
-        v1.0
-      </span>
     </Link>
+  );
+}
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  accent = "green",
+}: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  accent?: "green" | "amber";
+}) {
+  return (
+    <div className="group border border-border bg-card p-5 transition-all hover:border-term-green/40 hover:shadow-[4px_4px_0_0_color-mix(in_oklch,var(--term-green)_10%,transparent)]">
+      <div
+        className={`mb-3 inline-flex items-center justify-center size-9 border ${
+          accent === "green"
+            ? "border-term-green/30 bg-term-green/10 text-term-green"
+            : "border-term-amber/30 bg-term-amber/10 text-term-amber"
+        }`}
+      >
+        <Icon className="size-4.5" />
+      </div>
+      <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
+      <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+        {description}
+      </p>
+    </div>
   );
 }
 
@@ -45,43 +86,50 @@ export default function Landing() {
 
   const totalMinutes =
     published.reduce((sum, c) => sum + c.durationMinutes, 0) ?? 0;
-  const catalogRows = published.slice(0, 4);
+  const catalogRows = published.slice(0, 5);
+  const featuredCategories = categories.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/92 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
-          <nav className="hidden items-center gap-6 text-xs text-muted-foreground md:flex">
+          <nav className="hidden items-center gap-1 text-xs text-muted-foreground md:flex">
             <Link
               to="/courses"
-              className="transition-colors hover:text-foreground"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
               ./catalog
             </Link>
             <Link
               to="/instructors"
-              className="transition-colors hover:text-foreground"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
               ./instructors
             </Link>
-            <a href="#how" className="transition-colors hover:text-foreground">
+            <a
+              href="#features"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
+            >
+              ./features
+            </a>
+            <a
+              href="#how"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
+            >
               ./how-it-works
             </a>
             <a
-              href="#access"
-              className="transition-colors hover:text-foreground"
+              href="#testimonials"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
-              ./access
+              ./testimonials
             </a>
             <a
-              href="#field-notes"
-              className="transition-colors hover:text-foreground"
+              href="#faq"
+              className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
-              ./field-notes
-            </a>
-            <a href="#faq" className="transition-colors hover:text-foreground">
               ./faq
             </a>
           </nav>
@@ -91,7 +139,7 @@ export default function Landing() {
                 <span className="text-term-green">$</span> sign_in
               </Link>
             </Button>
-            <Button asChild size="sm" className="text-xs">
+            <Button asChild size="sm" className="text-xs gap-1.5">
               <Link to="/courses">
                 browse catalog <ArrowRight className="size-3.5" />
               </Link>
@@ -101,83 +149,97 @@ export default function Landing() {
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────── */}
-      <section className="bg-grid-faint relative overflow-hidden border-b border-border">
-        <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
+      <section className="relative overflow-hidden border-b border-border bg-leaf-pattern">
+        {/* decorative top bar */}
+        <div className="h-1 bg-gradient-to-r from-term-green/20 via-term-green to-term-green/20" />
+
+        <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-28">
           <motion.div {...fadeUp}>
-            <p className="flex items-center gap-2 text-xs text-term-green">
-              <span className="inline-block size-2 rounded-full bg-term-green-bright" />
-              [ok] academy online — customer training open for enrollment
-            </p>
-            <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-              Training for the people
+            <div className="mb-4 inline-flex items-center gap-2 border border-term-green/30 bg-term-green/10 px-3 py-1.5 text-xs text-term-green">
+              <Sprout className="size-3.5" />
+              <span>[ok] enrollment open — new season</span>
+            </div>
+            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+              Grow your skills
               <br />
-              who run your
+              from the
               <br />
-              <span className="text-term-green">operation.</span>
+              <span className="text-term-green">ground up.</span>
             </h1>
             <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground">
-              AgriSkills Academy is the customer training program behind our
-              products and services. A structured catalog of practical courses,
-              live instructor sessions, and a booking flow built for working
-              operations — not classrooms.
+              AgriSkills Academy is a hands-on training platform for agriculture
+              professionals. Practical courses on modern farming, AI-powered
+              crop management, irrigation systems, and sustainable practices —
+              built for people who work the land.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="gap-2 text-sm">
                 <Link to="/courses">
-                  browse catalog <ArrowRight className="size-4" />
+                  explore courses <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-sm">
                 <Link to="/auth?returnTo=/courses">
-                  <span className="text-term-green">$</span> create account
+                  <span className="text-term-green">$</span> start learning
                 </Link>
               </Button>
             </div>
-            <p className="mt-6 text-xs text-muted-foreground">
-              // customer access — sign in with email or continue as a guest
-            </p>
+            <div className="mt-8 flex items-center gap-6 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block size-1.5 rounded-full bg-term-green" />
+                {published.length}+ courses
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block size-1.5 rounded-full bg-term-green" />
+                {categories.length} training tracks
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block size-1.5 rounded-full bg-term-amber" />
+                certificate on completion
+              </span>
+            </div>
           </motion.div>
 
-          {/* terminal mockup */}
+          {/* Terminal course preview */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+            transition={{ duration: 0.55, delay: 0.15, ease: "easeOut" }}
             className="border border-border bg-card shadow-[6px_6px_0_0_color-mix(in_oklch,var(--term-green)_12%,transparent)]"
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-              <span className="text-xs text-muted-foreground">
-                agriskills — customer session
+              <div className="flex items-center gap-2">
+                <Leaf className="size-3.5 text-term-green" />
+                <span className="text-xs text-muted-foreground">
+                  agriskills — course catalog
+                </span>
+              </div>
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
               </span>
-              <WindowDots />
             </div>
             <div className="space-y-2.5 px-4 py-5 text-[13px] leading-5">
               <p>
                 <span className="text-term-green">$</span>{" "}
                 <span className="text-foreground">
-                  agriskills init --customer
+                  agriskills catalog ls --featured
                 </span>
               </p>
               <p className="text-term-green">
-                [ok] account ready · welcome back
-              </p>
-              <p>
-                <span className="text-term-green">$</span>{" "}
-                <span className="text-foreground">
-                  agriskills catalog ls --published
-                </span>
+                [ok] {published.length} courses live · {categories.length} tracks
               </p>
               <div className="border border-border">
-                <div className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 border-b border-border bg-muted px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <span>code</span>
+                <div className="grid grid-cols-[2rem_1fr_auto] gap-x-3 border-b border-border bg-muted px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <span>#</span>
                   <span>title</span>
                   <span className="text-right">time</span>
-                  <span className="w-12 text-right">price</span>
                 </div>
                 {catalogRows.map((course) => (
                   <div
                     key={course._id}
-                    className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 border-b border-border px-3 py-1.5 last:border-b-0"
+                    className="grid grid-cols-[2rem_1fr_auto] gap-x-3 border-b border-border px-3 py-1.5 last:border-b-0"
                   >
                     <span className="text-term-green">
                       {String(course.order).padStart(2, "0")}
@@ -186,27 +248,17 @@ export default function Landing() {
                     <span className="text-right text-muted-foreground">
                       {course.durationMinutes}m
                     </span>
-                    <span className="w-12 text-right text-muted-foreground">
-                      {formatMoney(course.priceCents)}
-                    </span>
                   </div>
                 ))}
               </div>
               <p>
                 <span className="text-term-green">$</span>{" "}
                 <span className="text-foreground">
-                  agriskills book --next-session
+                  agriskills enroll --season=2026
                 </span>
               </p>
               <p className="text-term-green">
-                [ok] session found · seats available
-              </p>
-              <p>
-                <span className="text-term-green">$</span>{" "}
-                <span className="text-foreground">agriskills pay --secure</span>
-              </p>
-              <p className="text-term-green">
-                [ok] checkout complete · booking confirmed
+                [ok] enrollment open · welcome aboard
               </p>
               <p>
                 <span className="text-term-green">$</span>{" "}
@@ -218,69 +270,156 @@ export default function Landing() {
       </section>
 
       {/* ── Stats ───────────────────────────────────────────────── */}
-      <section className="border-b border-border">
+      <section className="border-b border-border bg-soil-gradient">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-2 divide-x divide-border border-x border-border lg:grid-cols-4">
-          <div className="px-4 py-6 sm:px-6">
-            <p className="text-2xl font-bold text-term-green">
-              {published.length}
-            </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <div className="px-4 py-7 sm:px-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="size-4 text-term-green" />
+              <p className="text-2xl font-bold text-term-green">
+                {published.length}
+              </p>
+            </div>
+            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
               courses live
             </p>
           </div>
-          <div className="px-4 py-6 sm:px-6">
-            <p className="text-2xl font-bold text-term-green">
-              {categories.length}
-            </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <div className="px-4 py-7 sm:px-6">
+            <div className="flex items-center gap-2">
+              <TreePine className="size-4 text-term-green" />
+              <p className="text-2xl font-bold text-term-green">
+                {categories.length}
+              </p>
+            </div>
+            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
               training tracks
             </p>
           </div>
-          <div className="px-4 py-6 sm:px-6">
-            <p className="text-2xl font-bold text-term-green">
-              {totalMinutes} min
-            </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-              total course load
+          <div className="px-4 py-7 sm:px-6">
+            <div className="flex items-center gap-2">
+              <Sun className="size-4 text-term-amber" />
+              <p className="text-2xl font-bold text-term-amber">
+                {Math.floor(totalMinutes / 60)}h+
+              </p>
+            </div>
+            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+              total content
             </p>
           </div>
-          <div className="px-4 py-6 sm:px-6">
-            <p className="text-2xl font-bold text-term-green">1 day</p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-              support response
+          <div className="px-4 py-7 sm:px-6">
+            <div className="flex items-center gap-2">
+              <Award className="size-4 text-term-green" />
+              <p className="text-2xl font-bold text-term-green">100%</p>
+            </div>
+            <p className="mt-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+              certification
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Catalog ─────────────────────────────────────────────── */}
-      <section id="catalog" className="border-b border-border">
+      {/* ── Features ────────────────────────────────────────────── */}
+      <section id="features" className="border-b border-border">
+        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+          <div className="text-center">
+            <p className="text-xs text-term-green">// why-agriskills</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+              Everything you need to master modern agriculture.
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
+              From foundational soil science to AI-powered precision farming —
+              our platform covers the full spectrum of agricultural knowledge.
+            </p>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-60px" }}
+            className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={Sprout}
+                title="Practical Farming Courses"
+                description="Hands-on training in crop management, soil health, irrigation, and sustainable farming techniques built for real-world application."
+                accent="green"
+              />
+            </motion.div>
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={Leaf}
+                title="AI & Precision Agriculture"
+                description="Master AI-powered crop monitoring, drone-based pest detection, yield prediction models, and smart farm automation systems."
+                accent="green"
+              />
+            </motion.div>
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={Droplets}
+                title="Water & Irrigation Systems"
+                description="Design and manage efficient water harvesting, drip irrigation, and moisture monitoring systems for any climate."
+                accent="green"
+              />
+            </motion.div>
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={Award}
+                title="Earn Certificates"
+                description="Complete a course and earn a verified certificate. Share it with employers or add it to your agricultural professional portfolio."
+                accent="amber"
+              />
+            </motion.div>
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={Users}
+                title="Live Instructor Sessions"
+                description="Book live training sessions with expert agricultural instructors. Ask questions, get feedback, and learn from working professionals."
+                accent="green"
+              />
+            </motion.div>
+            <motion.div variants={item}>
+              <FeatureCard
+                icon={TrendingUp}
+                title="Track Your Progress"
+                description="Monitor your learning journey with analytics, flashcards, study plans, and a competency passport that grows with you."
+                accent="amber"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Training Tracks ─────────────────────────────────────── */}
+      <section id="catalog" className="border-b border-border bg-soil-gradient">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs text-term-green">// catalog</p>
+              <p className="text-xs text-term-green">// training tracks</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-                {published.length} courses. {categories.length} tracks. One
-                standard.
+                {published.length} courses across {categories.length}{" "}
+                specialized tracks.
               </h2>
             </div>
             <p className="text-xs text-muted-foreground">
-              total load ≈ {totalMinutes} min · follow each track top to bottom
+              total content ≈ {Math.floor(totalMinutes / 60)}h · follow each
+              track top to bottom
             </p>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-2">
-            {categories.map((category, i) => {
+            {featuredCategories.map((category, i) => {
               const categoryCourses = published.filter(
                 (c) => c.category === category,
               );
               return (
                 <div
                   key={category}
-                  className="border border-border bg-card transition-colors hover:border-term-green/50"
+                  className="border border-border bg-card transition-all hover:border-term-green/40 hover:shadow-[3px_3px_0_0_color-mix(in_oklch,var(--term-green)_8%,transparent)]"
                 >
                   <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
-                    <span className="text-xs font-semibold">
+                    <span className="flex items-center gap-2 text-xs font-semibold">
+                      <Sprout className="size-3.5 text-term-green" />
                       track/{String(i + 1).padStart(2, "0")} — {category}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
@@ -288,12 +427,12 @@ export default function Landing() {
                       {categoryCourses.length === 1 ? "course" : "courses"}
                     </span>
                   </div>
-                  <div className="p-2">
-                    {categoryCourses.map((course, idx) => (
+                  <div className="p-1.5">
+                    {categoryCourses.slice(0, 3).map((course, idx) => (
                       <Link
                         key={course._id}
                         to={`/courses/${course.slug}`}
-                        className="group flex items-start gap-3 px-2 py-2.5 transition-colors hover:bg-accent/60"
+                        className="group flex items-start gap-3 rounded px-2.5 py-2.5 transition-colors hover:bg-accent/60"
                       >
                         <span className="mt-0.5 text-[11px] text-muted-foreground">
                           [{String(idx + 1).padStart(2, "0")}]
@@ -315,6 +454,15 @@ export default function Landing() {
                         </span>
                       </Link>
                     ))}
+                    {categoryCourses.length > 3 && (
+                      <Link
+                        to="/courses"
+                        className="flex items-center justify-center gap-1 border-t border-border px-3 py-2 text-xs text-term-green transition-colors hover:bg-accent/40"
+                      >
+                        view all {categoryCourses.length} courses
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
@@ -330,107 +478,146 @@ export default function Landing() {
               </div>
             )}
           </div>
+
+          {published.length > 0 && (
+            <div className="mt-8 text-center">
+              <Button asChild variant="outline" className="gap-2 text-sm">
+                <Link to="/courses">
+                  view full catalog <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
       {/* ── How it works ────────────────────────────────────────── */}
       <section id="how" className="border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
-          <p className="text-xs text-term-green">// how-it-works</p>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            From catalog to confirmed seat in four steps.
-          </h2>
-          <div className="mt-10 border border-border">
+          <div className="text-center">
+            <p className="text-xs text-term-green">// how-it-works</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+              From first click to certified skill in four steps.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                id: "01",
-                title: "Browse the catalog",
-                body: "Search and filter the full catalog of courses. Every course states its duration, its price, and the session schedule up front.",
+                step: "01",
+                title: "Choose your track",
+                body: "Browse the catalog and pick a course. Every listing shows its duration, prerequisites, and what you'll learn.",
+                icon: BookOpen,
               },
               {
-                id: "02",
-                title: "Book a live session",
-                body: "Each course runs on instructor-led sessions with real capacity. Pick the time that fits your season — seats are confirmed in real time.",
+                step: "02",
+                title: "Start learning",
+                body: "Read the modules, watch instructor notes, and take quizzes as you go. Progress is saved automatically.",
+                icon: Sprout,
               },
               {
-                id: "03",
-                title: "Pay securely",
-                body: "Checkout is handled by Stripe with a hosted payment page. Free courses are confirmed the moment you book.",
+                step: "03",
+                title: "Practice & apply",
+                body: "Use flashcards, field journals, and virtual labs to apply what you've learned to real farming scenarios.",
+                icon: Leaf,
               },
               {
-                id: "04",
-                title: "Keep the conversation going",
-                body: "Every course has a comments thread for questions between sessions. Our team replies within one business day.",
+                step: "04",
+                title: "Earn your certificate",
+                body: "Complete all modules and pass the final assessment. Your verified certificate is ready to share or print.",
+                icon: Award,
               },
-            ].map((row, i) => (
-              <div
-                key={row.id}
-                className={`grid gap-2 px-4 py-4 sm:grid-cols-[3.5rem_11rem_1fr] sm:gap-6 sm:px-6 ${
-                  i !== 0 ? "border-t border-border" : ""
-                } ${i % 2 === 1 ? "bg-card" : ""}`}
+            ].map((step, i) => (
+              <motion.div
+                key={step.step}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="border border-border bg-card p-5 transition-all hover:border-term-green/40"
               >
-                <span className="text-xs text-term-green">{row.id}</span>
-                <span className="text-sm font-semibold">{row.title}</span>
-                <span className="text-sm leading-6 text-muted-foreground">
-                  {row.body}
-                </span>
-              </div>
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="flex size-8 items-center justify-center border border-term-green/30 bg-term-green/10 font-mono text-xs font-bold text-term-green">
+                    {step.step}
+                  </span>
+                  <step.icon className="size-4 text-term-green" />
+                </div>
+                <h3 className="text-sm font-semibold">{step.title}</h3>
+                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+                  {step.body}
+                </p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Testimonials ────────────────────────────────────────── */}
-      <section id="field-notes" className="border-b border-border">
+      <section id="testimonials" className="border-b border-border bg-soil-gradient">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
-          <p className="text-xs text-term-green">// field-notes</p>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            What customers say after a season of training.
-          </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <div className="text-center">
+            <p className="text-xs text-term-green">// field-notes</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+              What students say after a season of learning.
+            </h2>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
             {[
               {
                 quote:
-                  "We put two operators through the equipment care course before harvest. The daily walkaround checklist alone paid for the training inside the first month.",
-                name: "Dana Whitfield",
-                role: "Operations Lead, Whitfield Family Farms",
-              },
-              {
-                quote:
-                  "The irrigation course replaced guesswork with a record we can actually defend. Our water log is now part of the weekly meeting, not a binder on a shelf.",
+                  "The irrigation course replaced guesswork with a system we can actually track. Our water usage dropped 30% in the first season after applying what I learned here.",
                 name: "Marcus Bell",
                 role: "Farm Manager, Bell & Sons",
+                icon: Droplets,
               },
               {
                 quote:
-                  "Booking a session was the easiest part — the schedule is clear, the confirmation is instant, and moving a seat when our plans changed took one minute.",
+                  "I went from knowing nothing about precision agriculture to confidently setting up our drone-based crop monitoring. The AI courses are genuinely practical, not just theory.",
                 name: "Elena Navarro",
-                role: "Training Coordinator, Navarro Orchards",
+                role: "Operations Lead, Navarro Orchards",
+                icon: Leaf,
               },
-            ].map((item, i) => (
-              <figure
-                key={item.name}
+              {
+                quote:
+                  "The certificate I earned here got me promoted. My employer could verify my skills instantly through the platform — no paperwork, no delays.",
+                name: "Dana Whitfield",
+                role: "Agricultural Technician, Whitfield Farms",
+                icon: Award,
+              },
+            ].map((testimonial, i) => (
+              <motion.figure
+                key={testimonial.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
                 className="flex flex-col border border-border bg-card"
               >
                 <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2">
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <testimonial.icon className="size-3 text-term-green" />
                     note_{String(i + 1).padStart(2, "0")}.txt
                   </span>
-                  <WindowDots />
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2.5 rounded-full border border-border bg-muted" />
+                    <span className="size-2.5 rounded-full border border-border bg-muted" />
+                    <span className="size-2.5 rounded-full border border-border bg-muted" />
+                  </span>
                 </div>
                 <blockquote className="flex-1 px-4 py-5 text-[13px] leading-6">
-                  “{item.quote}”
+                  "{testimonial.quote}"
                 </blockquote>
                 <figcaption className="border-t border-border px-4 py-3">
-                  <p className="text-xs font-semibold">{item.name}</p>
+                  <p className="text-xs font-semibold">{testimonial.name}</p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {item.role}
+                    {testimonial.role}
                   </p>
-                  <p className="mt-1 text-[10px] text-term-green">
-                    [verified] enrolled customer
+                  <p className="mt-1 flex items-center gap-1 text-[10px] text-term-green">
+                    <span className="inline-block size-1 rounded-full bg-term-green" />
+                    verified student
                   </p>
                 </figcaption>
-              </figure>
+              </motion.figure>
             ))}
           </div>
         </div>
@@ -439,36 +626,42 @@ export default function Landing() {
       {/* ── FAQ ─────────────────────────────────────────────────── */}
       <section id="faq" className="border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
-          <p className="text-xs text-term-green">// faq</p>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            Questions customers ask before enrolling.
-          </h2>
-          <div className="mt-10 space-y-3">
+          <div className="text-center">
+            <p className="text-xs text-term-green">// faq</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+              Questions students ask before enrolling.
+            </h2>
+          </div>
+          <div className="mx-auto mt-10 max-w-2xl space-y-3">
             {[
               {
-                q: "Do I need to pay before I can look at a course?",
-                a: "No. The full catalog — including every course's material and its comments — is open to anyone with an account. Payment only happens when you book a live session for a paid course.",
+                q: "Do I need farming experience to take a course?",
+                a: "No. Our courses range from beginner to advanced. Each course page lists prerequisites so you can find the right starting point for your experience level.",
               },
               {
-                q: "What happens if a session is full?",
-                a: "You can join that session's waitlist. When a seat opens up, it is offered to the waitlist in order, and you receive a booking you can settle at checkout.",
+                q: "Are the certificates recognized?",
+                a: "Every certificate includes a unique verification code that employers can check on our verify page. The certificates are backed by our instructor credentials and curriculum standards.",
               },
               {
-                q: "Can I move my booking to another time?",
-                a: "Yes. Open the booking from your sessions page and choose reschedule. Any other upcoming session of the same course with a free seat is available.",
+                q: "Can I learn at my own pace?",
+                a: "Yes. Course materials are available 24/7. Live instructor sessions are optional add-ons — you can complete every course entirely at your own pace.",
+              },
+              {
+                q: "What if I get stuck on a module?",
+                a: "Every course has a comments thread answered by our team within one business day. You can also join study groups or book a mentorship session for deeper support.",
               },
               {
                 q: "Is my payment secure?",
-                a: "Checkout runs on Stripe's hosted payment pages, so card details never touch the academy's servers. You will receive a confirmation email the moment a payment clears.",
-              },
-              {
-                q: "Who do I ask if I get stuck on a course?",
-                a: "Every course has a comments thread answered by our team within one business day. For anything urgent, your account manager has the direct line.",
+                a: "Checkout runs on Stripe's hosted payment pages, so card details never touch our servers. Free courses require no payment at all.",
               },
             ].map((item, i) => (
-              <details
+              <motion.details
                 key={item.q}
-                className="group border border-border bg-card open:border-term-green/50"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className="group border border-border bg-card open:border-term-green/40"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
                   <span className="flex items-center gap-3">
@@ -484,21 +677,28 @@ export default function Landing() {
                 <p className="border-t border-border px-4 py-3.5 pl-[3.25rem] text-sm leading-6 text-muted-foreground">
                   {item.a}
                 </p>
-              </details>
+              </motion.details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Access CTA ──────────────────────────────────────────── */}
-      <section id="access" className="border-b border-border">
+      {/* ── CTA ──────────────────────────────────────────────────── */}
+      <section className="border-b border-border">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
           <div className="border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-              <span className="text-xs text-muted-foreground">
-                agriskills — enroll
+              <div className="flex items-center gap-2">
+                <Leaf className="size-3.5 text-term-green" />
+                <span className="text-xs text-muted-foreground">
+                  agriskills — enroll
+                </span>
+              </div>
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
+                <span className="size-2.5 rounded-full border border-border bg-muted" />
               </span>
-              <WindowDots />
             </div>
             <div className="flex flex-col items-start gap-6 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div>
@@ -509,13 +709,14 @@ export default function Landing() {
                   </span>
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  // email verification or instant guest access — customers only
+                  // free courses available · certificate included · learn at
+                  your pace
                 </p>
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                 <Button asChild className="gap-2 text-sm">
                   <Link to="/courses">
-                    browse catalog <ArrowRight className="size-4" />
+                    explore courses <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="text-sm">
@@ -528,12 +729,56 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-10 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>
-          <span className="text-term-green">agriskills_academy</span> © 2026 —
-          customer training
-        </p>
-        <p>// courses, live sessions, and support for our customers.</p>
+      <footer className="bg-soil-gradient">
+        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-6 items-center justify-center bg-term-green">
+                  <Leaf className="size-3.5 text-white" />
+                </span>
+                <span className="text-sm font-bold tracking-tight">
+                  AgriSkills
+                  <span className="ml-1 font-normal text-muted-foreground">
+                    Academy
+                  </span>
+                </span>
+              </div>
+              <p className="mt-2 max-w-sm text-xs leading-5 text-muted-foreground">
+                Practical training for agriculture professionals. Courses on
+                farming, AI, irrigation, and sustainable practices — built for
+                the people who work the land.
+              </p>
+            </div>
+            <div className="flex gap-12 text-xs">
+              <div>
+                <p className="font-semibold text-foreground">Platform</p>
+                <div className="mt-2 flex flex-col gap-1.5 text-muted-foreground">
+                  <Link to="/courses" className="hover:text-foreground transition-colors">Course Catalog</Link>
+                  <Link to="/instructors" className="hover:text-foreground transition-colors">Instructors</Link>
+                  <Link to="/verify-credential" className="hover:text-foreground transition-colors">Verify Certificate</Link>
+                </div>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Learn</p>
+                <div className="mt-2 flex flex-col gap-1.5 text-muted-foreground">
+                  <a href="#features" className="hover:text-foreground transition-colors">Features</a>
+                  <a href="#how" className="hover:text-foreground transition-colors">How It Works</a>
+                  <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
+            <p>
+              <span className="text-term-green">agriskills_academy</span> © 2026
+              — agriculture training platform
+            </p>
+            <p>
+              // courses, certificates, and hands-on learning
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

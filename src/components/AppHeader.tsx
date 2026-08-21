@@ -3,19 +3,18 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, Leaf, LogOut } from "lucide-react";
 import { Link } from "react-router";
 
 export function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <span className="inline-block size-3.5 bg-term-green" />
+      <span className="flex size-6 items-center justify-center bg-term-green">
+        <Leaf className="size-3.5 text-white" />
+      </span>
       <span className="text-sm font-semibold tracking-tight">
         AgriSkills
         <span className="ml-1 font-normal text-muted-foreground">Academy</span>
-      </span>
-      <span className="hidden text-xs text-muted-foreground sm:inline">
-        v1.0
       </span>
     </Link>
   );

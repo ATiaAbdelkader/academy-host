@@ -17,11 +17,13 @@ import {
   ChevronRight,
   Flame,
   Flag,
+  Leaf,
   Lightbulb,
   ListMinus,
   Loader2,
   ShieldCheck,
   Sparkles,
+  Sprout,
   Trophy,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -131,16 +133,19 @@ export default function Dashboard() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <AppHeader path="~/my-sessions" />
+      <AppHeader path="~/dashboard" />
 
       <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-        <p className="text-xs text-term-green">
-          [ok] signed in{user?.email ? ` — ${user.email}` : ""}
-        </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight">My Sessions</h1>
+        <div className="flex items-center gap-2">
+          <Sprout className="size-4 text-term-green" />
+          <p className="text-xs text-term-green">
+            [ok] signed in{user?.email ? ` — ${user.email}` : ""}
+          </p>
+        </div>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Your bookings, waitlists, and training progress with AgriSkills
-          Academy — all in one place.
+          Your courses, progress, bookings, and learning tools — all in one
+          place.
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">

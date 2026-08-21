@@ -10,7 +10,9 @@ import { useQuery } from "convex/react";
 import {
   ChevronRight,
   Download,
+  Leaf,
   Search,
+  Sprout,
   Star,
   UserRound,
 } from "lucide-react";
@@ -77,16 +79,19 @@ export default function Catalog() {
       <AppHeader path="~/catalog" />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <p className="text-xs text-term-green">
-          [ok] catalog open — public browsing
-        </p>
+        <div className="flex items-center gap-2">
+          <Sprout className="size-4 text-term-green" />
+          <p className="text-xs text-term-green">
+            [ok] catalog open — public browsing
+          </p>
+        </div>
         <h1 className="mt-3 text-3xl font-bold tracking-tight">
-          Training Catalog
+          Course Catalog
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Practical, instructor-led courses for customers of our products and
-          services. Open a course to read the material, see the session
-          schedule, and book a seat.
+          Practical, instructor-led courses for agriculture professionals.
+          Open a course to read the material, see the session schedule, and
+          book a seat.
         </p>
 
         {/* ── Ask the academy ───────────────────────────────────── */}

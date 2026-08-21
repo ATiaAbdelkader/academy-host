@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
-import { Award, Download, Eye, Loader2, Lock, RefreshCcw } from "lucide-react";
+import { Award, Download, Eye, Leaf, Loader2, Lock, RefreshCcw, Sprout } from "lucide-react";
 import { Link } from "react-router";
 import { certificateExpiry, formatShortDate } from "@/lib/format";
 
@@ -46,7 +46,10 @@ export default function Certificates() {
       <AppHeader path="~/certificates" />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <p className="text-xs text-term-green">[ok] certificates on file</p>
+        <div className="flex items-center gap-2">
+          <Sprout className="size-4 text-term-green" />
+          <p className="text-xs text-term-green">[ok] certificates on file</p>
+        </div>
         <h1 className="mt-3 text-3xl font-bold tracking-tight">Certificates</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Every course you complete issues a certificate. Open one to view it

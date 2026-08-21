@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Leaf } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
 
@@ -23,14 +24,23 @@ export default function NotFound() {
             <span className="text-term-amber">error:</span> page not found —
             the route you requested does not exist
           </p>
-          <Button asChild variant="outline" size="sm" className="mt-6 text-xs">
-            <Link to="/">return to home</Link>
-          </Button>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <Button asChild variant="outline" size="sm" className="text-xs">
+              <Link to="/">return to home</Link>
+            </Button>
+            <Button asChild size="sm" className="text-xs gap-1.5">
+              <Link to="/courses">
+                <Leaf className="size-3.5" />
+                browse catalog
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
       <footer className="mx-auto w-full max-w-6xl px-4 py-8 text-center text-[11px] text-muted-foreground sm:px-6">
         <p>
           <span className="text-term-green">agriskills_academy</span> © 2026
+          — agriculture training platform
         </p>
       </footer>
     </motion.div>

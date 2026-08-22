@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
-import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
-import { useQuery } from "@/lib/convex-react-safe";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth, useQuery } from "@/lib/convex-react-safe";
 
 export function useAuth() {
   // During SSR/prerendering, ConvexAuthProvider is not in the tree,

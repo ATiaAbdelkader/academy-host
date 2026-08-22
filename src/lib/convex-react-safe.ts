@@ -1,13 +1,13 @@
 /**
  * Safe wrappers around Convex React hooks.
  *
- * During Next.js build-time static analysis, pages are rendered in ISOLATION
- * (outside the layout tree), so the ConvexProvider context is missing.
- * These wrappers return safe defaults on the server while maintaining
- * the same hook call count as the client (for hydration compatibility).
+ * When no Convex deployment URL is configured (preview/demo mode) these
+ * wrappers return safe no-op defaults so the UI renders with static
+ * fallback data instead of crashing.
  *
- * All real hooks are imported via ESM (not require) so Turbopack bundles
- * them correctly in the browser.
+ * When Convex IS configured, they delegate to the real hooks from
+ * convex/react. All real hooks are imported via ESM (not require) so
+ * Turbopack bundles them correctly in the browser.
  */
 import { useRef, useCallback } from "react";
 import {
@@ -21,21 +21,25 @@ import {
   ConvexProvider,
 } from "convex/react";
 
+/** True when a real Convex deployment URL is available. */
+const CONVEX_CONFIGURED =
+  typeof process !== "undefined" &&
+  Boolean(
+    process.env.NEXT_PUBLIC_CONVEX_URL &&
+    process.env.NEXT_PUBLIC_CONVEX_URL !== "" &&
+    !process.env.NEXT_PUBLIC_CONVEX_URL.includes("placeholder"),
+  );
+
 const isServer = typeof window === "undefined";
 
-// --- Server-safe stubs ---
-// Each stub calls at least one React hook to maintain hook call parity.
+// --- Stubs ---
 function stubRef() {
   return useRef(null);
 }
 
-/**
- * useQuery — on server: returns undefined. On client: delegates to real hook.
- * Both paths call exactly one React hook for parity.
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useQuery(...args: any[]): any {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     stubRef();
     return undefined;
   }
@@ -44,7 +48,7 @@ export function useQuery(...args: any[]): any {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useMutation(...args: any[]): any {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     stubRef();
     return useCallback(() => Promise.resolve(undefined), []);
   }
@@ -53,7 +57,7 @@ export function useMutation(...args: any[]): any {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useAction(...args: any[]): any {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     stubRef();
     return useCallback(() => Promise.resolve(undefined), []);
   }
@@ -62,26 +66,25 @@ export function useAction(...args: any[]): any {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function usePaginatedQuery(...args: any[]): any {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     stubRef();
     return { results: undefined, status: "Loading" as const, loadMore: async () => {} };
   }
   return (_usePaginatedQuery as Function)(...args);
 }
 
-/** useConvexAuth — returns undefined on server (no auth context). */
+/** useConvexAuth — returns undefined when Convex is not configured. */
 export function useConvexAuth() {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     stubRef();
     return undefined;
   }
   return _useConvexAuth();
 }
 
-/** useQuery_experimental — same as useQuery but with loading/errored states. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useQuery_experimental(...args: any[]): any {
-  if (isServer) {
+  if (isServer || !CONVEX_CONFIGURED) {
     return useQuery(...args);
   }
   return (_useQuery_experimental as Function)(...args);

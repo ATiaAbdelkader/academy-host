@@ -1,7 +1,8 @@
+"use client";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "react-router";
 import { Sprout, BookOpen, Trophy, TrendingUp, Calendar, Tractor, Stethoscope, MapPin, ArrowRight } from "lucide-react";
 
 export default function FarmDashboard() {
@@ -105,12 +106,12 @@ export default function FarmDashboard() {
                     <p className="text-sm font-mono font-bold">{farms[0].cropsHarvested}</p>
                   </div>
                 </div>
-                <Link to="/farm-simulator" className="text-xs font-mono text-term-green hover:underline">Open Simulator →</Link>
+                <Link href="/farm-simulator" className="text-xs font-mono text-term-green hover:underline">Open Simulator →</Link>
               </div>
             ) : (
               <div className="text-center py-4">
                 <p className="text-xs text-muted-foreground font-mono mb-2">No farm yet</p>
-                <Link to="/farm-simulator" className="text-xs font-mono text-term-green hover:underline">Create your farm →</Link>
+                <Link href="/farm-simulator" className="text-xs font-mono text-term-green hover:underline">Create your farm →</Link>
               </div>
             )}
           </div>
@@ -126,12 +127,12 @@ export default function FarmDashboard() {
                     <p className="mt-0.5">{tip.advice}</p>
                   </div>
                 ))}
-                <Link to="/advisory" className="text-xs font-mono text-term-green hover:underline">View full advisory →</Link>
+                <Link href="/advisory" className="text-xs font-mono text-term-green hover:underline">View full advisory →</Link>
               </div>
             ) : (
               <div className="text-center py-4">
                 <p className="text-xs text-muted-foreground font-mono mb-2">Set your location for personalized advice</p>
-                <Link to="/advisory" className="text-xs font-mono text-term-green hover:underline">Configure advisory →</Link>
+                <Link href="/advisory" className="text-xs font-mono text-term-green hover:underline">Configure advisory →</Link>
               </div>
             )}
           </div>

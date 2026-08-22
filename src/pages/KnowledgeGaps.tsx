@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "../hooks/use-auth";
-import { Link } from "react-router";
 import {
   AlertTriangle, CheckCircle2, TrendingUp, BookOpen,
   Target, ArrowRight, Lightbulb, BarChart3
@@ -95,8 +96,7 @@ export default function KnowledgeGaps() {
                       Module {item.lastModule + 1}/{item.totalModules} • {item.progressPct.toFixed(0)}% complete
                     </p>
                   </div>
-                  <Link
-                    to={`/courses/${item.courseId}`}
+                  <Link href={`/courses/${item.courseId}`}
                     className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded font-mono text-xs hover:bg-red-200 transition-colors"
                   >
                     Continue <ArrowRight className="w-3 h-3" />
@@ -123,8 +123,7 @@ export default function KnowledgeGaps() {
                       Module {item.lastModule + 1}/{item.totalModules} • {item.progressPct.toFixed(0)}% complete
                     </p>
                   </div>
-                  <Link
-                    to={`/courses/${item.courseId}`}
+                  <Link href={`/courses/${item.courseId}`}
                     className="flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded font-mono text-xs hover:bg-amber-200 transition-colors"
                   >
                     Finish <ArrowRight className="w-3 h-3" />
@@ -196,7 +195,7 @@ export default function KnowledgeGaps() {
           <div className="text-center py-12 text-[var(--color-muted-foreground)] font-mono">
             <Target className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>Start some courses to see your knowledge analysis</p>
-            <Link to="/courses" className="text-green-600 hover:underline text-sm mt-2 inline-block">
+            <Link href="/courses" className="text-green-600 hover:underline text-sm mt-2 inline-block">
               Browse courses →
             </Link>
           </div>

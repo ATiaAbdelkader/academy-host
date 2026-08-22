@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { GitCompare, Plus, X, Check, Clock, BarChart3, BookOpen } from "lucide-react";
-import { Link } from "react-router";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Foundations: "text-terminal-green",
@@ -180,8 +181,7 @@ export default function CourseCompare() {
                   </th>
                   {selectedCourses.map((course) => (
                     <th key={course._id} className="text-left p-3 font-medium min-w-[200px]">
-                      <Link
-                        to={`/courses/${course.slug}`}
+                      <Link href={`/courses/${course.slug}`}
                         className="hover:text-terminal-green transition-colors"
                       >
                         {course.title}
@@ -310,8 +310,7 @@ export default function CourseCompare() {
                   <td className="p-3"></td>
                   {selectedCourses.map((c) => (
                     <td key={c._id} className="p-3">
-                      <Link
-                        to={`/courses/${c.slug}`}
+                      <Link href={`/courses/${c.slug}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 bg-terminal-green text-white rounded text-xs font-mono hover:bg-terminal-green/90 transition-colors"
                       >
                         <Check className="h-3 w-3" />

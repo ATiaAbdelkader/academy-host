@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
@@ -25,7 +27,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 export default function StudyPlan() {
@@ -304,8 +305,7 @@ function PlanCard({
     <div className="mt-3 border border-border bg-card">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
         <span className="min-w-0">
-          <Link
-            to={`/courses/${courseSlug}`}
+          <Link href={`/courses/${courseSlug}`}
             className="block truncate text-sm font-semibold underline-offset-4 hover:underline"
           >
             {title}
@@ -427,8 +427,7 @@ function PlanCard({
           <span className="text-term-green">[ok]</span> finishing every task
           earns +30 points on your learner profile
         </p>
-        <Link
-          to={`/courses/${courseSlug}`}
+        <Link href={`/courses/${courseSlug}`}
           className="flex shrink-0 items-center gap-1 underline-offset-4 hover:underline"
         >
           <Link2 className="size-3" />

@@ -1,3 +1,5 @@
+"use client";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -5,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "convex/react";
 import { Award, BadgeCheck, Loader2, Search, XCircle } from "lucide-react";
 import { useState } from "react";
-import { useSearchParams } from "react-router";
 
 export default function Verify() {
   const [searchParams] = useSearchParams();

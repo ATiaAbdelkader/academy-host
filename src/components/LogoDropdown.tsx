@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 // simple logo dropdown component that can be used to go to the landing page or sign out for the user
 
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,10 @@ import {
 import logo from "@/assets/logo.svg";
 import { useAuth } from "@/hooks/use-auth";
 import { Home, LogOut } from "lucide-react";
-import { useNavigate } from "react-router";
 
 export function LogoDropdown() {
   const { isAuthenticated, signOut } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useRouter();
 
   const handleSignOut = async () => {
     try {

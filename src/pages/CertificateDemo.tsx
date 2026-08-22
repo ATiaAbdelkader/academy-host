@@ -1,8 +1,10 @@
+"use client";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Award, BadgeCheck, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Link, useSearchParams } from "react-router";
 
 /**
  * Demo certificate — shows the full certificate design with sample data.
@@ -59,7 +61,7 @@ export default function CertificateDemo() {
               size="sm"
               className="gap-1.5 text-xs"
             >
-              <Link to="/verify-credential">
+              <Link href="/verify-credential">
                 <BadgeCheck className="size-3.5" />
                 verify online
               </Link>

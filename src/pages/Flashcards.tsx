@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,6 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 type Card = {
@@ -176,7 +177,7 @@ export default function Flashcards() {
                   size="sm"
                   className="mt-4 text-xs"
                 >
-                  <Link to="/courses">browse courses</Link>
+                  <Link href="/courses">browse courses</Link>
                 </Button>
               </div>
             )}
@@ -203,7 +204,7 @@ export default function Flashcards() {
                     review again
                   </Button>
                   <Button asChild size="sm" className="text-xs">
-                    <Link to="/dashboard">back to dashboard</Link>
+                    <Link href="/dashboard">back to dashboard</Link>
                   </Button>
                 </div>
               </div>
@@ -369,8 +370,7 @@ export default function Flashcards() {
                 <div key={course.courseId} className="border border-border bg-card">
                   <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
                     <div>
-                      <Link
-                        to={`/courses/${course.courseSlug}`}
+                      <Link href={`/courses/${course.courseSlug}`}
                         className="text-sm font-semibold underline-offset-4 hover:underline"
                       >
                         {course.courseTitle}
@@ -386,8 +386,7 @@ export default function Flashcards() {
                       size="sm"
                       className="text-[11px]"
                     >
-                      <Link
-                        to={`/courses/${course.courseSlug}`}
+                      <Link href={`/courses/${course.courseSlug}`}
                       >
                         study
                       </Link>

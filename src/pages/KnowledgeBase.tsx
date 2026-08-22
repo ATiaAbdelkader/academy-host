@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Search, BookOpen, ChevronRight, ChevronDown, FileText, Lightbulb, Tag } from "lucide-react";
-import { Link } from "react-router";
 
 type ContentItem = {
   courseTitle: string;
@@ -262,8 +263,7 @@ export default function KnowledgeBase() {
                     >
                       {course?.category}
                     </span>
-                    <Link
-                      to={`/courses/${course?.slug}`}
+                    <Link href={`/courses/${course?.slug}`}
                       onClick={(e) => e.stopPropagation()}
                       className="text-xs font-mono text-terminal-green hover:underline px-2"
                     >

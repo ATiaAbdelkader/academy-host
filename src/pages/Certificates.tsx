@@ -1,10 +1,11 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
 import { Award, Download, Eye, Leaf, Loader2, Lock, RefreshCcw, Sprout } from "lucide-react";
-import { Link } from "react-router";
 import { certificateExpiry, formatShortDate } from "@/lib/format";
 
 function certIdOf(courseId: string, userId: string): string {
@@ -78,7 +79,7 @@ export default function Certificates() {
               and your certificate will appear here.
             </p>
             <Button asChild size="sm" className="mt-5 text-xs">
-              <Link to="/courses">browse catalog</Link>
+              <Link href="/courses">browse catalog</Link>
             </Button>
           </div>
         )}
@@ -162,7 +163,7 @@ export default function Certificates() {
                         size="sm"
                         className="flex-1 gap-1.5 text-xs"
                       >
-                        <Link to={`/certificate/${entry.courseId}`}>
+                        <Link href={`/certificate/${entry.courseId}`}>
                           <Eye className="size-3.5" />
                           view
                         </Link>
@@ -172,7 +173,7 @@ export default function Certificates() {
                         size="sm"
                         className="flex-1 gap-1.5 text-xs"
                       >
-                        <Link to={`/certificate/${entry.courseId}?print=1`}>
+                        <Link href={`/certificate/${entry.courseId}?print=1`}>
                           <Download className="size-3.5" />
                           save pdf
                         </Link>
@@ -185,7 +186,7 @@ export default function Certificates() {
                         size="sm"
                         className="w-full gap-1.5 border-term-amber/40 text-term-amber hover:text-term-amber text-xs"
                       >
-                        <Link to={`/courses/${course.slug}`}>
+                        <Link href={`/courses/${course.slug}`}>
                           <RefreshCcw className="size-3.5" />
                           refresh certificate
                         </Link>

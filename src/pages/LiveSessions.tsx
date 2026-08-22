@@ -1,7 +1,8 @@
+"use client";
+import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useState } from "react";
-import { Link } from "react-router";
 import { Calendar, Clock, Users, Video, ExternalLink } from "lucide-react";
 
 export default function LiveSessions() {

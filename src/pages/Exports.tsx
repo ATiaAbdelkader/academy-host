@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,6 @@ import {
   ListChecks,
   StickyNote,
 } from "lucide-react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 export default function Exports() {
@@ -250,7 +251,7 @@ export default function Exports() {
                   size="sm"
                   className="mt-4 text-xs"
                 >
-                  <Link to="/courses">browse catalog</Link>
+                  <Link href="/courses">browse catalog</Link>
                 </Button>
               </div>
             )}
@@ -284,7 +285,7 @@ export default function Exports() {
                           size="sm"
                           className="gap-1.5 text-xs"
                         >
-                          <Link to={`/certificate/${entry.courseId}`}>
+                          <Link href={`/certificate/${entry.courseId}`}>
                             <Download className="size-3.5" />
                             download
                           </Link>

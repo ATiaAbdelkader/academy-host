@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "convex/react";
 import { CheckCircle2, Loader2, Save } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 type User = NonNullable<ReturnType<typeof useAuth>["user"]>;
@@ -134,10 +135,10 @@ export default function Settings() {
 
         <div className="mt-6 flex flex-wrap gap-2 text-xs">
           <Button asChild variant="outline" size="sm" className="text-xs">
-            <Link to="/dashboard">my sessions</Link>
+            <Link href="/dashboard">my sessions</Link>
           </Button>
           <Button asChild variant="outline" size="sm" className="text-xs">
-            <Link to="/courses">browse catalog</Link>
+            <Link href="/courses">browse catalog</Link>
           </Button>
         </div>
       </div>

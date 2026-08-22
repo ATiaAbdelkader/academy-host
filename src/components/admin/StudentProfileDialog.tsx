@@ -19,7 +19,7 @@ import {
   Star,
   Trophy,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "next/link";
 
 function StatBox({
   label,

@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
@@ -16,7 +19,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
 
 function WindowDots() {
   return (
@@ -190,8 +192,7 @@ export default function Booking() {
       <AppHeader path={`~/booking/${bookingId}`} />
 
       <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
-        <Link
-          to="/dashboard"
+        <Link href="/dashboard"
           className="group inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-term-green"
         >
           <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -213,7 +214,7 @@ export default function Booking() {
               <span className="text-term-amber">error:</span> booking not found
             </p>
             <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
-              <Link to="/dashboard">back to my sessions</Link>
+              <Link href="/dashboard">back to my sessions</Link>
             </Button>
           </div>
         )}
@@ -225,7 +226,7 @@ export default function Booking() {
               This booking belongs to another account.
             </p>
             <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
-              <Link to="/dashboard">back to my sessions</Link>
+              <Link href="/dashboard">back to my sessions</Link>
             </Button>
           </div>
         )}
@@ -300,8 +301,7 @@ export default function Booking() {
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-muted-foreground">course</dt>
                   <dd className="text-right font-medium">
-                    <Link
-                      to={`/courses/${booking.courseSlug}`}
+                    <Link href={`/courses/${booking.courseSlug}`}
                       className="underline-offset-4 hover:underline"
                     >
                       {booking.courseTitle}
@@ -579,12 +579,12 @@ export default function Booking() {
 
               <div className="mt-6 flex flex-wrap gap-4 border-t border-border pt-4 text-xs">
                 <Button asChild variant="outline" size="sm" className="text-xs">
-                  <Link to={`/courses/${booking.courseSlug}`}>
+                  <Link href={`/courses/${booking.courseSlug}`}>
                     view course
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="text-xs">
-                  <Link to="/dashboard">my sessions</Link>
+                  <Link href="/dashboard">my sessions</Link>
                 </Button>
               </div>
             </div>

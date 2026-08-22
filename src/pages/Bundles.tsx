@@ -1,10 +1,12 @@
+"use client";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { useQuery } from "convex/react";
 import { ArrowLeft, ChevronRight, Package, Tag } from "lucide-react";
-import { Link, useParams } from "react-router";
 
 export default function Bundles() {
   const { slug } = useParams<{ slug: string }>();
@@ -120,7 +122,7 @@ function BundleDetail({ slug }: { slug: string }) {
           <div className="border border-border bg-card px-6 py-12 text-center">
             <p className="text-sm text-term-amber">[warn] bundle not found</p>
             <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
-              <Link to="/bundles">view all bundles</Link>
+              <Link href="/bundles">view all bundles</Link>
             </Button>
           </div>
         </div>
@@ -135,8 +137,7 @@ function BundleDetail({ slug }: { slug: string }) {
       <AppHeader path={`~/bundles/${bundle.slug}`} />
 
       <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-        <Link
-          to="/bundles"
+        <Link href="/bundles"
           className="group inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-term-green"
         >
           <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -184,8 +185,7 @@ function BundleDetail({ slug }: { slug: string }) {
                 key={course._id}
                 className="grid grid-cols-[1fr_5rem_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-accent/30 sm:grid-cols-[1fr_5rem_9rem_auto]"
               >
-                <Link
-                  to={`/courses/${course.slug}`}
+                <Link href={`/courses/${course.slug}`}
                   className="min-w-0 truncate text-sm font-medium underline-offset-4 hover:underline"
                 >
                   {course.title}
@@ -202,7 +202,7 @@ function BundleDetail({ slug }: { slug: string }) {
                     size="sm"
                     className="gap-1.5 text-[11px]"
                   >
-                    <Link to={`/courses/${course.slug}?coupon=${bundle.couponCode}`}>
+                    <Link href={`/courses/${course.slug}?coupon=${bundle.couponCode}`}>
                       <Tag className="size-3" />
                       book with discount
                     </Link>

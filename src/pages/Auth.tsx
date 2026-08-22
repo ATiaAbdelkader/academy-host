@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,7 +20,6 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight, Leaf, Loader2, Mail, UserX, Sparkles } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
 
 interface AuthProps {
   redirectAfterAuth?: string;
@@ -35,7 +37,7 @@ function resolveRedirectAfterAuth(
 
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [searchParams] = useSearchParams();
   const redirect = resolveRedirectAfterAuth(
     searchParams.get("returnTo"),
@@ -116,7 +118,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="relative z-10 border-b border-border/30">
         <div className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between px-5 sm:px-8">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-lg bg-agri-green">
               <Leaf className="size-4 text-white" />
             </span>
@@ -127,8 +129,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               </span>
             </span>
           </Link>
-          <Link
-            to="/"
+          <Link href="/"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             Back to home

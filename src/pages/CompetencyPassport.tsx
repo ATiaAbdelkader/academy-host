@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Award, Shield, Star, BookOpen } from "lucide-react";
-import { Link } from "react-router";
 
 const LEVEL_LABELS = ["None", "Beginner", "Intermediate", "Advanced", "Expert", "Master"];
 const LEVEL_TEXT_COLORS = ["text-gray-600", "text-blue-600", "text-green-600", "text-amber-600", "text-purple-600", "text-term-green"];
@@ -100,7 +101,7 @@ export default function CompetencyPassport() {
             <div className="border border-border bg-card p-6 text-center">
               <Award className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
               <p className="text-xs text-muted-foreground font-mono">Complete courses and quizzes to earn micro-credentials.</p>
-              <Link to="/courses" className="text-xs font-mono text-term-green hover:underline mt-2 inline-block">Browse courses →</Link>
+              <Link href="/courses" className="text-xs font-mono text-term-green hover:underline mt-2 inline-block">Browse courses →</Link>
             </div>
           )}
         </div>

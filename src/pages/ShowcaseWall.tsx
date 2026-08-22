@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "../hooks/use-auth";
-import { Link } from "react-router";
 import {
   Trophy, Star, Flame, BookOpen, Award,
   TrendingUp, Target, ExternalLink, Zap
@@ -132,7 +133,7 @@ export default function ShowcaseWall() {
           <div className="text-center py-12 text-[var(--color-muted-foreground)] font-mono">
             <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>Start learning to build your showcase!</p>
-            <Link to="/courses" className="text-green-600 hover:underline text-sm mt-2 inline-block">
+            <Link href="/courses" className="text-green-600 hover:underline text-sm mt-2 inline-block">
               Browse courses →
             </Link>
           </div>

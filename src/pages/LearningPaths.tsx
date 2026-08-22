@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 
 export default function LearningPaths() {
   const paths = useQuery(api.learningPaths.list);
@@ -61,7 +62,7 @@ export default function LearningPaths() {
                   size="sm"
                   className="mt-3 gap-1.5 text-xs"
                 >
-                  <Link to={`/learning-paths/${recommended.id}`}>
+                  <Link href={`/learning-paths/${recommended.id}`}>
                     start path
                     <ChevronRight className="size-3.5" />
                   </Link>
@@ -236,8 +237,7 @@ export default function LearningPaths() {
                         size="sm"
                         className="text-xs"
                       >
-                        <Link
-                          to={`/courses/${path.courses[0]?.slug}`}
+                        <Link href={`/courses/${path.courses[0]?.slug}`}
                         >
                           <TrendingUp className="size-3.5" />
                           start first course
@@ -256,7 +256,7 @@ export default function LearningPaths() {
                       size="sm"
                       className="w-full justify-start gap-1.5 text-[11px] text-muted-foreground hover:text-foreground"
                     >
-                      <Link to={`/courses/${path.courses[0]?.slug}`}>
+                      <Link href={`/courses/${path.courses[0]?.slug}`}>
                         start path →
                       </Link>
                     </Button>

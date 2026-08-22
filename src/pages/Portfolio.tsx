@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Award, BookOpen, Star, Flame } from "lucide-react";
-import { Link } from "react-router";
 
 export default function Portfolio() {
   const { user } = useAuth(); const userId = user?._id;
@@ -87,7 +88,7 @@ export default function Portfolio() {
                   <div key={p._id} className="flex items-center justify-between p-3 border border-border rounded bg-card">
                     <div className="flex items-center gap-3">
                       <span className="w-2 h-2 rounded-full bg-amber-500" />
-                      <Link to={`/courses/${course?.slug ?? ""}`} className="text-sm font-mono hover:text-green-600">{course?.title ?? "Course"}</Link>
+                      <Link href={`/courses/${course?.slug ?? ""}`} className="text-sm font-mono hover:text-green-600">{course?.title ?? "Course"}</Link>
                     </div>
                     <span className="text-xs text-muted-foreground font-mono">Module {p.lastModuleIndex ?? 0}</span>
                   </div>

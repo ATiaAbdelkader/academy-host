@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +21,6 @@ import {
   Trophy,
   Zap,
 } from "lucide-react";
-import { Link } from "react-router";
 import {
   Bar,
   BarChart,
@@ -71,7 +72,7 @@ export default function Analytics() {
             learning analytics.
           </p>
           <Button asChild variant="outline" size="sm" className="mt-4 text-xs">
-            <Link to="/auth?returnTo=/analytics">sign in</Link>
+            <Link href="/auth?returnTo=/analytics">sign in</Link>
           </Button>
         </div>
       </main>
@@ -258,7 +259,7 @@ export default function Analytics() {
                 size="sm"
                 className="mt-4 text-xs"
               >
-                <Link to="/courses">browse catalog</Link>
+                <Link href="/courses">browse catalog</Link>
               </Button>
             </div>
           </div>
@@ -403,7 +404,7 @@ export default function Analytics() {
                 size="sm"
                 className="mt-4 text-xs"
               >
-                <Link to="/courses">browse catalog</Link>
+                <Link href="/courses">browse catalog</Link>
               </Button>
             </div>
           ) : (
@@ -422,8 +423,7 @@ export default function Analytics() {
                   className="grid grid-cols-[1fr_6rem_5rem_5rem_5rem_6rem] items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 hover:bg-accent/30"
                 >
                   <span className="min-w-0">
-                    <Link
-                      to={`/courses/${course.slug}`}
+                    <Link href={`/courses/${course.slug}`}
                       className="block truncate text-sm font-medium underline-offset-4 hover:underline"
                     >
                       {course.title}

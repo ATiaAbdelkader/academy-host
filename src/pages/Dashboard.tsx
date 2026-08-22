@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
@@ -31,7 +33,6 @@ import {
   Medal,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 export default function Dashboard() {
@@ -156,16 +157,16 @@ export default function Dashboard() {
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-0">
             <Button asChild size="sm" className="rounded-xl text-sm">
-              <Link to="/courses">Browse catalog</Link>
+              <Link href="/courses">Browse catalog</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="rounded-xl text-sm">
-              <Link to="/farm-hub">Farm dashboard</Link>
+              <Link href="/farm-hub">Farm dashboard</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="rounded-xl text-sm">
-              <Link to="/gamification">Gamification</Link>
+              <Link href="/gamification">Gamification</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="rounded-xl text-sm">
-              <Link to="/ai-assistant">AI assistant</Link>
+              <Link href="/ai-assistant">AI assistant</Link>
             </Button>
             {isAdmin && (
               <Button
@@ -174,7 +175,7 @@ export default function Dashboard() {
                 size="sm"
                 className="gap-1.5 rounded-xl text-sm"
               >
-                <Link to="/admin">
+                <Link href="/admin">
                   <ShieldCheck className="size-4" />
                   Admin console
                 </Link>
@@ -245,7 +246,7 @@ export default function Dashboard() {
                   size="sm"
                   className="gap-1.5 rounded-xl text-sm"
                 >
-                  <Link to="/courses">
+                  <Link href="/courses">
                     <Flag className="size-4" />
                     In-progress courses
                   </Link>
@@ -256,7 +257,7 @@ export default function Dashboard() {
                   size="sm"
                   className="gap-1.5 rounded-xl text-sm"
                 >
-                  <Link to="/certificates">
+                  <Link href="/certificates">
                     <CheckCircle2 className="size-4" />
                     Certificates
                   </Link>
@@ -271,16 +272,14 @@ export default function Dashboard() {
                     key={entry._id}
                     className="flex items-center justify-between gap-3 border-b border-border/40 px-5 py-3 last:border-b-0 transition-colors hover:bg-accent/30"
                   >
-                    <Link
-                      to={`/courses/${entry.courseSlug}`}
+                    <Link href={`/courses/${entry.courseSlug}`}
                       className="min-w-0 truncate text-sm font-medium underline-offset-4 hover:underline"
                     >
                       {entry.courseTitle}
                     </Link>
                     <span className="flex shrink-0 items-center gap-2">
                       {entry.status === "completed" && (
-                        <Link
-                          to={`/certificate/${entry.courseId}`}
+                        <Link href={`/certificate/${entry.courseId}`}
                           className="flex items-center gap-1 text-xs text-agri-green underline-offset-4 hover:underline"
                         >
                           <Award className="size-3.5" />
@@ -575,8 +574,7 @@ export default function Dashboard() {
                     className="border-b border-border/40 last:border-b-0"
                   >
                     <div className="grid grid-cols-[1fr_4rem_6rem_auto] items-center gap-3 px-5 py-3 sm:grid-cols-[1fr_4rem_6rem_14rem_auto]">
-                      <Link
-                        to={`/courses/${row.courseSlug}`}
+                      <Link href={`/courses/${row.courseSlug}`}
                         className="min-w-0 truncate text-sm font-medium underline-offset-4 hover:underline"
                       >
                         {row.courseTitle}
@@ -712,7 +710,7 @@ export default function Dashboard() {
                   session.
                 </p>
                 <Button asChild variant="outline" size="sm" className="mt-4 rounded-xl text-sm">
-                  <Link to="/courses">Browse catalog</Link>
+                  <Link href="/courses">Browse catalog</Link>
                 </Button>
               </div>
             )}
@@ -726,8 +724,7 @@ export default function Dashboard() {
                   className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-border/40 px-5 py-3 last:border-b-0 transition-colors hover:bg-accent/30 sm:grid-cols-[1.4fr_1fr_6rem_6rem_auto]"
                 >
                   <span className="min-w-0">
-                    <Link
-                      to={`/courses/${booking.courseSlug}`}
+                    <Link href={`/courses/${booking.courseSlug}`}
                       className="block truncate text-sm font-medium underline-offset-4 hover:underline"
                     >
                       {booking.courseTitle}
@@ -793,7 +790,7 @@ export default function Dashboard() {
                         size="sm"
                         className="rounded-xl px-2.5 text-xs"
                       >
-                        <Link to={`/booking/${booking._id}`}>Pay</Link>
+                        <Link href={`/booking/${booking._id}`}>Pay</Link>
                       </Button>
                     )}
                     {booking.status === "confirmed" && (
@@ -803,7 +800,7 @@ export default function Dashboard() {
                         size="sm"
                         className="rounded-xl px-2.5 text-xs"
                       >
-                        <Link to={`/booking/${booking._id}`}>View</Link>
+                        <Link href={`/booking/${booking._id}`}>View</Link>
                       </Button>
                     )}
                   </span>
@@ -842,8 +839,7 @@ export default function Dashboard() {
                   className="flex items-center justify-between gap-3 border-b border-border/40 px-5 py-3 last:border-b-0 transition-colors hover:bg-accent/30"
                 >
                   <span className="min-w-0">
-                    <Link
-                      to={`/courses/${entry.courseSlug}`}
+                    <Link href={`/courses/${entry.courseSlug}`}
                       className="block truncate text-sm font-medium underline-offset-4 hover:underline"
                     >
                       {entry.courseTitle}

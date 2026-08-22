@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -5,7 +8,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
 import { Award, BadgeCheck, Loader2, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
 import { certificateExpiry, formatShortDate } from "@/lib/format";
 
 export default function Certificate() {
@@ -74,10 +76,10 @@ export default function Certificate() {
             </p>
             <div className="mt-5 flex justify-center gap-2">
               <Button asChild variant="outline" size="sm" className="text-xs">
-                <Link to={`/courses/${course?.slug ?? ""}`}>view course</Link>
+                <Link href={`/courses/${course?.slug ?? ""}`}>view course</Link>
               </Button>
               <Button asChild size="sm" className="text-xs">
-                <Link to="/dashboard">my sessions</Link>
+                <Link href="/dashboard">my sessions</Link>
               </Button>
             </div>
           </div>
@@ -91,7 +93,7 @@ export default function Certificate() {
               </p>
               <div className="flex gap-2">
                 <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs print:hidden">
-                  <Link to={`/verify?code=${encodeURIComponent(certId)}`}>
+                  <Link href={`/verify?code=${encodeURIComponent(certId)}`}>
                     <BadgeCheck className="size-3.5" />
                     verify online
                   </Link>
@@ -235,8 +237,7 @@ export default function Certificate() {
                 [warn] this certificate lapsed {formatShortDate(expiry.expiresAt)} —
                 AgriSkills certificates are valid for 24 months. Retake the
                 course to refresh it:{" "}
-                <Link
-                  to={`/courses/${course?.slug ?? ""}`}
+                <Link href={`/courses/${course?.slug ?? ""}`}
                   className="font-medium underline underline-offset-2"
                 >
                   review course

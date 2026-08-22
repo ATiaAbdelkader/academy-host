@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AiAssistant, AssistantToggle } from "@/components/AiAssistant";
@@ -36,7 +39,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import type { ContentBlock } from "@/convex/schema";
 import { toast } from "sonner";
 
@@ -423,8 +425,7 @@ function QuizBlock({
 
         {!isAuthenticated ? (
           <p className="text-xs text-muted-foreground">
-            <Link
-              to={`/auth?returnTo=${window.location.pathname}`}
+            <Link href={`/auth?returnTo=${window.location.pathname}`}
               className="text-term-green underline-offset-4 hover:underline"
             >
               Sign in
@@ -518,7 +519,7 @@ function BlockView({
 
 export default function Course() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [searchParams] = useSearchParams();
   const { user, isAuthenticated } = useAuth();
 
@@ -865,8 +866,7 @@ export default function Course() {
 
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
         {/* ── Back ──────────────────────────────────────────────── */}
-        <Link
-          to="/courses"
+        <Link href="/courses"
           className="group inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-term-green"
         >
           <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -889,7 +889,7 @@ export default function Course() {
               such course in the catalog
             </p>
             <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
-              <Link to="/courses">back to catalog</Link>
+              <Link href="/courses">back to catalog</Link>
             </Button>
           </div>
         )}
@@ -1013,8 +1013,7 @@ export default function Course() {
                     <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
                       <UserRound className="size-3.5 text-term-green" />
                       instructor:
-                      <Link
-                        to="/instructors"
+                      <Link href="/instructors"
                         className="font-medium text-foreground/80 underline-offset-4 hover:text-term-green hover:underline"
                       >
                         {course.instructor}
@@ -1244,8 +1243,7 @@ export default function Course() {
                       ) : selectedIsFull ? (
                         !isAuthenticated ? (
                           <Button asChild className="w-full text-sm">
-                            <Link
-                              to={`/auth?returnTo=/courses/${course.slug}`}
+                            <Link href={`/auth?returnTo=/courses/${course.slug}`}
                             >
                               sign in to join waitlist
                               <ArrowLeft className="rotate-180" />
@@ -1275,8 +1273,7 @@ export default function Course() {
                         )
                       ) : !isAuthenticated ? (
                         <Button asChild className="w-full text-sm">
-                          <Link
-                            to={`/auth?returnTo=/courses/${course.slug}`}
+                          <Link href={`/auth?returnTo=/courses/${course.slug}`}
                           >
                             sign in to book <ArrowLeft className="rotate-180" />
                           </Link>
@@ -1388,7 +1385,7 @@ export default function Course() {
                           size="sm"
                           className="w-full text-xs"
                         >
-                          <Link to={`/certificate/${course._id}`}>
+                          <Link href={`/certificate/${course._id}`}>
                             <Award className="size-3.5" />
                             view certificate
                           </Link>
@@ -1476,8 +1473,7 @@ export default function Course() {
                   </form>
                 ) : (
                   <div className="border-b border-border px-4 py-4 text-xs text-muted-foreground">
-                    <Link
-                      to={`/auth?returnTo=/courses/${course.slug}`}
+                    <Link href={`/auth?returnTo=/courses/${course.slug}`}
                       className="text-term-green underline-offset-4 hover:underline"
                     >
                       Sign in

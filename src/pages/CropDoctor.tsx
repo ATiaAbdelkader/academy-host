@@ -1,10 +1,11 @@
+"use client";
+import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Camera, Search, AlertTriangle, CheckCircle, BookOpen, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router";
 
 export default function CropDoctor() {
   const { user } = useAuth();
@@ -118,7 +119,7 @@ export default function CropDoctor() {
                 <p className="text-sm font-mono">{result.treatment}</p>
               </div>
               {result.relatedCourseSlug && (
-                <Link to={`/courses/${result.relatedCourseSlug}`} className="inline-flex items-center gap-1 mt-3 text-xs font-mono text-term-green hover:underline">
+                <Link href={`/courses/${result.relatedCourseSlug}`} className="inline-flex items-center gap-1 mt-3 text-xs font-mono text-term-green hover:underline">
                   <BookOpen className="w-3 h-3" />Learn more in the related course
                 </Link>
               )}

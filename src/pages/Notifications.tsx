@@ -1,9 +1,10 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery } from "convex/react";
 import { Bell, BellOff, CheckCheck } from "lucide-react";
-import { Link } from "react-router";
 
 const KIND_LABELS: Record<string, string> = {
   booking_confirmed: "booking confirmed",
@@ -117,7 +118,7 @@ export default function Notifications() {
                   className="h-7 shrink-0 text-[11px]"
                   onClick={() => void markRead({ id: notification._id })}
                 >
-                  <Link to={notification.link}>open</Link>
+                  <Link href={notification.link}>open</Link>
                 </Button>
               )}
             </div>

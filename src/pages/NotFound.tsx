@@ -1,7 +1,8 @@
+"use client";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Leaf, Sprout } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
 
 export default function NotFound() {
   return (
@@ -50,10 +51,10 @@ export default function NotFound() {
             className="mt-8 flex items-center justify-center gap-3"
           >
             <Button asChild variant="outline" size="sm" className="rounded-xl">
-              <Link to="/">Back to Home</Link>
+              <Link href="/">Back to Home</Link>
             </Button>
             <Button asChild size="sm" className="gap-1.5 rounded-xl shadow-md">
-              <Link to="/courses">
+              <Link href="/courses">
                 <Leaf className="size-3.5" />
                 Browse Catalog
               </Link>

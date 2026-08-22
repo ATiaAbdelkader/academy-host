@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -11,12 +13,11 @@ import {
   ChevronDown,
   X,
 } from "lucide-react";
-import { Link } from "react-router";
 import { useState, useRef, useEffect } from "react";
 
 export function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2.5">
+    <Link href="/" className="flex items-center gap-2.5">
       <span className="flex size-9 items-center justify-center rounded-xl bg-agri-green shadow-md">
         <Leaf className="size-5 text-white" />
       </span>
@@ -51,32 +52,32 @@ function MobileNav({
           </button>
         </div>
         <nav className="flex flex-col p-3 gap-0.5">
-          <MobileLink to="/courses" onClick={onClose}>Catalog</MobileLink>
-          <MobileLink to="/instructors" onClick={onClose}>Instructors</MobileLink>
-          <MobileLink to="/bundles" onClick={onClose}>Bundles</MobileLink>
-          <MobileLink to="/market" onClick={onClose}>Market Prices</MobileLink>
+          <MobileLink href="/courses" onClick={onClose}>Catalog</MobileLink>
+          <MobileLink href="/instructors" onClick={onClose}>Instructors</MobileLink>
+          <MobileLink href="/bundles" onClick={onClose}>Bundles</MobileLink>
+          <MobileLink href="/market" onClick={onClose}>Market Prices</MobileLink>
           {isAuthenticated && (
             <>
               <div className="my-2.5 h-px bg-border/40" />
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Learning</div>
-              <MobileLink to="/dashboard" onClick={onClose}>Dashboard</MobileLink>
-              <MobileLink to="/study" onClick={onClose}>Study Plan</MobileLink>
-              <MobileLink to="/learning-paths" onClick={onClose}>Learning Paths</MobileLink>
-              <MobileLink to="/flashcards" onClick={onClose}>Flashcards</MobileLink>
-              <MobileLink to="/knowledge-base" onClick={onClose}>Knowledge Base</MobileLink>
+              <MobileLink href="/dashboard" onClick={onClose}>Dashboard</MobileLink>
+              <MobileLink href="/study" onClick={onClose}>Study Plan</MobileLink>
+              <MobileLink href="/learning-paths" onClick={onClose}>Learning Paths</MobileLink>
+              <MobileLink href="/flashcards" onClick={onClose}>Flashcards</MobileLink>
+              <MobileLink href="/knowledge-base" onClick={onClose}>Knowledge Base</MobileLink>
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Farm Tools</div>
-              <MobileLink to="/farm-hub" onClick={onClose}>Farm Hub</MobileLink>
-              <MobileLink to="/farm-tools" onClick={onClose}>Farm Tools</MobileLink>
-              <MobileLink to="/crop-doctor" onClick={onClose}>Crop Doctor</MobileLink>
-              <MobileLink to="/farm-simulator" onClick={onClose}>Farm Simulator</MobileLink>
+              <MobileLink href="/farm-hub" onClick={onClose}>Farm Hub</MobileLink>
+              <MobileLink href="/farm-tools" onClick={onClose}>Farm Tools</MobileLink>
+              <MobileLink href="/crop-doctor" onClick={onClose}>Crop Doctor</MobileLink>
+              <MobileLink href="/farm-simulator" onClick={onClose}>Farm Simulator</MobileLink>
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Community</div>
-              <MobileLink to="/leaderboard" onClick={onClose}>Leaderboard</MobileLink>
-              <MobileLink to="/study-groups" onClick={onClose}>Study Groups</MobileLink>
-              <MobileLink to="/mentorship" onClick={onClose}>Mentorship</MobileLink>
+              <MobileLink href="/leaderboard" onClick={onClose}>Leaderboard</MobileLink>
+              <MobileLink href="/study-groups" onClick={onClose}>Study Groups</MobileLink>
+              <MobileLink href="/mentorship" onClick={onClose}>Mentorship</MobileLink>
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Account</div>
-              <MobileLink to="/certificates" onClick={onClose}>Certificates</MobileLink>
-              <MobileLink to="/settings" onClick={onClose}>Settings</MobileLink>
-              {isAdmin && <MobileLink to="/admin" onClick={onClose}>Admin</MobileLink>}
+              <MobileLink href="/certificates" onClick={onClose}>Certificates</MobileLink>
+              <MobileLink href="/settings" onClick={onClose}>Settings</MobileLink>
+              {isAdmin && <MobileLink href="/admin" onClick={onClose}>Admin</MobileLink>}
             </>
           )}
         </nav>
@@ -87,8 +88,7 @@ function MobileNav({
 
 function MobileLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick: () => void }) {
   return (
-    <Link
-      to={to}
+    <Link href={to}
       onClick={onClick}
       className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
     >
@@ -181,8 +181,7 @@ function MoreDropdown({ isAuthenticated, isAdmin }: { isAuthenticated: boolean; 
 
 function DropdownLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link
-      to={to}
+    <Link href={to}
       className="block rounded-xl px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
     >
       {children}
@@ -222,27 +221,23 @@ export function AppHeader({ path }: { path?: string }) {
           </div>
 
           <nav className="hidden items-center gap-0.5 md:flex">
-            <Link
-              to="/courses"
+            <Link href="/courses"
               className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
             >
               Catalog
             </Link>
-            <Link
-              to="/instructors"
+            <Link href="/instructors"
               className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
             >
               Instructors
             </Link>
-            <Link
-              to="/bundles"
+            <Link href="/bundles"
               className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
             >
               Bundles
             </Link>
             {isAuthenticated && (
-              <Link
-                to="/dashboard"
+              <Link href="/dashboard"
                 className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
               >
                 Dashboard
@@ -254,8 +249,7 @@ export function AppHeader({ path }: { path?: string }) {
           <div className="flex items-center gap-2.5">
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/notifications"
+                <Link href="/notifications"
                   className="relative flex size-9 items-center justify-center rounded-xl border border-border/40 text-muted-foreground transition-all hover:border-agri-green/40 hover:bg-accent hover:text-foreground"
                   aria-label="notifications"
                 >
@@ -285,10 +279,10 @@ export function AppHeader({ path }: { path?: string }) {
               <>
                 <ThemeToggle />
                 <Button asChild variant="ghost" size="sm" className="text-sm font-medium rounded-xl">
-                  <Link to="/auth">Sign In</Link>
+                  <Link href="/auth">Sign In</Link>
                 </Button>
                 <Button asChild size="sm" className="text-sm font-medium shadow-md rounded-xl">
-                  <Link to="/courses">Get Started</Link>
+                  <Link href="/courses">Get Started</Link>
                 </Button>
               </>
             )}

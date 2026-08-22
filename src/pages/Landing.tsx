@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/hooks/use-catalog";
@@ -19,7 +21,6 @@ import {
   X,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
@@ -37,10 +38,9 @@ const item = {
   transition: { duration: 0.4, ease: "easeOut" as const },
 };
 
-function MobileLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) {
+function MobileLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   return (
-    <Link
-      to={to}
+    <Link href={href}
       onClick={onClick}
       className="block rounded px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
     >
@@ -53,19 +53,19 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
   return (
     <div className="border-b border-border bg-background px-4 pb-4 pt-2 md:hidden">
-      <MobileLink to="/courses" onClick={onClose}>./catalog</MobileLink>
-      <MobileLink to="/instructors" onClick={onClose}>./instructors</MobileLink>
-      <MobileLink to="#features" onClick={onClose}>./features</MobileLink>
-      <MobileLink to="#how" onClick={onClose}>./how-it-works</MobileLink>
-      <MobileLink to="#testimonials" onClick={onClose}>./testimonials</MobileLink>
-      <MobileLink to="#faq" onClick={onClose}>./faq</MobileLink>
+      <MobileLink href="/courses" onClick={onClose}>./catalog</MobileLink>
+      <MobileLink href="/instructors" onClick={onClose}>./instructors</MobileLink>
+      <MobileLink href="#features" onClick={onClose}>./features</MobileLink>
+      <MobileLink href="#how" onClick={onClose}>./how-it-works</MobileLink>
+      <MobileLink href="#testimonials" onClick={onClose}>./testimonials</MobileLink>
+      <MobileLink href="#faq" onClick={onClose}>./faq</MobileLink>
     </div>
   );
 }
 
 function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2.5">
+    <Link href="/" className="flex items-center gap-2.5">
       <span className="flex size-7 items-center justify-center bg-term-green shadow-md glow-pulse">
         <Leaf className="size-4 text-white" />
       </span>
@@ -134,14 +134,12 @@ export default function Landing() {
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
           <nav className="hidden items-center gap-1 text-xs text-muted-foreground md:flex">
-            <Link
-              to="/courses"
+            <Link href="/courses"
               className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
               ./catalog
             </Link>
-            <Link
-              to="/instructors"
+            <Link href="/instructors"
               className="rounded px-2.5 py-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
             >
               ./instructors
@@ -180,12 +178,12 @@ export default function Landing() {
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
             <Button asChild variant="ghost" size="sm" className="hidden text-xs sm:inline-flex">
-              <Link to="/auth">
+              <Link href="/auth">
                 <span className="text-term-green">$</span> sign_in
               </Link>
             </Button>
             <Button asChild size="sm" className="hidden text-xs gap-1.5 sm:inline-flex">
-              <Link to="/courses">
+              <Link href="/courses">
                 browse catalog <ArrowRight className="size-3.5" />
               </Link>
             </Button>
@@ -220,12 +218,12 @@ export default function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="gap-2 text-sm">
-                <Link to="/courses">
+                <Link href="/courses">
                   explore courses <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-sm">
-                <Link to="/auth?returnTo=/courses">
+                <Link href="/auth?returnTo=/courses">
                   <span className="text-term-green">$</span> start learning
                 </Link>
               </Button>
@@ -479,8 +477,7 @@ export default function Landing() {
                       </Link>
                     ))}
                     {categoryCourses.length > 3 && (
-                      <Link
-                        to="/courses"
+                      <Link href="/courses"
                         className="flex items-center justify-center gap-1 border-t border-border px-3 py-2 text-xs text-term-green transition-colors hover:bg-accent/40"
                       >
                         view all {categoryCourses.length} courses
@@ -506,7 +503,7 @@ export default function Landing() {
           {published.length > 0 && (
             <div className="mt-8 text-center">
               <Button asChild variant="outline" className="gap-2 text-sm">
-                <Link to="/courses">
+                <Link href="/courses">
                   view full catalog <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -741,12 +738,12 @@ export default function Landing() {
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                 <Button asChild className="gap-2 bg-white text-agri-green font-semibold shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all text-sm">
-                  <Link to="/courses">
+                  <Link href="/courses">
                     explore courses <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="text-sm">
-                  <Link to="/auth">sign in</Link>
+                  <Link href="/auth">sign in</Link>
                 </Button>
               </div>
             </div>
@@ -780,9 +777,9 @@ export default function Landing() {
               <div>
                 <p className="font-semibold text-foreground">Platform</p>
                 <div className="mt-2 flex flex-col gap-1.5 text-muted-foreground">
-                  <Link to="/courses" className="hover:text-foreground transition-colors">Course Catalog</Link>
-                  <Link to="/instructors" className="hover:text-foreground transition-colors">Instructors</Link>
-                  <Link to="/verify-credential" className="hover:text-foreground transition-colors">Verify Certificate</Link>
+                  <Link href="/courses" className="hover:text-foreground transition-colors">Course Catalog</Link>
+                  <Link href="/instructors" className="hover:text-foreground transition-colors">Instructors</Link>
+                  <Link href="/verify-credential" className="hover:text-foreground transition-colors">Verify Certificate</Link>
                 </div>
               </div>
               <div>

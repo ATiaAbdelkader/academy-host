@@ -12,7 +12,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import type { ContentBlock, CourseModule } from "@/convex/schema";
 import { ArrowLeft, Eye, Lock, Play, MessageSquare, Star } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "next/link";
 
 type CourseDoc = Doc<"courses">;
 

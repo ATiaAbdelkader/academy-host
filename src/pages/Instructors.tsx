@@ -1,10 +1,11 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
 import { useQuery_experimental } from "convex/react";
 import { BookOpen, Clock3, GraduationCap, TriangleAlert, UserRound } from "lucide-react";
-import { Link } from "react-router";
 
 export default function Instructors() {
   // Non-throwing variant: a failed query renders an error state instead of

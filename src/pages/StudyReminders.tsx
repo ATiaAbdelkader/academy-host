@@ -1,8 +1,9 @@
+"use client";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Bell, Clock, CheckCircle, AlertCircle, BookOpen } from "lucide-react";
-import { Link } from "react-router";
 
 export default function StudyReminders() {
   const { user } = useAuth();
@@ -114,7 +115,7 @@ export default function StudyReminders() {
           ) : (
             <div className="border border-border bg-card p-4 text-center">
               <p className="text-xs text-muted-foreground font-mono">No active study plans.</p>
-              <Link to="/courses" className="text-xs font-mono text-term-green hover:underline mt-2 inline-block">Start a course to create a plan →</Link>
+              <Link href="/courses" className="text-xs font-mono text-term-green hover:underline mt-2 inline-block">Start a course to create a plan →</Link>
             </div>
           )}
         </div>

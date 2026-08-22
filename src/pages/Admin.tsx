@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { AppHeader } from "@/components/AppHeader";
@@ -48,7 +50,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 import { toast } from "sonner";
 
 type CourseDoc = Doc<"courses">;
@@ -118,7 +119,7 @@ export default function Admin() {
               : "This account does not have administrator privileges."}
           </p>
           <Button asChild variant="outline" size="sm" className="mt-5 text-xs">
-            <Link to="/dashboard">back to my sessions</Link>
+            <Link href="/dashboard">back to my sessions</Link>
           </Button>
         </div>
       </main>
@@ -418,8 +419,7 @@ function CoursesTab() {
           >
             <span className="text-[11px] text-term-green">{course.order}</span>
             <span className="min-w-0">
-              <Link
-                to={`/courses/${course.slug}`}
+              <Link href={`/courses/${course.slug}`}
                 className="block truncate text-sm font-medium underline-offset-4 hover:underline"
               >
                 {course.title}
@@ -1595,8 +1595,7 @@ function UsersTab() {
                             key={booking._id}
                             className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
                           >
-                            <Link
-                              to={`/courses/${booking.courseSlug}`}
+                            <Link href={`/courses/${booking.courseSlug}`}
                               className="truncate font-medium underline-offset-4 hover:underline"
                             >
                               {booking.courseTitle}
@@ -1628,8 +1627,7 @@ function UsersTab() {
                             key={entry._id}
                             className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs last:border-b-0"
                           >
-                            <Link
-                              to={`/courses/${entry.courseSlug}`}
+                            <Link href={`/courses/${entry.courseSlug}`}
                               className="truncate font-medium underline-offset-4 hover:underline"
                             >
                               {entry.courseTitle}

@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AiAssistant, AssistantToggle } from "@/components/AiAssistant";
 import { AppHeader } from "@/components/AppHeader";
@@ -20,7 +22,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
 
 export default function Catalog() {
   const courses = useCatalog();

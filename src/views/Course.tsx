@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
+import { useCourseBySlug } from "@/hooks/use-catalog";
 import { formatMoney, formatSession } from "@/lib/format";
 import {
   getOfflineCourse,
@@ -524,7 +525,7 @@ export default function Course() {
   const searchParams = useSearchParams() ?? new URLSearchParams();
   const { user, isAuthenticated } = useAuth();
 
-  const liveCourse = useQuery(api.courses.getBySlug, { slug: slug ?? "" });
+  const liveCourse = useCourseBySlug(slug);
   const [offlineCourse, setOfflineCourse] = useState<Doc<"courses"> | null>(
     null,
   );
@@ -692,9 +693,9 @@ export default function Course() {
     : undefined;
   // Modules — legacy flat content renders as a single module.
   const modules =
-    course && course.modules && course.modules.length > 0
+    course && course.modules && Array.isArray(course.modules) && course.modules.length > 0
       ? course.modules
-      : course
+      : course && course.content && Array.isArray(course.content) && course.content.length > 0
         ? [{ title: "Course content", content: course.content }]
         : [];
   // Flatten quiz blocks in reading order; each module's quiz ordinal is its

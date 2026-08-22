@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "@/lib/convex-react-safe";
-import { fallbackCatalog } from "@/lib/seed-catalog";
-import { useEffect, useRef } from "react";
+import { fallbackCatalog, type FallbackCourse } from "@/lib/seed-catalog";
+import { useEffect, useRef, useMemo } from "react";
 
 /**
  * Returns true when the Convex client is pointing at a real deployment
@@ -49,5 +49,26 @@ export function useCatalog() {
   // Priority: Convex live data > fallback > undefined (loading)
   if (convexCourses !== undefined) return convexCourses;
   if (!CONVEX_READY) return fallbackCatalog;
+  return undefined;
+}
+
+/**
+ * Look up a single course by slug, with static fallback when Convex is
+ * not configured. Returns the course object, null if not found, or
+ * undefined while loading.
+ */
+export function useCourseBySlug(slug: string | undefined): FallbackCourse | null | undefined {
+  const liveCourse = useQuery(
+    api.courses.getBySlug,
+    slug ? { slug } : "skip",
+  );
+
+  const fallback = useMemo(() => {
+    if (CONVEX_READY || !slug) return undefined;
+    return fallbackCatalog.find((c) => c.slug === slug) ?? null;
+  }, [slug]);
+
+  if (liveCourse !== undefined) return liveCourse as FallbackCourse | null;
+  if (fallback !== undefined) return fallback;
   return undefined;
 }

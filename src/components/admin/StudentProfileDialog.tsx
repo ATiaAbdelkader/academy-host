@@ -19,7 +19,7 @@ import {
   Star,
   Trophy,
 } from "lucide-react";
-import { Link } from "next/link";
+import Link from "next/link";
 
 function StatBox({
   label,
@@ -179,7 +179,7 @@ export function StudentProfileDialog({
                 >
                   <span className="min-w-0 truncate">
                     <Link
-                      to={`/courses/${booking.courseSlug}`}
+                      href={`/courses/${booking.courseSlug}`}
                       className="font-medium underline-offset-4 hover:underline"
                     >
                       {booking.courseTitle}
@@ -265,7 +265,7 @@ export function StudentProfileDialog({
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-2 text-xs last:border-b-0"
                 >
                   <Link
-                    to={`/courses/${entry.courseSlug}`}
+                    href={`/courses/${entry.courseSlug}`}
                     className="min-w-0 truncate font-medium underline-offset-4 hover:underline"
                   >
                     {entry.courseTitle}

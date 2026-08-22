@@ -1,6 +1,7 @@
 // VLY Integrations Configuration
 // See /integrations.md for usage documentation
 
+// @ts-expect-error -- optional integration, may not be installed
 import { createVlyIntegrations } from '@vly-ai/integrations';
 
 export const vly = createVlyIntegrations({

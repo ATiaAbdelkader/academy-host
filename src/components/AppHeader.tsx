@@ -86,9 +86,9 @@ function MobileNav({
   );
 }
 
-function MobileLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick: () => void }) {
+function MobileLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick: () => void }) {
   return (
-    <Link href={to}
+    <Link href={href}
       onClick={onClick}
       className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
     >
@@ -125,50 +125,50 @@ function MoreDropdown({ isAuthenticated, isAdmin }: { isAuthenticated: boolean; 
       </button>
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-60 rounded-2xl glass-card p-2 shadow-xl shadow-black/[0.08] border border-border/30 animate-in fade-in slide-in-from-top-2 duration-200">
-          <DropdownLink to="/market">Market Prices</DropdownLink>
-          <DropdownLink to="/verify-credential">Verify Certificate</DropdownLink>
+          <DropdownLink href="/market">Market Prices</DropdownLink>
+          <DropdownLink href="/verify-credential">Verify Certificate</DropdownLink>
           {isAuthenticated && (
             <>
               <div className="my-1.5 h-px bg-border/40" />
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Learning</div>
-              <DropdownLink to="/study">Study Plan</DropdownLink>
-              <DropdownLink to="/learning-paths">Learning Paths</DropdownLink>
-              <DropdownLink to="/flashcards">Flashcards</DropdownLink>
-              <DropdownLink to="/knowledge-base">Knowledge Base</DropdownLink>
-              <DropdownLink to="/field-journal">Field Journal</DropdownLink>
-              <DropdownLink to="/learn">Micro Learning</DropdownLink>
+              <DropdownLink href="/study">Study Plan</DropdownLink>
+              <DropdownLink href="/learning-paths">Learning Paths</DropdownLink>
+              <DropdownLink href="/flashcards">Flashcards</DropdownLink>
+              <DropdownLink href="/knowledge-base">Knowledge Base</DropdownLink>
+              <DropdownLink href="/field-journal">Field Journal</DropdownLink>
+              <DropdownLink href="/learn">Micro Learning</DropdownLink>
               <div className="my-1.5 h-px bg-border/40" />
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Farm</div>
-              <DropdownLink to="/farm-hub">Farm Hub</DropdownLink>
-              <DropdownLink to="/farm-tools">Farm Tools</DropdownLink>
-              <DropdownLink to="/crop-doctor">Crop Doctor</DropdownLink>
-              <DropdownLink to="/farm-simulator">Farm Simulator</DropdownLink>
-              <DropdownLink to="/advisory">Advisory</DropdownLink>
+              <DropdownLink href="/farm-hub">Farm Hub</DropdownLink>
+              <DropdownLink href="/farm-tools">Farm Tools</DropdownLink>
+              <DropdownLink href="/crop-doctor">Crop Doctor</DropdownLink>
+              <DropdownLink href="/farm-simulator">Farm Simulator</DropdownLink>
+              <DropdownLink href="/advisory">Advisory</DropdownLink>
               <div className="my-1.5 h-px bg-border/40" />
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Community</div>
-              <DropdownLink to="/leaderboard">Leaderboard</DropdownLink>
-              <DropdownLink to="/study-groups">Study Groups</DropdownLink>
-              <DropdownLink to="/mentorship">Mentorship</DropdownLink>
-              <DropdownLink to="/challenges">Challenges</DropdownLink>
-              <DropdownLink to="/peer-reviews">Peer Reviews</DropdownLink>
-              <DropdownLink to="/showcase">Showcase</DropdownLink>
-              <DropdownLink to="/seasonal">Seasonal</DropdownLink>
+              <DropdownLink href="/leaderboard">Leaderboard</DropdownLink>
+              <DropdownLink href="/study-groups">Study Groups</DropdownLink>
+              <DropdownLink href="/mentorship">Mentorship</DropdownLink>
+              <DropdownLink href="/challenges">Challenges</DropdownLink>
+              <DropdownLink href="/peer-reviews">Peer Reviews</DropdownLink>
+              <DropdownLink href="/showcase">Showcase</DropdownLink>
+              <DropdownLink href="/seasonal">Seasonal</DropdownLink>
               <div className="my-1.5 h-px bg-border/40" />
               <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Progress</div>
-              <DropdownLink to="/analytics">Analytics</DropdownLink>
-              <DropdownLink to="/certificates">Certificates</DropdownLink>
-              <DropdownLink to="/transcript">Skills Transcript</DropdownLink>
-              <DropdownLink to="/skills">Competencies</DropdownLink>
-              <DropdownLink to="/portfolio">Portfolio</DropdownLink>
-              <DropdownLink to="/exports">Exports</DropdownLink>
-              <DropdownLink to="/compare">Compare</DropdownLink>
+              <DropdownLink href="/analytics">Analytics</DropdownLink>
+              <DropdownLink href="/certificates">Certificates</DropdownLink>
+              <DropdownLink href="/transcript">Skills Transcript</DropdownLink>
+              <DropdownLink href="/skills">Competencies</DropdownLink>
+              <DropdownLink href="/portfolio">Portfolio</DropdownLink>
+              <DropdownLink href="/exports">Exports</DropdownLink>
+              <DropdownLink href="/compare">Compare</DropdownLink>
               {isAdmin && (
                 <>
                   <div className="my-1.5 h-px bg-border/40" />
                   <div className="my-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Admin</div>
-                  <DropdownLink to="/admin">Admin Panel</DropdownLink>
-                  <DropdownLink to="/revenue">Revenue</DropdownLink>
-                  <DropdownLink to="/instructor-analytics">Instructor Analytics</DropdownLink>
+                  <DropdownLink href="/admin">Admin Panel</DropdownLink>
+                  <DropdownLink href="/revenue">Revenue</DropdownLink>
+                  <DropdownLink href="/instructor-analytics">Instructor Analytics</DropdownLink>
                 </>
               )}
             </>
@@ -179,9 +179,9 @@ function MoreDropdown({ isAuthenticated, isAdmin }: { isAuthenticated: boolean; 
   );
 }
 
-function DropdownLink({ to, children }: { to: string; children: React.ReactNode }) {
+function DropdownLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={to}
+    <Link href={href}
       className="block rounded-xl px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
     >
       {children}

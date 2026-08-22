@@ -52,7 +52,7 @@ export default function Bundles() {
             return (
               <Link
                 key={bundle._id}
-                to={`/bundles/${bundle.slug}`}
+                href={`/bundles/${bundle.slug}`}
                 className="group flex flex-col border border-border bg-card transition-colors hover:border-term-green/50"
               >
                 <div className="flex items-start justify-between gap-3 border-b border-border bg-muted px-5 py-4">

@@ -20,14 +20,14 @@ export function LogoDropdown() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate("/");
+      navigate.push("/");
     } catch (error) {
       console.error("Sign out error:", error);
     }
   };
 
   const handleGoHome = () => {
-    navigate("/");
+    navigate.push("/");
   };
 
   return (

@@ -56,7 +56,7 @@ export default function FarmDashboard() {
             { label: "Total Points", value: stats?.points || 0, icon: Trophy, color: "text-amber-600", link: "/leaderboard" },
             { label: "Day Streak", value: stats?.streakDays || 0, icon: Calendar, color: "text-orange-600", link: "/challenges" },
           ].map((s) => (
-            <Link key={s.label} to={s.link} className="border border-border bg-card p-3 hover:bg-muted/50 transition-colors">
+            <Link key={s.label} href={s.link} className="border border-border bg-card p-3 hover:bg-muted/50 transition-colors">
               <div className="flex items-center gap-1.5">
                 <s.icon className="w-3 h-3" style={{ color: "currentColor" }} />
                 <span className="text-[10px] text-muted-foreground font-mono">{s.label}</span>
@@ -71,7 +71,7 @@ export default function FarmDashboard() {
           <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><Sprout className="w-4 h-4" />Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {quickLinks.map((link) => (
-              <Link key={link.to} to={link.to} className="border border-border bg-card p-4 hover:bg-muted/50 transition-colors group">
+              <Link key={link.to} href={link.to} className="border border-border bg-card p-4 hover:bg-muted/50 transition-colors group">
                 <link.icon className="w-6 h-6 text-term-green mb-2 group-hover:scale-110 transition-transform" />
                 <h3 className="text-sm font-bold font-mono">{link.label}</h3>
                 <p className="text-[10px] text-muted-foreground font-mono mt-1">{link.desc}</p>

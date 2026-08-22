@@ -201,7 +201,7 @@ export default function LearningPaths() {
                     {path.courses.filter((c): c is NonNullable<typeof c> => c !== null).map((course, i) => (
                         <Link
                           key={course._id}
-                          to={`/courses/${course.slug}`}
+                          href={`/courses/${course.slug}`}
                           className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-accent/30"
                         >
                           <div className="flex items-center gap-3">

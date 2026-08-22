@@ -19,8 +19,8 @@ export function useAuth() {
     signIn = actions.signIn;
     signOut = actions.signOut;
   } else {
-    signIn = () => Promise.resolve(undefined);
-    signOut = () => Promise.resolve();
+    signIn = () => Promise.resolve({ signingIn: true } as any);
+    signOut = () => Promise.resolve({ signingIn: false } as any);
   }
 
   const isLoading = isAuthLoading || user === undefined;

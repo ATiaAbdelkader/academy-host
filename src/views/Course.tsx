@@ -763,7 +763,7 @@ export default function Course() {
         "agriskills:pending-coupon",
       );
       window.sessionStorage.removeItem("agriskills:pending-coupon");
-      navigate(
+      navigate.push(
         pendingCoupon
           ? `/booking/${bookingId}?coupon=${encodeURIComponent(pendingCoupon)}`
           : `/booking/${bookingId}`,

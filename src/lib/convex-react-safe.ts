@@ -39,7 +39,7 @@ export function useQuery(...args: any[]): any {
     stubRef();
     return undefined;
   }
-  return _useQuery(...args);
+  return (_useQuery as Function)(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +48,7 @@ export function useMutation(...args: any[]): any {
     stubRef();
     return useCallback(() => Promise.resolve(undefined), []);
   }
-  return _useMutation(...args);
+  return (_useMutation as Function)(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,7 +57,7 @@ export function useAction(...args: any[]): any {
     stubRef();
     return useCallback(() => Promise.resolve(undefined), []);
   }
-  return _useAction(...args);
+  return (_useAction as Function)(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +66,7 @@ export function usePaginatedQuery(...args: any[]): any {
     stubRef();
     return { results: undefined, status: "Loading" as const, loadMore: async () => {} };
   }
-  return _usePaginatedQuery(...args);
+  return (_usePaginatedQuery as Function)(...args);
 }
 
 /** useConvexAuth — returns undefined on server (no auth context). */
@@ -84,7 +84,7 @@ export function useQuery_experimental(...args: any[]): any {
   if (isServer) {
     return useQuery(...args);
   }
-  return _useQuery_experimental(...args);
+  return (_useQuery_experimental as Function)(...args);
 }
 
 /** ConvexReactClient and ConvexProvider — re-exported for provider setup. */

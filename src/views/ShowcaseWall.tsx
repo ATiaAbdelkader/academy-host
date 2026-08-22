@@ -109,7 +109,7 @@ export default function ShowcaseWall() {
               {completedCourses.map((course: any) => course && (
                 <Link
                   key={course._id}
-                  to={`/courses/${course.slug}`}
+                  href={`/courses/${course.slug}`}
                   className="flex items-center gap-3 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg p-3 hover:border-green-300 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">

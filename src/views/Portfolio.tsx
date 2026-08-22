@@ -60,7 +60,7 @@ export default function Portfolio() {
               {completedCourses.map((cert: any) => {
                 const course = courses?.find((c: any) => c._id === cert.courseId);
                 return (
-                  <Link key={cert._id} to={`/certificate/${cert.courseId}`} className="block p-4 border border-border rounded-lg bg-card hover:border-green-500/50 transition-colors">
+                  <Link key={cert._id} href={`/certificate/${cert.courseId}`} className="block p-4 border border-border rounded-lg bg-card hover:border-green-500/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-semibold">{course?.title ?? "Completed Course"}</div>

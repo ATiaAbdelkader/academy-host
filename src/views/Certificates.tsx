@@ -212,7 +212,7 @@ export default function Certificates() {
               {inProgress.map(({ progress: entry, course }) => (
                 <Link
                   key={entry.courseId}
-                  to={`/courses/${course.slug}`}
+                  href={`/courses/${course.slug}`}
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-accent/30"
                 >
                   <span className="flex min-w-0 items-center gap-2.5">

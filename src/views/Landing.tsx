@@ -436,13 +436,13 @@ export default function Landing() {
               );
               return (
                 <div
-                  key={category}
+                  key={String(category)}
                   className="border border-border bg-card transition-all hover:border-term-green/40 hover:shadow-[3px_3px_0_0_color-mix(in_oklch,var(--term-green)_8%,transparent)]"
                 >
                   <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
                     <span className="flex items-center gap-2 text-xs font-semibold">
                       <Sprout className="size-3.5 text-term-green" />
-                      track/{String(i + 1).padStart(2, "0")} — {category}
+                      track/{String(i + 1).padStart(2, "0")} — {String(category)}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
                       {categoryCourses.length}{" "}
@@ -453,7 +453,7 @@ export default function Landing() {
                     {categoryCourses.slice(0, 3).map((course, idx) => (
                       <Link
                         key={course._id}
-                        to={`/courses/${course.slug}`}
+                        href={`/courses/${course.slug}`}
                         className="group flex items-start gap-3 rounded px-2.5 py-2.5 transition-colors hover:bg-accent/60"
                       >
                         <span className="mt-0.5 text-[11px] text-muted-foreground">

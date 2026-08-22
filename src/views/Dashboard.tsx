@@ -196,7 +196,7 @@ export default function Dashboard() {
           ].map((item) => (
             <Link
               key={item.to}
-              to={item.to}
+              href={item.to}
               className="group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-card p-4 transition-colors hover:border-agri-green/40 card-hover"
             >
               <div className="flex size-10 items-center justify-center rounded-xl bg-agri-green/10 text-agri-green transition-colors group-hover:bg-agri-green/15">
@@ -325,7 +325,7 @@ export default function Dashboard() {
               {resumeEntries.map((entry) => (
                 <Link
                   key={entry.courseId}
-                  to={`/courses/${entry.courseSlug}?module=${entry.moduleIndex}`}
+                  href={`/courses/${entry.courseSlug}?module=${entry.moduleIndex}`}
                   className="group rounded-2xl border border-border/60 bg-card p-5 transition-all hover:border-agri-green/40 card-hover"
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -508,7 +508,7 @@ export default function Dashboard() {
               {nudges.map((nudge) => (
                 <Link
                   key={nudge.id}
-                  to={nudge.actionLink}
+                  href={nudge.actionLink}
                   className={`flex items-start gap-3 rounded-2xl border p-4 transition-colors hover:border-agri-green/40 ${
                     nudge.priority === "high"
                       ? "border-agri-amber/40 bg-agri-amber/[0.03]"

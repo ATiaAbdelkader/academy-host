@@ -107,7 +107,7 @@ export default function Instructors() {
                   {instructor.courses.map((course) => (
                     <Link
                       key={course.courseId}
-                      to={`/courses/${course.slug}`}
+                      href={`/courses/${course.slug}`}
                       className="group block border border-border px-3 py-2 transition-colors hover:border-term-green/50 hover:bg-accent/40"
                     >
                       <span className="flex items-baseline gap-2">

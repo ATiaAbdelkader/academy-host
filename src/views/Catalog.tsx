@@ -172,7 +172,7 @@ export default function Catalog() {
             {offlineCourses.map((entry) => (
               <Link
                 key={entry.slug}
-                to={`/courses/${entry.slug}`}
+                href={`/courses/${entry.slug}`}
                 className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 {String((entry.course as { title?: string }).title ?? entry.slug)}
@@ -281,7 +281,7 @@ export default function Catalog() {
                   return (
                     <Link
                       key={course._id}
-                      to={`/courses/${course.slug}`}
+                      href={`/courses/${course.slug}`}
                       className="card-hover group relative rounded-2xl border border-border/40 bg-card p-6 overflow-hidden"
                     >
                       {/* Subtle corner glow */}

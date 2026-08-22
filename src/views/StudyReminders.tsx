@@ -65,7 +65,7 @@ export default function StudyReminders() {
             <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><AlertCircle className="w-4 h-4 text-red-500" />Overdue Reviews</h2>
             <div className="space-y-2">
               {overdueCards.slice(0, 10).map((card) => (
-                <Link key={card._id} to={`/flashcards`} className="border border-red-200 bg-card p-3 flex items-center justify-between hover:bg-red-50 transition-colors">
+                <Link key={card._id} href={"/flashcards"} className="border border-red-200 bg-card p-3 flex items-center justify-between hover:bg-red-50 transition-colors">
                   <div>
                     <p className="text-sm font-bold font-mono">{card.question.slice(0, 60)}...</p>
                     <p className="text-[10px] text-muted-foreground font-mono">{card.courseTitle} · {card.moduleTitle}</p>
@@ -101,7 +101,7 @@ export default function StudyReminders() {
           {activePlans.length > 0 ? (
             <div className="space-y-2">
               {activePlans.map((plan) => (
-                <Link key={plan._id} to="/study" className="border border-border bg-card p-3 block hover:bg-muted/50 transition-colors">
+                <Link key={plan._id} href="/study" className="border border-border bg-card p-3 block hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold font-mono">{plan.title}</p>
@@ -126,7 +126,7 @@ export default function StudyReminders() {
           {activeCourseProgress.length > 0 ? (
             <div className="space-y-2">
               {activeCourseProgress.map((p) => (
-                <Link key={p._id} to={`/courses`} className="border border-border bg-card p-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                <Link key={p._id} href={"/courses"} className="border border-border bg-card p-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
                   <div>
                     <p className="text-sm font-bold font-mono">{p.courseId}</p>
                     <p className="text-[10px] text-muted-foreground font-mono">Module {(p.lastModuleIndex || 0) + 1}</p>

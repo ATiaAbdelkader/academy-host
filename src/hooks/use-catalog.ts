@@ -1,23 +1,37 @@
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "@/lib/convex-react-safe";
+import { fallbackCatalog } from "@/lib/seed-catalog";
 import { useEffect, useRef } from "react";
 
 /**
- * Subscribes to the training catalog and seeds the starter curriculum. The
- * seed is idempotent and fills in only missing courses, so it runs once per
- * session load — new catalog additions reach existing deployments on their
- * next load.
+ * Returns true when the Convex client is pointing at a real deployment
+ * (not the placeholder URL baked into ConvexClientProvider).
+ */
+function isConvexConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  return Boolean(url && url !== "" && !url.includes("placeholder"));
+}
+
+/** Memoised flag — computed once per module load. */
+const CONVEX_READY = isConvexConfigured();
+
+/**
+ * Subscribes to the training catalog and seeds the starter curriculum.
+ *
+ * When no Convex deployment URL is configured the hook returns a static
+ * fallback catalog so the UI still renders course cards in preview / demo
+ * mode — on both server (SSR) and client.
  */
 export function useCatalog() {
-  const courses = useQuery(api.courses.list);
+  const convexCourses = useQuery(api.courses.list);
   const seed = useMutation(api.courses.seed);
   const seedBundles = useMutation(api.bundles.seed);
   const attempted = useRef(false);
 
+  // When Convex IS configured, seed on first load.
   useEffect(() => {
-    if (courses !== undefined && !attempted.current) {
+    if (convexCourses !== undefined && !attempted.current && CONVEX_READY) {
       attempted.current = true;
-      // Seed in batches to avoid the 16 MB single-execution limit.
       const seedAll = async () => {
         let batch = 0;
         // eslint-disable-next-line no-constant-condition
@@ -30,7 +44,10 @@ export function useCatalog() {
       void seedAll();
       void seedBundles();
     }
-  }, [courses, seed, seedBundles]);
+  }, [convexCourses, seed, seedBundles]);
 
-  return courses;
+  // Priority: Convex live data > fallback > undefined (loading)
+  if (convexCourses !== undefined) return convexCourses;
+  if (!CONVEX_READY) return fallbackCatalog;
+  return undefined;
 }

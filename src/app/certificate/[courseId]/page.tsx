@@ -1,12 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import CertificatePage from "@/pages/Certificate";
-
-// Page receives params: courseId
-export default function Page() {
-  return (
-    <RequireAuth>
-      <CertificatePage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

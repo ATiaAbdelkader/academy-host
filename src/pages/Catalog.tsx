@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatMoney } from "@/lib/format";
 import { listOfflineCourses, type OfflineCourse } from "@/lib/offline";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import {
   ChevronRight,
   Download,

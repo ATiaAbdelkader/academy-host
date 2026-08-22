@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatSession } from "@/lib/format";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "@/lib/convex-react-safe";
 import {
   ArrowLeft,
   CalendarDays,
@@ -31,8 +31,9 @@ function WindowDots() {
 }
 
 export default function Booking() {
-  const { bookingId } = useParams<{ bookingId: string }>();
-  const [searchParams] = useSearchParams();
+  const params = useParams<{ bookingId: string }>();
+  const bookingId = params?.bookingId;
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const sessionId = searchParams.get("session_id");
   const checkoutCancelled = searchParams.get("cancelled") === "1";
 

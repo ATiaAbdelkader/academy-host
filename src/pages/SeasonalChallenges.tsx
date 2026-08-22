@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation } from "@/lib/convex-react-safe";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "../hooks/use-auth";
 import {

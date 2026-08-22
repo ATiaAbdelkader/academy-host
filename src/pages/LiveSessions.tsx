@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation } from "@/lib/convex-react-safe";
 import { api } from "../convex/_generated/api";
 import { useState } from "react";
 import { Calendar, Clock, Users, Video, ExternalLink } from "lucide-react";

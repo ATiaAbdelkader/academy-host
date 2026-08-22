@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import GamificationPage from "@/pages/Gamification";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <GamificationPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

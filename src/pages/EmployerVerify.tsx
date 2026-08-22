@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "@/convex/_generated/api";
 import {
   Shield, Search, CheckCircle2, XCircle, Award,

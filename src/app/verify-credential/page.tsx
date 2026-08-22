@@ -1,6 +1,5 @@
-"use client";
-import EmployerVerifyPage from "@/pages/EmployerVerify";
-
-export default function Page() {
-  return <EmployerVerifyPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

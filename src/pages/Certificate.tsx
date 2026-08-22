@@ -5,14 +5,15 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { Award, BadgeCheck, Loader2, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { certificateExpiry, formatShortDate } from "@/lib/format";
 
 export default function Certificate() {
-  const { courseId } = useParams<{ courseId: string }>();
-  const [searchParams] = useSearchParams();
+  const params = useParams<{ courseId: string }>();
+  const courseId = params?.courseId;
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const { user } = useAuth();
   const progress = useQuery(api.progress.myProgress);
   const courses = useQuery(api.courses.list);

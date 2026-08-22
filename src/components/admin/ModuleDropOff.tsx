@@ -1,5 +1,5 @@
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { TrendingDown } from "lucide-react";
 
 /**

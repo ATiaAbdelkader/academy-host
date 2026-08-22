@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { Award, Download, Eye, Leaf, Loader2, Lock, RefreshCcw, Sprout } from "lucide-react";
 import { certificateExpiry, formatShortDate } from "@/lib/format";
 

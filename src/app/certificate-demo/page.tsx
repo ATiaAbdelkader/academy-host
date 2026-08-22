@@ -1,6 +1,5 @@
-"use client";
-import CertificateDemoPage from "@/pages/CertificateDemo";
-
-export default function Page() {
-  return <CertificateDemoPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

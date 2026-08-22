@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import FarmDashboardPage from "@/pages/FarmDashboard";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <FarmDashboardPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

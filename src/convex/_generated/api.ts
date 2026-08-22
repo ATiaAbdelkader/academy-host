@@ -1,17 +1,16 @@
-// Convex generated API stub – replaces output of `npx convex dev`
-// Uses Proxy so any `api.<module>.<function>` access works at runtime.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fnStub: any = function () { return undefined; };
-fnStub.__args = {};
+import { anyApi } from "convex/server";
 
-export const api = new Proxy({} as any, {
-  get(_target: any, _prop: string | symbol) {
-    return new Proxy({} as any, {
-      get() {
-        return fnStub;
-      },
-    });
-  },
-});
-
+/**
+ * This file is a stand-in for the output of `npx convex dev`.
+ *
+ * `anyApi` is a lazy Proxy: accessing `api.courses.list` returns a valid
+ * Convex function reference whose `Symbol(for("functionName"))` evaluates
+ * to `"courses:list"` at runtime, which is exactly what `useQuery` /
+ * `useMutation` expect.
+ *
+ * When you run `npx convex dev` for the first time, Convex will overwrite
+ * this file with a fully-typed version. Until then, this keeps the app
+ * functional.
+ */
+export const api = anyApi;
 export type Api = typeof api;

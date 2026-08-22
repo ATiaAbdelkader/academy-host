@@ -38,7 +38,7 @@ import {
   fromLocalInputValue,
   toLocalInputValue,
 } from "@/lib/format";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "@/lib/convex-react-safe";
 import {
   CalendarDays,
   CheckCircle2,

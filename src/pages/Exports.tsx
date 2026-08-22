@@ -5,7 +5,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCatalog } from "@/hooks/use-catalog";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import {
   Award,
   BookOpen,

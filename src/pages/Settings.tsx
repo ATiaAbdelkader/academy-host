@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/lib/convex-react-safe";
 import { CheckCircle2, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

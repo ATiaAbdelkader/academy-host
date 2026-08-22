@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Flame, Clock, Zap, Target, BookOpen, Coffee, Bell, TrendingUp, AlertTriangle } from "lucide-react";

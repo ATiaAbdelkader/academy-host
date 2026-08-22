@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import StudyPlanPage from "@/pages/StudyPlan";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <StudyPlanPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation } from "@/lib/convex-react-safe";
 import { ArrowDown, ArrowUp, Loader2, Plus, Trash2, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

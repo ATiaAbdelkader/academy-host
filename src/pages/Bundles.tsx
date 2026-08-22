@@ -5,11 +5,12 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { ArrowLeft, ChevronRight, Package, Tag } from "lucide-react";
 
 export default function Bundles() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug;
   const bundles = useQuery(api.bundles.list);
 
   if (slug) {

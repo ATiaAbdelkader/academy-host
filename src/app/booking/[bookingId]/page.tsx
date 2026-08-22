@@ -1,12 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import BookingPage from "@/pages/Booking";
-
-// Page receives params: bookingId
-export default function Page() {
-  return (
-    <RequireAuth>
-      <BookingPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

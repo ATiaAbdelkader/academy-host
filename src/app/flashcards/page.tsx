@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import FlashcardsPage from "@/pages/Flashcards";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <FlashcardsPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

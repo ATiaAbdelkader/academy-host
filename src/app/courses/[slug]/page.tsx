@@ -1,7 +1,5 @@
-"use client";
-import CoursePage from "@/pages/Course";
-
-// Page receives params: slug
-export default function Page() {
-  return <CoursePage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

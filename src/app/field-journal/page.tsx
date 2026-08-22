@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import FieldJournalPage from "@/pages/FieldJournal";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <FieldJournalPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

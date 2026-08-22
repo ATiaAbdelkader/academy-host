@@ -1,11 +1,5 @@
-"use client";
-import { RequireAuth } from "@/components/RequireAuth";
-import CompetencyPassportPage from "@/pages/CompetencyPassport";
-
-export default function Page() {
-  return (
-    <RequireAuth>
-      <CompetencyPassportPage />
-    </RequireAuth>
-  );
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

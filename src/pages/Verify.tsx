@@ -4,12 +4,12 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { Award, BadgeCheck, Loader2, Search, XCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function Verify() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const [code, setCode] = useState(searchParams.get("code") ?? "");
   const [submitted, setSubmitted] = useState<string | null>(
     searchParams.get("code") ?? null,

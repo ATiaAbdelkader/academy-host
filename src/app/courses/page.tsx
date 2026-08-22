@@ -1,6 +1,5 @@
-"use client";
-import CatalogPage from "@/pages/Catalog";
-
-export default function Page() {
-  return <CatalogPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

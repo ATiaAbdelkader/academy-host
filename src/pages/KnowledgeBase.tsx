@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useMemo } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "../convex/_generated/api";
 import { Search, BookOpen, ChevronRight, ChevronDown, FileText, Lightbulb, Tag } from "lucide-react";
 

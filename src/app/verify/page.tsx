@@ -1,6 +1,5 @@
-"use client";
-import VerifyPage from "@/pages/Verify";
-
-export default function Page() {
-  return <VerifyPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

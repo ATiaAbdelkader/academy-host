@@ -1,6 +1,5 @@
-"use client";
-import BundlesPage from "@/pages/Bundles";
-
-export default function Page() {
-  return <BundlesPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { ConvexClientProvider } from "@/components/ConvexClientProvider";
-import { Toaster } from "sonner";
+import ClientProviders from "@/components/ClientProviders";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,10 +34,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConvexClientProvider>
+          <ClientProviders>
             {children}
-            <Toaster />
-          </ConvexClientProvider>
+          </ClientProviders>
         </ThemeProvider>
       </body>
     </html>

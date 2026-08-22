@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { Download } from "lucide-react";
 
 /**

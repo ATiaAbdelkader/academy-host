@@ -3,7 +3,7 @@ import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery } from "@/lib/convex-react-safe";
 import { Bell, BellOff, CheckCheck } from "lucide-react";
 
 const KIND_LABELS: Record<string, string> = {

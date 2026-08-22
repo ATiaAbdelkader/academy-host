@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Trophy, Medal, Flame, BookOpen, Award, Star } from "lucide-react";

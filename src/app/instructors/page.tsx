@@ -1,6 +1,5 @@
-"use client";
-import InstructorsPage from "@/pages/Instructors";
-
-export default function Page() {
-  return <InstructorsPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function PageWrapper() {
+  return <ClientPage />;
 }

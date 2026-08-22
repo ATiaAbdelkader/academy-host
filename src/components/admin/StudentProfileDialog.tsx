@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatMoney, formatSession } from "@/lib/format";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import {
   Award,
   CalendarDays,

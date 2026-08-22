@@ -38,7 +38,7 @@ function resolveRedirectAfterAuth(
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
   const navigate = useRouter();
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const redirect = resolveRedirectAfterAuth(
     searchParams.get("returnTo"),
     redirectAfterAuth,

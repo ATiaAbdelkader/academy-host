@@ -17,7 +17,7 @@ import {
   removeOfflineCourse,
   saveCourseForOffline,
 } from "@/lib/offline";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "@/lib/convex-react-safe";
 import {
   ArrowLeft,
   Award,
@@ -518,9 +518,10 @@ function BlockView({
 }
 
 export default function Course() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug;
   const navigate = useRouter();
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const { user, isAuthenticated } = useAuth();
 
   const liveCourse = useQuery(api.courses.getBySlug, { slug: slug ?? "" });

@@ -1,5 +1,5 @@
-"use client";
-import NotFoundPage from "@/pages/NotFound";
-export default function NotFound() {
-  return <NotFoundPage />;
+export const dynamic = "force-dynamic";
+import ClientPage from "./page.client";
+export default function NotFoundWrapper() {
+  return <ClientPage />;
 }

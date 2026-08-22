@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { useAction, useQuery } from "convex/react";
+import { useAction, useQuery } from "@/lib/convex-react-safe";
 import { Bot, Loader2, MessageSquare, Send, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

@@ -11,7 +11,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { BADGE_DEFS } from "@/lib/badges";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import {
   Award,
   BookOpen,

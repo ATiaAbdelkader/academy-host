@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import {
   Bell,
   Leaf,

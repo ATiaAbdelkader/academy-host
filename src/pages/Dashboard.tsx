@@ -9,7 +9,7 @@ import { useCatalog } from "@/hooks/use-catalog";
 import { BADGE_DEFS } from "@/lib/badges";
 import { formatMoney, formatSession } from "@/lib/format";
 import { downloadIcs } from "@/lib/ics";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "@/lib/convex-react-safe";
 import {
   Award,
   Bell,

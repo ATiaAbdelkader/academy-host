@@ -16,7 +16,7 @@ import {
 import { useCatalog } from "@/hooks/use-catalog";
 import { formatDate } from "@/lib/format";
 import { downloadIcs } from "@/lib/ics";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery } from "@/lib/convex-react-safe";
 import {
   CalendarPlus,
   CalendarX2,

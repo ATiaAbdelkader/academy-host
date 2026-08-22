@@ -34,7 +34,7 @@ function formatShort(d: Date) {
 }
 
 export default function CertificateDemo() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams() ?? new URLSearchParams();
   const autoPrint = searchParams.get("print") === "1";
   const printedRef = useRef(false);
 

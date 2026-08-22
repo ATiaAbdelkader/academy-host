@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "../convex/_generated/api";
 import { BarChart3, Users, BookOpen, TrendingUp, Award, Eye, Clock, CheckCircle2 } from "lucide-react";
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { formatMoney } from "@/lib/format";
 import {
   BookOpen,

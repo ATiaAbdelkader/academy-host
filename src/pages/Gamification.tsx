@@ -1,8 +1,8 @@
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-react-safe";
 import { api } from "../convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Trophy, Flame, Star, Zap, Target, Award, TrendingUp, Medal } from "lucide-react";
-import { POINTS } from "../convex/gamification";
+import { POINTS } from "@/lib/gamification-constants";
 
 const LEVEL_THRESHOLDS = [0, 50, 150, 300, 500, 750, 1000, 1500, 2000, 3000, 5000];
 const LEVEL_NAMES = ["Seedling", "Sprout", "Grower", "Cultivator", "Farmer", "Expert", "Master", "Grandmaster", "Legend", "Champion", "Icon"];

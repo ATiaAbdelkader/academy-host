@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
-import { useQuery_experimental } from "convex/react";
+import { useQuery_experimental } from "@/lib/convex-react-safe";
 import { BookOpen, Clock3, GraduationCap, TriangleAlert, UserRound } from "lucide-react";
 
 export default function Instructors() {

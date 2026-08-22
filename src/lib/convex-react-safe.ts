@@ -5,23 +5,26 @@
  * (outside the layout tree), so the ConvexProvider context is missing.
  * These wrappers return safe defaults on the server while maintaining
  * the same hook call count as the client (for hydration compatibility).
+ *
+ * All real hooks are imported via ESM (not require) so Turbopack bundles
+ * them correctly in the browser.
  */
-import { useContext, useRef, useCallback, useState } from "react";
+import { useRef, useCallback } from "react";
+import {
+  useQuery as _useQuery,
+  useMutation as _useMutation,
+  useAction as _useAction,
+  usePaginatedQuery as _usePaginatedQuery,
+  useConvexAuth as _useConvexAuth,
+  useQuery_experimental as _useQuery_experimental,
+  ConvexReactClient,
+  ConvexProvider,
+} from "convex/react";
 
-// --- Real convex/react imports (client-only) ---
-// These are dynamically accessed to avoid bundling issues on server.
-let realHooks: Record<string, unknown> | null = null;
-function getRealHooks() {
-  if (!realHooks && typeof window !== "undefined") {
-    realHooks = require("convex/react");
-  }
-  return realHooks;
-}
+const isServer = typeof window === "undefined";
 
 // --- Server-safe stubs ---
 // Each stub calls at least one React hook to maintain hook call parity.
-
-// We use a throwaway ref as a minimal hook call
 function stubRef() {
   return useRef(null);
 }
@@ -32,65 +35,57 @@ function stubRef() {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useQuery(...args: any[]): any {
-  const real = getRealHooks();
-  if (real) {
-    return (real.useQuery as Function)(...args);
+  if (isServer) {
+    stubRef();
+    return undefined;
   }
-  // Server: return undefined, but call a hook for parity
-  stubRef();
-  return undefined;
+  return _useQuery(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useMutation(...args: any[]): any {
-  const real = getRealHooks();
-  if (real) {
-    return (real.useMutation as Function)(...args);
+  if (isServer) {
+    stubRef();
+    return useCallback(() => Promise.resolve(undefined), []);
   }
-  stubRef();
-  return useCallback(() => Promise.resolve(undefined), []);
+  return _useMutation(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useAction(...args: any[]): any {
-  const real = getRealHooks();
-  if (real) {
-    return (real.useAction as Function)(...args);
+  if (isServer) {
+    stubRef();
+    return useCallback(() => Promise.resolve(undefined), []);
   }
-  stubRef();
-  return useCallback(() => Promise.resolve(undefined), []);
+  return _useAction(...args);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function usePaginatedQuery(...args: any[]): any {
-  const real = getRealHooks();
-  if (real) {
-    return (real.usePaginatedQuery as Function)(...args);
+  if (isServer) {
+    stubRef();
+    return { results: undefined, status: "Loading" as const, loadMore: async () => {} };
   }
-  stubRef();
-  return { results: undefined, status: "Loading" as const, loadMore: async () => {} };
+  return _usePaginatedQuery(...args);
 }
 
 /** useConvexAuth — returns undefined on server (no auth context). */
 export function useConvexAuth() {
-  const real = getRealHooks();
-  if (real) {
-    return (real.useConvexAuth as Function)();
+  if (isServer) {
+    stubRef();
+    return undefined;
   }
-  stubRef();
-  return undefined;
+  return _useConvexAuth();
 }
 
 /** useQuery_experimental — same as useQuery but with loading/errored states. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useQuery_experimental(...args: any[]): any {
-  const real = getRealHooks();
-  if (real && real.useQuery_experimental) {
-    return (real.useQuery_experimental as Function)(...args);
+  if (isServer) {
+    return useQuery(...args);
   }
-  // Fallback to regular useQuery
-  return useQuery(...args);
+  return _useQuery_experimental(...args);
 }
 
-/** ConvexReactClient — re-export for provider setup (only used on client). */
-export { ConvexReactClient, ConvexProvider } from "convex/react";
+/** ConvexReactClient and ConvexProvider — re-exported for provider setup. */
+export { ConvexReactClient, ConvexProvider };

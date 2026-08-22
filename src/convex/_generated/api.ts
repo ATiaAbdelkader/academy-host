@@ -1,16 +1,30 @@
-import { anyApi } from "convex/server";
-
 /**
- * This file is a stand-in for the output of `npx convex dev`.
+ * Convex API reference — lightweight anyApi proxy.
  *
- * `anyApi` is a lazy Proxy: accessing `api.courses.list` returns a valid
- * Convex function reference whose `Symbol(for("functionName"))` evaluates
- * to `"courses:list"` at runtime, which is exactly what `useQuery` /
- * `useMutation` expect.
+ * Stand-in for the output of `npx convex dev`.
  *
- * When you run `npx convex dev` for the first time, Convex will overwrite
- * this file with a fully-typed version. Until then, this keeps the app
- * functional.
+ * This uses the same Proxy pattern as `anyApi` from `convex/server`, but is
+ * self-contained so it works in both server and **browser** bundles.
+ * (`convex/server` has no browser export, so Turbopack breaks the Proxy.)
+ *
+ * When you run `npx convex dev`, Convex will overwrite this file with a
+ * fully-typed version. Until then, this keeps the app functional.
  */
-export const api = anyApi;
+const functionNameSymbol = Symbol.for("functionName");
+
+function makeAnyApi(path?: string[]): any {
+  return new Proxy({}, {
+    get(_target: object, prop: string | symbol): any {
+      if (prop === functionNameSymbol) {
+        return path ? path.join(":") : undefined;
+      }
+      if (typeof prop === "string") {
+        return makeAnyApi(path ? [...path, prop] : [prop]);
+      }
+      return undefined;
+    },
+  });
+}
+
+export const api = makeAnyApi();
 export type Api = typeof api;
